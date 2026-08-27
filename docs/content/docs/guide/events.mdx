@@ -13,18 +13,18 @@ You can register event handlers using the `hook` and `hookOnce` methods:
 
 ```ts
 const permix = createPermix<{
-  post: ['create', 'read']
-}>()
+  post: ["create", "read"];
+}>();
 
 // The handler will be called every time setup is executed
-permix.hook('setup', () => {
-  console.log('Permissions were updated')
-})
+permix.hook("setup", () => {
+  console.log("Permissions were updated");
+});
 
 // The handler will be called only once
-permix.hookOnce('setup', () => {
-  console.log('Permissions were updated once')
-})
+permix.hookOnce("setup", () => {
+  console.log("Permissions were updated once");
+});
 
 // Calling `setup` triggers the `setup` event
 // and `ready` on the first successful setup
@@ -33,7 +33,7 @@ permix.setup({
     create: true,
     read: true,
   },
-})
+});
 ```
 
 Available events:
@@ -50,30 +50,33 @@ The `check` event fires before every permission evaluation and provides the path
 
 ```ts
 const permix = createPermix<{
-  post: ['create', { name: 'edit'; type: { authorId: string }; required: true }]
-}>()
+  post: [
+    "create",
+    { name: "edit"; type: { authorId: string }; required: true },
+  ];
+}>();
 
-permix.hook('check', ({ path, data }) => {
-  console.log(`Checking permission: ${path}`, data)
-})
+permix.hook("check", ({ path, data }) => {
+  console.log(`Checking permission: ${path}`, data);
+});
 
 permix.setup({
   post: {
     create: true,
     edit: (post) => post.authorId === currentUserId,
   },
-})
+});
 
-permix.check('post.create')
+permix.check("post.create");
 // logs: Checking permission: post.create undefined
 
-permix.check('post.edit', { authorId: '1' })
+permix.check("post.edit", { authorId: "1" });
 // logs: Checking permission: post.edit { authorId: '1' }
 ```
 
 When using the callback form of `check()`, `path` will be `null`:
 
 ```ts
-permix.check((c) => c('post.create') && c('post.edit', { authorId: '1' }))
+permix.check((c) => c("post.create") && c("post.edit", { authorId: "1" }));
 // logs: Checking permission: null undefined
 ```

@@ -1,10 +1,10 @@
 import type {
   FunctionMiddlewareServerNextFn,
   FunctionServerResultWithContext,
-} from '@tanstack/react-start'
-import { createMiddleware } from '@tanstack/react-start'
+} from "@tanstack/react-start";
+import { createMiddleware } from "@tanstack/react-start";
 
-import type { Permix as PermixCore } from '../core'
+import type { Permix as PermixCore } from "../core";
 import {
   createCheckContext,
   createHooks,
@@ -12,15 +12,15 @@ import {
   createTemplate,
   PermixForbiddenError,
   PermixNotFoundError,
-} from '../core'
-import type { CheckArgs, CheckContext } from '../core/check'
-import type { Definition } from '../core/definitions'
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
-import type { DehydratedState } from '../core/rules'
-import type { MaybePromise } from '../utils'
+} from "../core";
+import type { CheckArgs, CheckContext } from "../core/check";
+import type { Definition } from "../core/definitions";
+import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
+import type { DehydratedState } from "../core/rules";
+import type { MaybePromise } from "../utils";
 
 export interface SetupContext {
-  request: Request
+  request: Request;
 }
 
 /**
@@ -29,13 +29,13 @@ export interface SetupContext {
  * assignable across TanStack Start versions (peer dependency is `>=1`).
  */
 export interface SetupHandlerContext {
-  request: Request
-  next: (options: { context: Record<string | symbol, unknown> }) => any
+  request: Request;
+  next: (options: { context: Record<string | symbol, unknown> }) => any;
 }
 
 export interface MiddlewareContext {
   // eslint-disable-next-line typescript/no-empty-object-type
-  next: FunctionMiddlewareServerNextFn<{}, unknown, undefined>
+  next: FunctionMiddlewareServerNextFn<{}, unknown, undefined>;
 }
 
 export interface PermixOptions<D extends Definition> {
@@ -48,7 +48,7 @@ export interface PermixOptions<D extends Definition> {
    */
   onForbidden?: (
     params: CheckContext<D> & MiddlewareContext
-  ) => MaybePromise<FunctionServerResultWithContext<any, any, any, any, any>>
+  ) => MaybePromise<FunctionServerResultWithContext<any, any, any, any, any>>;
 }
 
 function buildPermix<D extends Definition>(
@@ -58,30 +58,34 @@ function buildPermix<D extends Definition>(
   const onForbidden =
     options.onForbidden ??
     (() => {
-      throw new PermixForbiddenError()
-    })
+      throw new PermixForbiddenError();
+    });
 
-  const hooks = createHooks<PermixHooks<D>>()
+  const hooks = createHooks<PermixHooks<D>>();
 
   /**
    * Returns the request-scoped Permix instance from a TanStack Start context
    * object, or `null` when not set up yet.
    */
-  function get(context: Record<string | symbol, unknown> | null | undefined): PermixCore<D> | null {
-    const instance = context?.[resolveKey()] as PermixCore<D> | undefined
-    return instance ?? null
+  function get(
+    context: Record<string | symbol, unknown> | null | undefined
+  ): PermixCore<D> | null {
+    const instance = context?.[resolveKey()] as PermixCore<D> | undefined;
+    return instance ?? null;
   }
 
   /**
    * Like {@link get}, but throws {@link PermixNotFoundError} when the instance
    * is missing.
    */
-  function getOrThrow(context: Record<string | symbol, unknown> | null | undefined): PermixCore<D> {
-    const instance = get(context)
+  function getOrThrow(
+    context: Record<string | symbol, unknown> | null | undefined
+  ): PermixCore<D> {
+    const instance = get(context);
     if (!instance) {
-      throw new PermixNotFoundError(resolveKey())
+      throw new PermixNotFoundError(resolveKey());
     }
-    return instance
+    return instance;
   }
 
   /**
@@ -116,16 +120,22 @@ function buildPermix<D extends Definition>(
    * @link https://permix.letstri.dev/docs/integrations/tanstack-start#server-only-imports-in-the-setup-callback
    */
   function createSetupHandler(
-    callbackOrRules: ((context: SetupContext) => MaybePromise<Rules<D>>) | Rules<D>
+    callbackOrRules:
+      | ((context: SetupContext) => MaybePromise<Rules<D>>)
+      | Rules<D>
   ) {
     return async ({ next, request }: SetupHandlerContext): Promise<any> => {
       const rules =
-        typeof callbackOrRules === 'function' ? await callbackOrRules({ request }) : callbackOrRules
+        typeof callbackOrRules === "function"
+          ? await callbackOrRules({ request })
+          : callbackOrRules;
 
-      const instance = createPermixCore<D>(rules)
-      instance.hook('check', (context) => hooks.callHook('check', context))
-      return next({ context: { [resolveKey()]: instance } })
-    }
+      const instance = createPermixCore<D>(rules);
+      instance.hook("check", (context) => {
+        hooks.callHook("check", context);
+      });
+      return next({ context: { [resolveKey()]: instance } });
+    };
   }
 
   /**
@@ -139,9 +149,11 @@ function buildPermix<D extends Definition>(
    * instead so TanStack Start can strip it from the client bundle.
    */
   function setupMiddleware(
-    callbackOrRules: ((context: SetupContext) => MaybePromise<Rules<D>>) | Rules<D>
+    callbackOrRules:
+      | ((context: SetupContext) => MaybePromise<Rules<D>>)
+      | Rules<D>
   ) {
-    return createMiddleware().server(createSetupHandler(callbackOrRules))
+    return createMiddleware().server(createSetupHandler(callbackOrRules));
   }
 
   /**
@@ -155,22 +167,21 @@ function buildPermix<D extends Definition>(
    *   .handler(() => { ... })
    * ```
    */
-  const checkMiddleware: (...args: CheckArgs<D>) => ReturnType<typeof createMiddleware> = (
-    ...args
-  ) => {
-    return createMiddleware({ type: 'function' }).server(async ({ next, context }) => {
-      const permix = getOrThrow(context)
+  const checkMiddleware: (
+    ...args: CheckArgs<D>
+  ) => ReturnType<typeof createMiddleware> = (...args) =>
+    createMiddleware({ type: "function" }).server(async ({ next, context }) => {
+      const permix = getOrThrow(context);
 
       if (permix.check(...args)) {
-        return await next()
+        return await next();
       } else {
         return await onForbidden({
           next,
           ...createCheckContext<D>(...args),
-        })
+        });
       }
-    }) as unknown as ReturnType<typeof createMiddleware>
-  }
+    }) as unknown as ReturnType<typeof createMiddleware>;
 
   /**
    * Serialize the request's permission state for client hydration.
@@ -178,15 +189,17 @@ function buildPermix<D extends Definition>(
   function dehydrate(
     context: Record<string | symbol, unknown> | null | undefined
   ): DehydratedState<D> {
-    return getOrThrow(context).dehydrate()
+    return getOrThrow(context).dehydrate();
   }
 
-  function getRules(context: Record<string | symbol, unknown> | null | undefined): Rules<D> | null {
-    return get(context)?.getRules() ?? null
+  function getRules(
+    context: Record<string | symbol, unknown> | null | undefined
+  ): Rules<D> | null {
+    return get(context)?.getRules() ?? null;
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules)
+    return createTemplate<D, T>(rules);
   }
 
   return {
@@ -201,11 +214,11 @@ function buildPermix<D extends Definition>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey()
+      return resolveKey();
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  }
+  };
 }
 
 /**
@@ -253,19 +266,23 @@ function buildPermix<D extends Definition>(
  *
  * @link https://permix.letstri.dev/docs/integrations/tanstack-start
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
-  let key: string = '__permix'
-  const permix = buildPermix<D>(() => key, options)
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
+  let key: string = "__permix";
+  const permix = buildPermix<D>(() => key, options);
 
   const instance = Object.assign(permix, {
     contextKey(newKey: string) {
-      key = newKey
-      return instance
+      key = newKey;
+      return instance;
     },
-  })
+  });
 
-  return instance
+  return instance;
 }
 
 /** Return type of {@link createPermix}. */
-export type TanStackStartPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type TanStackStartPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>;

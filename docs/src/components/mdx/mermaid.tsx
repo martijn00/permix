@@ -1,61 +1,66 @@
-import { useTheme } from 'fumadocs-ui/provider/base'
-import { use, useEffect, useId, useState } from 'react'
+import { useTheme } from "fumadocs-ui/provider/base";
+import { use, useEffect, useId, useState } from "react";
 
 export function Mermaid({ chart }: { chart: string }) {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react/set-state-in-effect
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return
+    return;
   }
 
-  return <MermaidContent chart={chart} />
+  return <MermaidContent chart={chart} />;
 }
 
-const cache = new Map<string, Promise<unknown>>()
+const cache = new Map<string, Promise<unknown>>();
 
-function cachePromise<T>(key: string, setPromise: () => Promise<T>): Promise<T> {
-  const cached = cache.get(key)
+function cachePromise<T>(
+  key: string,
+  setPromise: () => Promise<T>
+): Promise<T> {
+  const cached = cache.get(key);
   if (cached) {
-    return cached as Promise<T>
+    return cached as Promise<T>;
   }
 
-  const promise = setPromise()
-  cache.set(key, promise)
-  return promise
+  const promise = setPromise();
+  cache.set(key, promise);
+  return promise;
 }
 
 function MermaidContent({ chart }: { chart: string }) {
-  const id = useId()
-  const { resolvedTheme } = useTheme()
-  const { default: mermaid } = use(cachePromise('mermaid', () => import('mermaid')))
+  const id = useId();
+  const { resolvedTheme } = useTheme();
+  const { default: mermaid } = use(
+    cachePromise("mermaid", () => import("mermaid"))
+  );
 
   mermaid.initialize({
     startOnLoad: false,
-    securityLevel: 'loose',
-    fontFamily: 'inherit',
-    themeCSS: 'margin: 1.5rem auto 0;',
-    theme: resolvedTheme === 'dark' ? 'dark' : 'default',
-  })
+    securityLevel: "loose",
+    fontFamily: "inherit",
+    themeCSS: "margin: 1.5rem auto 0;",
+    theme: resolvedTheme === "dark" ? "dark" : "default",
+  });
 
   const { svg, bindFunctions } = use(
-    cachePromise(`${chart}-${resolvedTheme}`, () => {
-      return mermaid.render(id, chart.replaceAll('\\n', '\n'))
-    })
-  )
+    cachePromise(`${chart}-${resolvedTheme}`, () =>
+      mermaid.render(id, chart.replaceAll("\\n", "\n"))
+    )
+  );
 
   return (
     <div
       ref={(container) => {
         if (container) {
-          bindFunctions?.(container)
+          bindFunctions?.(container);
         }
       }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
-  )
+  );
 }

@@ -1,24 +1,26 @@
-import * as React from 'react'
+import * as React from "react";
 
-import type { Definition, Permix, Rules } from '../core'
-import { createCheck } from '../core'
+import type { Definition, Permix, Rules } from "../core";
+import { createCheck } from "../core";
 
 export interface PermixContext<T extends Definition> {
-  permix: Permix<T>
-  isReady: boolean
-  rules: Rules<T> | null
+  permix: Permix<T>;
+  isReady: boolean;
+  rules: Rules<T> | null;
 }
 
-export const Context = React.createContext<PermixContext<any>>(null!)
+export const Context = React.createContext<PermixContext<any>>(null!);
 
 export function usePermixContext() {
-  const context = React.useContext(Context)
+  const context = React.useContext(Context);
 
   if (!context) {
-    throw new Error('[Permix]: Looks like you forgot to wrap your app with <PermixProvider>')
+    throw new Error(
+      "[Permix]: Looks like you forgot to wrap your app with <PermixProvider>"
+    );
   }
 
-  return context
+  return context;
 }
 
 /**
@@ -26,13 +28,18 @@ export function usePermixContext() {
  *
  * @link https://permix.letstri.dev/docs/integrations/react
  */
-export function usePermix<T extends Definition>(permix: Pick<Permix<T>, 'getRules' | 'check'>) {
-  const { isReady, rules } = usePermixContext()
+export function usePermix<T extends Definition>(
+  permix: Pick<Permix<T>, "getRules" | "check">
+) {
+  const { isReady, rules } = usePermixContext();
 
-  const check: Permix<T>['check'] = React.useCallback(
-    (...args) => createCheck<T>(() => (rules ?? permix.getRules()) as Rules<T> | null)(...args),
+  const check: Permix<T>["check"] = React.useCallback(
+    (...args) =>
+      createCheck<T>(() => (rules ?? permix.getRules()) as Rules<T> | null)(
+        ...args
+      ),
     [rules, permix]
-  )
+  );
 
-  return { check, isReady }
+  return { check, isReady };
 }

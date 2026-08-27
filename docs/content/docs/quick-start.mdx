@@ -61,11 +61,11 @@ permix
 To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions:
 
 ```ts title="/lib/permix.ts"
-import { createPermix } from 'permix'
+import { createPermix } from "permix";
 
 export const permix = createPermix<{
-  post: ['create', 'read', 'update', 'delete']
-}>()
+  post: ["create", "read", "update", "delete"];
+}>();
 
 // ...
 ```
@@ -92,7 +92,7 @@ export function setupPermissions() {
       update: true,
       delete: false,
     },
-  })
+  });
 }
 ```
 
@@ -105,7 +105,7 @@ export function setupPermissions() {
 After setup, you can use `check` method to check available permissions:
 
 ```ts
-permix.check('post.create') // true
+permix.check("post.create"); // true
 ```
 
 </Step>
@@ -134,67 +134,67 @@ Continuing from the quick start, you can now explore how Permix integrates with 
 
 <Cards>
 
-<Card href='/docs/integrations/react' title='React'>
+<Card href="/docs/integrations/react" title="React">
   Integration with React via provider and hook.
 </Card>
 
-<Card href='/docs/integrations/vue' title='Vue'>
+<Card href="/docs/integrations/vue" title="Vue">
   Integration with Vue via plugin and composable.
 </Card>
 
-<Card href='/docs/integrations/node' title='Node.js'>
+<Card href="/docs/integrations/node" title="Node.js">
   Integration with Node.js via middleware.
 </Card>
 
-<Card href='/docs/integrations/server' title='Server'>
+<Card href="/docs/integrations/server" title="Server">
   Integration with native Request and Response handlers.
 </Card>
 
-<Card href='/docs/integrations/hono' title='Hono'>
+<Card href="/docs/integrations/hono" title="Hono">
   Integration with Hono via middleware.
 </Card>
 
-<Card href='/docs/integrations/express' title='Express'>
+<Card href="/docs/integrations/express" title="Express">
   Integration with Express via middleware.
 </Card>
 
-<Card href='/docs/integrations/trpc' title='tRPC'>
+<Card href="/docs/integrations/trpc" title="tRPC">
   Integration with tRPC via middleware.
 </Card>
 
-<Card href='/docs/integrations/next' title='Next.js'>
+<Card href="/docs/integrations/next" title="Next.js">
   Integration with Next.js App Router.
 </Card>
 
-<Card href='/docs/integrations/tanstack-start' title='TanStack Start'>
+<Card href="/docs/integrations/tanstack-start" title="TanStack Start">
   Integration with TanStack Start.
 </Card>
 
-<Card href='/docs/integrations/solid' title='Solid'>
+<Card href="/docs/integrations/solid" title="Solid">
   Integration with Solid via provider and hook.
 </Card>
 
-<Card href='/docs/integrations/svelte' title='Svelte'>
+<Card href="/docs/integrations/svelte" title="Svelte">
   Integration with Svelte via provider and hook.
 </Card>
 
-<Card href='/docs/integrations/orpc' title='oRPC'>
+<Card href="/docs/integrations/orpc" title="oRPC">
   Integration with oRPC via middleware.
 </Card>
 
-<Card href='/docs/integrations/fastify' title='Fastify'>
+<Card href="/docs/integrations/fastify" title="Fastify">
   Integration with Fastify via plugin.
 </Card>
 
-<Card href='/docs/integrations/elysia' title='Elysia'>
+<Card href="/docs/integrations/elysia" title="Elysia">
   Integration with Elysia via middleware.
 </Card>
 
-<Card href='/docs/integrations/drizzle' title='Drizzle'>
+<Card href="/docs/integrations/drizzle" title="Drizzle">
   Schema-driven permissions from Drizzle tables.
 </Card>
 
-<Card href='/docs/integrations/effect' title='Effect'>
+<Card href="/docs/integrations/effect" title="Effect">
   Integration with Effect services and layers.
 </Card>
 

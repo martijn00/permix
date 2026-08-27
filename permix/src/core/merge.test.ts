@@ -1,107 +1,113 @@
-import { describe, expectTypeOf, it } from 'vitest'
+import { describe, expectTypeOf, it } from "vitest";
 
-import type { MergePermix } from './merge'
-import type { Permix, RulesPaths } from './permix'
+import type { MergePermix } from "./merge";
+import type { Permix, RulesPaths } from "./permix";
 
-describe('mergePermix', () => {
-  it('should merge two disjoint raw definitions', () => {
+describe("mergePermix", () => {
+  it("should merge two disjoint raw definitions", () => {
     interface A {
-      post: ['create', 'read']
+      post: ["create", "read"];
     }
     interface B {
-      comment: ['write', 'delete']
+      comment: ["write", "delete"];
     }
 
-    type Merged = MergePermix<A, B>
+    type Merged = MergePermix<A, B>;
 
     expectTypeOf<Merged>().toEqualTypeOf<{
-      post: ['create', 'read']
-      comment: ['write', 'delete']
-    }>()
-  })
+      post: ["create", "read"];
+      comment: ["write", "delete"];
+    }>();
+  });
 
-  it('should concatenate actions when leaves overlap', () => {
+  it("should concatenate actions when leaves overlap", () => {
     interface A {
-      post: ['create']
+      post: ["create"];
     }
     interface B {
-      post: ['read', 'update']
+      post: ["read", "update"];
     }
 
-    type Merged = MergePermix<A, B>
+    type Merged = MergePermix<A, B>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'post.create' | 'post.read' | 'post.update'>()
-  })
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<
+      "post.create" | "post.read" | "post.update"
+    >();
+  });
 
-  it('should extract definition from Permix instances', () => {
-    type P1 = Permix<{ user: ['invite'] }>
-    type P2 = Permix<{ post: ['create'] }>
+  it("should extract definition from Permix instances", () => {
+    type P1 = Permix<{ user: ["invite"] }>;
+    type P2 = Permix<{ post: ["create"] }>;
 
-    type Merged = MergePermix<P1, P2>
+    type Merged = MergePermix<P1, P2>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'user.invite' | 'post.create'>()
-  })
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<"user.invite" | "post.create">();
+  });
 
-  it('should mix Permix instances and raw definitions', () => {
-    type P = Permix<{ user: ['invite'] }>
+  it("should mix Permix instances and raw definitions", () => {
+    type P = Permix<{ user: ["invite"] }>;
     interface D {
-      post: ['create']
+      post: ["create"];
     }
 
-    type Merged = MergePermix<P, D>
+    type Merged = MergePermix<P, D>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'user.invite' | 'post.create'>()
-  })
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<"user.invite" | "post.create">();
+  });
 
-  it('should nest for 3+ definitions', () => {
+  it("should nest for 3+ definitions", () => {
     interface A {
-      post: ['create']
+      post: ["create"];
     }
     interface B {
-      comment: ['write']
+      comment: ["write"];
     }
     interface C {
-      user: ['invite']
+      user: ["invite"];
     }
 
-    type Merged = MergePermix<MergePermix<A, B>, C>
+    type Merged = MergePermix<MergePermix<A, B>, C>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'post.create' | 'comment.write' | 'user.invite'>()
-  })
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<
+      "post.create" | "comment.write" | "user.invite"
+    >();
+  });
 
-  it('should let right-hand side win on shape conflicts (leaf vs branch)', () => {
+  it("should let right-hand side win on shape conflicts (leaf vs branch)", () => {
     interface A {
-      post: ['create']
+      post: ["create"];
     }
     interface B {
-      post: { nested: ['read'] }
+      post: { nested: ["read"] };
     }
 
-    type Merged = MergePermix<A, B>
+    type Merged = MergePermix<A, B>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'post.nested.read'>()
-  })
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<"post.nested.read">();
+  });
 
-  it('should merge deeply nested branches', () => {
+  it("should merge deeply nested branches", () => {
     interface A {
       workspace: {
-        billing: ['view']
-      }
+        billing: ["view"];
+      };
     }
     interface B {
       workspace: {
-        member: ['invite']
-      }
+        member: ["invite"];
+      };
     }
 
-    type Merged = MergePermix<A, B>
+    type Merged = MergePermix<A, B>;
 
-    type Paths = RulesPaths<Merged>
-    expectTypeOf<Paths>().toEqualTypeOf<'workspace.billing.view' | 'workspace.member.invite'>()
-  })
-})
+    type Paths = RulesPaths<Merged>;
+    expectTypeOf<Paths>().toEqualTypeOf<
+      "workspace.billing.view" | "workspace.member.invite"
+    >();
+  });
+});

@@ -5,8 +5,8 @@ Docs: https://permix.letstri.dev/docs/guide/check
 ## Dot-path (single action)
 
 ```ts
-permix.check('post.create')
-permix.check('workspace.billing.view')
+permix.check("post.create");
+permix.check("workspace.billing.view");
 ```
 
 ## Callback (multiple conditions)
@@ -14,9 +14,9 @@ permix.check('workspace.billing.view')
 The callback receives `c`. Each `c('path')` is evaluated immediately to a boolean:
 
 ```ts
-permix.check((c) => c('post.read') && c('post.update'))
-permix.check((c) => c('post.delete') || c('admin.override'))
-permix.check((c) => !c('post.read'))
+permix.check((c) => c("post.read") && c("post.update"));
+permix.check((c) => c("post.delete") || c("admin.override"));
+permix.check((c) => !c("post.read"));
 ```
 
 ## Aggregate tokens
@@ -27,9 +27,9 @@ permix.check((c) => !c('post.read'))
 | `'~all'` | Every rule in scope is truthy        |
 
 ```ts
-permix.check('~any') // any permission in the tree
-permix.check('post.~all') // all post.* rules
-permix.check('workspace.~any') // any rule under workspace
+permix.check("~any"); // any permission in the tree
+permix.check("post.~all"); // all post.* rules
+permix.check("workspace.~any"); // any rule under workspace
 ```
 
 Dynamic function rules are invoked without data when aggregating; entity-only rules may count as `false`.
@@ -40,15 +40,19 @@ Attach a `type` to actions that need the resource at check time:
 
 ```ts
 interface Post {
-  id: string
-  authorId: string
+  id: string;
+  authorId: string;
 }
 
 const permix = createPermix<{
-  post: ['read', { name: 'update'; type: Post }, { name: 'delete'; type: Post; required: true }]
-}>()
+  post: [
+    "read",
+    { name: "update"; type: Post },
+    { name: "delete"; type: Post; required: true },
+  ];
+}>();
 
-const currentUser = { id: userId }
+const currentUser = { id: userId };
 
 permix.setup({
   post: {
@@ -56,10 +60,10 @@ permix.setup({
     update: (post) => post?.authorId === currentUser.id,
     delete: (post) => post.authorId === currentUser.id,
   },
-})
+});
 
-permix.check('post.update', post) // optional data if not required: true
-permix.check('post.delete', post) // required: true — data required
+permix.check("post.update", post); // optional data if not required: true
+permix.check("post.delete", post); // required: true — data required
 ```
 
 **ReBAC pattern**: capture the **actor** in closures at `setup` time; pass the **resource** at `check` time. No separate ReBAC API.
@@ -67,21 +71,21 @@ permix.check('post.delete', post) // required: true — data required
 ## Readiness
 
 ```ts
-permix.isReady() // sync
-await permix.isReadyAsync() // wait until setup (or initial rules) completed
+permix.isReady(); // sync
+await permix.isReadyAsync(); // wait until setup (or initial rules) completed
 ```
 
 Gate UI or early checks when permissions load asynchronously (fetch user, then `setup`).
 
 ## Common mistakes
 
-| Mistake                     | Fix                                                             |
-| --------------------------- | --------------------------------------------------------------- |
-| Checking before `setup`     | Call `setup` after auth; use `isReady` in UI                    |
-| Path not in schema          | Add action to `createPermix<D>()` generic                       |
-| Missing check data          | Add `type` / `required: true` on action; pass entity to `check` |
-| Trusting client-only checks | Enforce same paths on server (see `references/server.md`)       |
-| Expecting lazy `c()`        | Combine with `&&` / `\|\|`; each `c()` runs immediately         |
+| Mistake | Fix |
+| --- | --- |
+| Checking before `setup` | Call `setup` after auth; use `isReady` in UI |
+| Path not in schema | Add action to `createPermix<D>()` generic |
+| Missing check data | Add `type` / `required: true` on action; pass entity to `check` |
+| Trusting client-only checks | Enforce same paths on server (see `references/server.md`) |
+| Expecting lazy `c()` | Combine with `&&` / `\|\|`; each `c()` runs immediately |
 
 ## Server vs client
 

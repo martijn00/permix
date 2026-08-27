@@ -1,70 +1,75 @@
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import type { RouterContext } from '@/lib/permix'
-import { Providers } from '@/providers'
-import { getRootLoaderData } from '@/server/permix'
+import type { RouterContext } from "@/lib/permix";
+import { Providers } from "@/providers";
+import { getRootLoaderData } from "@/server/permix";
 
-import appCss from '../styles.css?url'
+import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: "utf-8",
       },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
       {
-        title: 'Permix TanStack Start Example',
+        title: "Permix TanStack Start Example",
       },
     ],
     links: [
       {
-        rel: 'stylesheet',
+        rel: "stylesheet",
         href: appCss,
       },
     ],
   }),
   beforeLoad: async ({ context }) => {
-    const data = await getRootLoaderData()
+    const data = await getRootLoaderData();
 
-    context.permix.hydrate(data.state)
+    context.permix.hydrate(data.state);
 
-    return data
+    return data;
   },
   component: RootComponent,
   shellComponent: RootDocument,
-})
+});
 
 function RootComponent() {
-  const { permix, state, session } = Route.useRouteContext()
+  const { permix, state, session } = Route.useRouteContext();
 
   return (
     <Providers permix={permix} state={state} session={session}>
       <Outlet />
     </Providers>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
-      <body className='min-h-full bg-zinc-50 text-zinc-900 antialiased'>
+      <body className="min-h-full bg-zinc-50 text-zinc-900 antialiased">
         {children}
         <TanStackDevtools
           config={{
-            position: 'bottom-right',
+            position: "bottom-right",
           }}
           plugins={[
             {
-              name: 'Tanstack Router',
+              name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
@@ -72,5 +77,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

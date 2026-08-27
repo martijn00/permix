@@ -9,15 +9,15 @@ Docs: https://permix.letstri.dev/docs/integrations/react
 ### Provider
 
 ```tsx
-import { PermixProvider } from 'permix/react'
-import { permix } from './lib/permix'
+import { PermixProvider } from "permix/react";
+import { permix } from "./lib/permix";
 
 export function App() {
   return (
     <PermixProvider permix={permix}>
       <Routes />
     </PermixProvider>
-  )
+  );
 }
 ```
 
@@ -25,31 +25,31 @@ export function App() {
 
 ```ts
 // e.g. after session loads
-await loadUser()
-permix.setup(roleRulesFor(user))
+await loadUser();
+permix.setup(roleRulesFor(user));
 ```
 
 ### Hook (wrap once)
 
 ```ts
 // hooks/use-permissions.ts
-import { usePermix } from 'permix/react'
-import { permix } from '../lib/permix'
+import { usePermix } from "permix/react";
+import { permix } from "../lib/permix";
 
 export function usePermissions() {
-  return usePermix(permix)
+  return usePermix(permix);
 }
 ```
 
 ```tsx
 function EditButton({ post }) {
-  const { check, isReady } = usePermissions()
+  const { check, isReady } = usePermissions();
 
-  if (!isReady) return null
+  if (!isReady) return null;
 
-  if (!check('post.update', post)) return null
+  if (!check("post.update", post)) return null;
 
-  return <button>Edit</button>
+  return <button>Edit</button>;
 }
 ```
 
@@ -58,19 +58,19 @@ Pass the **same** `permix` instance to `PermixProvider` and `usePermix`.
 ### Declarative `Check` component
 
 ```ts
-import { createComponents } from 'permix/react'
+import { createComponents } from "permix/react";
 
-export const { Check } = createComponents(permix)
+export const { Check } = createComponents(permix);
 ```
 
 ```tsx
-<Check path='post.create' otherwise={<span>Denied</span>}>
+<Check path="post.create" otherwise={<span>Denied</span>}>
   <CreateForm />
 </Check>
 ```
 
 ```tsx
-<Check path='post.update' data={post} reverse>
+<Check path="post.update" data={post} reverse>
   Hidden when allowed; shown when denied
 </Check>
 ```
@@ -85,8 +85,8 @@ Docs: https://permix.letstri.dev/docs/integrations/vue
 
 ```vue
 <script setup lang="ts">
-import { PermixProvider } from 'permix/vue'
-import { permix } from './lib/permix'
+import { PermixProvider } from "permix/vue";
+import { permix } from "./lib/permix";
 </script>
 
 <template>
@@ -140,9 +140,9 @@ Send a JSON snapshot of booleans to the browser so the first paint can respect p
 ### Server
 
 ```ts
-permix.setup(serverRules)
+permix.setup(serverRules);
 
-const state = permix.dehydrate()
+const state = permix.dehydrate();
 // { post: { create: true, read: false } } — functions evaluated once without data
 ```
 
@@ -151,7 +151,7 @@ Pass `state` to the client (embed in HTML, RSC payload, loader data, etc.).
 ### Client
 
 ```ts
-permix.hydrate(state)
+permix.hydrate(state);
 // isReady() is still FALSE — hydrate only restores booleans
 ```
 
@@ -160,8 +160,8 @@ Function-based rules are **lost** in JSON (dehydration calls functions with no d
 **Always call `setup` again on the client** with full rules (including closures):
 
 ```ts
-permix.hydrate(serverState)
-permix.setup(clientRulesForUser) // restores functions + sets ready
+permix.hydrate(serverState);
+permix.setup(clientRulesForUser); // restores functions + sets ready
 ```
 
 Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
@@ -169,16 +169,20 @@ Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
 ### React
 
 ```tsx
-import { DehydratedState, PermixHydrate, PermixProvider } from 'permix/react'
+import { DehydratedState, PermixHydrate, PermixProvider } from "permix/react";
 
-function App({ dehydratedState }: { dehydratedState: DehydratedState<typeof schema> }) {
+function App({
+  dehydratedState,
+}: {
+  dehydratedState: DehydratedState<typeof schema>;
+}) {
   return (
     <PermixProvider permix={permix}>
       <PermixHydrate state={dehydratedState}>
         <YourApp />
       </PermixHydrate>
     </PermixProvider>
-  )
+  );
 }
 ```
 
@@ -206,10 +210,10 @@ Client: hydrate(state) → setup(fullRules) → isReady() → check() / usePermi
 
 ### Pitfalls
 
-| Issue                  | Cause                                                  |
-| ---------------------- | ------------------------------------------------------ |
-| UI stuck not ready     | `hydrate` without follow-up `setup`                    |
-| Wrong dynamic checks   | Relying on dehydrated booleans only                    |
+| Issue | Cause |
+| --- | --- |
+| UI stuck not ready | `hydrate` without follow-up `setup` |
+| Wrong dynamic checks | Relying on dehydrated booleans only |
 | Mismatch server/client | Different schemas or missing actions in client `setup` |
 
 For static-only permissions (all booleans), dehydrate + hydrate + `setup` with the same booleans is enough; still call `setup` to mark ready.

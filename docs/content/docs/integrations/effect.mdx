@@ -12,8 +12,8 @@ Unlike the server integrations (which lock the surface down to `check` / `dehydr
 The integration depends only on `effect` (no `@effect/platform` required), so it works everywhere Effect runs.
 
 <Callout>
-  Before getting started with the Effect integration, make sure you've completed the initial setup
-  steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with the Effect integration, make sure you've completed
+  the initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -35,13 +35,13 @@ npm install permix effect
 Create your Permix Effect instance using `createPermix`:
 
 ```ts
-import { Effect } from 'effect'
-import { createPermix } from 'permix/effect'
+import { Effect } from "effect";
+import { createPermix } from "permix/effect";
 
 const permix = createPermix<{
-  post: ['create', 'read', 'update']
-  user: ['delete']
-}>()
+  post: ["create", "read", "update"];
+  user: ["delete"];
+}>();
 ```
 
 </Step>
@@ -58,7 +58,7 @@ Use `permix.layer(rules)` to provide a `Layer` with fixed rules:
 const PermixLive = permix.layer({
   post: { create: true, read: true, update: false },
   user: { delete: false },
-})
+});
 ```
 
 ### Dynamic rules from another service
@@ -66,27 +66,27 @@ const PermixLive = permix.layer({
 Use `permix.layerSetup(effect)` when rules depend on other services (e.g. the current user). Requirements flow through automatically:
 
 ```ts
-import { Context } from 'effect'
+import { Context } from "effect";
 
 interface User {
-  id: string
-  role: 'admin' | 'member'
+  id: string;
+  role: "admin" | "member";
 }
-class CurrentUser extends Context.Tag('CurrentUser')<CurrentUser, User>() {}
+class CurrentUser extends Context.Tag("CurrentUser")<CurrentUser, User>() {}
 
 const PermixLive = permix.layerSetup(
   Effect.gen(function* () {
-    const user = yield* CurrentUser
+    const user = yield* CurrentUser;
     return {
       post: {
-        create: user.role === 'admin',
+        create: user.role === "admin",
         read: true,
-        update: user.role === 'admin',
+        update: user.role === "admin",
       },
-      user: { delete: user.role === 'admin' },
-    }
+      user: { delete: user.role === "admin" },
+    };
   })
-)
+);
 ```
 
 </Step>
@@ -99,13 +99,13 @@ const PermixLive = permix.layerSetup(
 
 ```ts
 const program = Effect.gen(function* () {
-  if (yield* permix.check('post.create')) {
-    return 'created'
+  if (yield* permix.check("post.create")) {
+    return "created";
   }
-  return yield* Effect.fail(new Error('Forbidden'))
-})
+  return yield* Effect.fail(new Error("Forbidden"));
+});
 
-Effect.runPromise(program.pipe(Effect.provide(PermixLive)))
+Effect.runPromise(program.pipe(Effect.provide(PermixLive)));
 ```
 
 </Step>
@@ -118,8 +118,8 @@ Serialize the current rules into a JSON-safe object:
 
 ```ts
 const state = Effect.gen(function* () {
-  return yield* permix.dehydrate()
-})
+  return yield* permix.dehydrate();
+});
 
 // { post: { create: true, read: true, update: false }, user: { delete: false } }
 ```
@@ -136,9 +136,9 @@ Create reusable permission rule sets with `template`:
 const adminTemplate = permix.template({
   post: { create: true, read: true, update: true },
   user: { delete: true },
-})
+});
 
-const PermixLive = permix.layer(adminTemplate())
+const PermixLive = permix.layer(adminTemplate());
 ```
 
 </Step>
@@ -154,19 +154,19 @@ Start from an empty layer (call `permix.layer()` with no rules) and configure it
 ```ts
 const program = Effect.gen(function* () {
   // Not ready yet
-  yield* permix.isReady() // false
+  yield* permix.isReady(); // false
 
   // Configure once permissions are available
   yield* permix.setup({
     post: { create: true, read: true, update: false },
     user: { delete: false },
-  })
+  });
 
-  yield* permix.isReady() // true
-  return yield* permix.check('post.create')
-})
+  yield* permix.isReady(); // true
+  return yield* permix.check("post.create");
+});
 
-Effect.runPromise(program.pipe(Effect.provide(permix.layer())))
+Effect.runPromise(program.pipe(Effect.provide(permix.layer())));
 ```
 
 ### Hydration
@@ -175,15 +175,15 @@ Restore previously serialized permissions (e.g. from SSR or storage) with `hydra
 
 ```ts
 const program = Effect.gen(function* () {
-  yield* permix.hydrate(serializedState)
-  return yield* permix.check('post.read')
-})
+  yield* permix.hydrate(serializedState);
+  return yield* permix.check("post.read");
+});
 ```
 
-<Callout type='warn'>
-  `hydrate` does not mark the instance ready and cannot restore function-based rules. Follow with
-  `setup` using the full rule set when you need dynamic checks or `isReady`. See the [Hydration
-  guide](/docs/guide/hydration).
+<Callout type="warn">
+  `hydrate` does not mark the instance ready and cannot restore function-based
+  rules. Follow with `setup` using the full rule set when you need dynamic
+  checks or `isReady`. See the [Hydration guide](/docs/guide/hydration).
 </Callout>
 
 ### Reacting to Changes
@@ -192,13 +192,13 @@ Register hooks that fire when permissions are set up. `hook` yields a function t
 
 ```ts
 const program = Effect.gen(function* () {
-  const remove = yield* permix.hook('setup', () => {
-    console.log('Permissions updated')
-  })
+  const remove = yield* permix.hook("setup", () => {
+    console.log("Permissions updated");
+  });
 
   // ...later
-  remove()
-})
+  remove();
+});
 ```
 
 ### Inspecting Rules
@@ -207,57 +207,57 @@ Read the current rules object (or `null` if not set up yet) with `getRules`:
 
 ```ts
 const rules = Effect.gen(function* () {
-  return yield* permix.getRules()
-})
+  return yield* permix.getRules();
+});
 ```
 
 ## Full Example
 
 ```ts
-import { Context, Effect, Layer } from 'effect'
-import { createPermix } from 'permix/effect'
+import { Context, Effect, Layer } from "effect";
+import { createPermix } from "permix/effect";
 
 // 1. Define permissions
 const permix = createPermix<{
-  post: ['create', 'read', 'update']
-  user: ['delete']
-}>()
+  post: ["create", "read", "update"];
+  user: ["delete"];
+}>();
 
 // 2. Define a service for the current user
 interface User {
-  id: string
-  role: 'admin' | 'member'
+  id: string;
+  role: "admin" | "member";
 }
-class CurrentUser extends Context.Tag('CurrentUser')<CurrentUser, User>() {}
+class CurrentUser extends Context.Tag("CurrentUser")<CurrentUser, User>() {}
 
 // 3. Build a Layer that derives rules from CurrentUser
 const PermixLive = permix.layerSetup(
   Effect.gen(function* () {
-    const user = yield* CurrentUser
+    const user = yield* CurrentUser;
     return {
       post: {
-        create: user.role === 'admin',
+        create: user.role === "admin",
         read: true,
-        update: user.role === 'admin',
+        update: user.role === "admin",
       },
-      user: { delete: user.role === 'admin' },
-    }
+      user: { delete: user.role === "admin" },
+    };
   })
-)
+);
 
 // 4. Use in a program
 const program = Effect.gen(function* () {
-  const canCreate = yield* permix.check('post.create')
-  const canRead = yield* permix.check('post.read')
-  return { canCreate, canRead }
-})
+  const canCreate = yield* permix.check("post.create");
+  const canRead = yield* permix.check("post.read");
+  return { canCreate, canRead };
+});
 
 // 5. Provide the layers and run
-const CurrentUserLive = Layer.succeed(CurrentUser, { id: '1', role: 'admin' })
+const CurrentUserLive = Layer.succeed(CurrentUser, { id: "1", role: "admin" });
 
-Effect.runPromise(program.pipe(Effect.provide(PermixLive), Effect.provide(CurrentUserLive))).then(
-  console.log
-)
+Effect.runPromise(
+  program.pipe(Effect.provide(PermixLive), Effect.provide(CurrentUserLive))
+).then(console.log);
 // { canCreate: true, canRead: true }
 ```
 

@@ -1,13 +1,14 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import fs from "node:fs";
+import path from "node:path";
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
-const srcDir = path.join(currentDir, '..', 'src')
-const svelteDist = path.join(currentDir, '..', 'dist', 'svelte')
+const currentDir = import.meta.dirname;
+const srcDir = path.join(currentDir, "..", "src");
+const svelteDist = path.join(currentDir, "..", "dist", "svelte");
 
 if (!fs.existsSync(svelteDist)) {
-  throw new Error('[Permix]: dist/svelte not found. Run `svelte-package` before this script.')
+  throw new Error(
+    "[Permix]: dist/svelte not found. Run `svelte-package` before this script."
+  );
 }
 
 /**
@@ -17,15 +18,15 @@ if (!fs.existsSync(svelteDist)) {
  */
 function removeStraySourceTypes(dir: string) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
+    const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      removeStraySourceTypes(fullPath)
-      continue
+      removeStraySourceTypes(fullPath);
+      continue;
     }
 
-    if (entry.name.endsWith('.d.ts')) {
-      fs.rmSync(fullPath, { force: true })
+    if (entry.name.endsWith(".d.ts")) {
+      fs.rmSync(fullPath, { force: true });
     }
   }
 }
@@ -35,19 +36,19 @@ function removeStraySourceTypes(dir: string) {
  */
 function cleanup(dir: string) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
+    const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name === '__fixtures__') {
-        fs.rmSync(fullPath, { recursive: true, force: true })
-        continue
+      if (entry.name === "__fixtures__") {
+        fs.rmSync(fullPath, { recursive: true, force: true });
+        continue;
       }
-      cleanup(fullPath)
-      continue
+      cleanup(fullPath);
+      continue;
     }
 
     if (/\.test\.(?:js|ts|d\.ts)$/.test(entry.name)) {
-      fs.rmSync(fullPath, { force: true })
+      fs.rmSync(fullPath, { force: true });
     }
   }
 }
@@ -58,26 +59,29 @@ function cleanup(dir: string) {
  */
 function rewriteCoreImports(dir: string) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
+    const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      rewriteCoreImports(fullPath)
-      continue
+      rewriteCoreImports(fullPath);
+      continue;
     }
 
     if (!/\.(?:js|svelte|d\.ts)$/.test(entry.name)) {
-      continue
+      continue;
     }
 
-    const content = fs.readFileSync(fullPath, 'utf-8')
-    const rewritten = content.replace(/(['"])\.\.\/core\1/g, '$1../core/index.mjs$1')
+    const content = fs.readFileSync(fullPath, "utf-8");
+    const rewritten = content.replaceAll(
+      /(['"])\.\.\/core\1/g,
+      "$1../core/index.mjs$1"
+    );
 
     if (rewritten !== content) {
-      fs.writeFileSync(fullPath, rewritten)
+      fs.writeFileSync(fullPath, rewritten);
     }
   }
 }
 
-cleanup(svelteDist)
-rewriteCoreImports(svelteDist)
-removeStraySourceTypes(srcDir)
+cleanup(svelteDist);
+rewriteCoreImports(svelteDist);
+removeStraySourceTypes(srcDir);

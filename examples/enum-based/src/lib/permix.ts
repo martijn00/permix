@@ -1,17 +1,27 @@
-import { createPermix } from 'permix'
-import { createComponents } from 'permix/react'
+import { createPermix } from "permix";
+import { createComponents } from "permix/react";
 
-import { PostPermission, UserPermission } from './permissions'
-import { getUser } from './user'
+import { PostPermission, UserPermission } from "./permissions";
+import { getUser } from "./user";
 
 // Define permix instance
 export const permix = createPermix<{
-  post: [PostPermission.Create, PostPermission.Read, PostPermission.Update, PostPermission.Delete]
-  user: [UserPermission.Create, UserPermission.Read, UserPermission.Update, UserPermission.Delete]
-}>()
+  post: [
+    PostPermission.Create,
+    PostPermission.Read,
+    PostPermission.Update,
+    PostPermission.Delete,
+  ];
+  user: [
+    UserPermission.Create,
+    UserPermission.Read,
+    UserPermission.Update,
+    UserPermission.Delete,
+  ];
+}>();
 
 // Not necessary, but you can use components to check permissions
-export const { Check } = createComponents(permix)
+export const { Check } = createComponents(permix);
 
 // Define the permissions for each role
 export const adminPermissions = permix.template({
@@ -27,7 +37,7 @@ export const adminPermissions = permix.template({
     [UserPermission.Update]: true,
     [UserPermission.Delete]: true,
   },
-})
+});
 
 // You can also use string literals - TypeScript will infer the enum type
 export const userPermissions = permix.template({
@@ -43,15 +53,15 @@ export const userPermissions = permix.template({
     update: true,
     delete: false,
   },
-})
+});
 
 export async function setupPermissions() {
-  const user = await getUser()
+  const user = await getUser();
 
   const rolesMap = {
     admin: () => adminPermissions(),
     user: () => userPermissions(),
-  }
+  };
 
-  permix.setup(rolesMap[user.role]())
+  permix.setup(rolesMap[user.role]());
 }

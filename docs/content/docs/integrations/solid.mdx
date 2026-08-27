@@ -8,8 +8,8 @@ description: Learn how to use Permix with Solid applications
 Permix provides official Solid integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your Solid app.
 
 <Callout>
-  Before getting started with Solid integration, make sure you've completed the initial setup steps
-  in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Solid integration, make sure you've completed the
+  initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -21,21 +21,21 @@ Permix provides official Solid integration through the `PermixProvider` componen
 First, wrap your application with the `PermixProvider`:
 
 ```tsx title="App.tsx"
-import { PermixProvider } from 'permix/solid'
-import { permix } from './lib/permix'
+import { PermixProvider } from "permix/solid";
+import { permix } from "./lib/permix";
 
 function App() {
   return (
     <PermixProvider permix={permix}>
       <YourApp />
     </PermixProvider>
-  )
+  );
 }
 ```
 
 <Callout>
-  Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook
-  to maintain type safety.
+  Remember to always pass the same Permix instance to both the `PermixProvider`
+  and `usePermix` hook to maintain type safety.
 </Callout>
 
 </Step>
@@ -47,11 +47,11 @@ function App() {
 For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom utility:
 
 ```tsx title="hooks/use-permissions.ts"
-import { usePermix } from 'permix/solid'
-import { permix } from '../lib/permix'
+import { usePermix } from "permix/solid";
+import { permix } from "../lib/permix";
 
 export function usePermissions() {
-  return usePermix(permix)
+  return usePermix(permix);
 }
 ```
 
@@ -64,11 +64,11 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/solid` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from 'permix/solid'
+import { createComponents } from "permix/solid";
 
 // ...
 
-export const { Check } = createComponents(permix)
+export const { Check } = createComponents(permix);
 ```
 
 And then you can use the `Check` component in your components:
@@ -77,14 +77,14 @@ And then you can use the `Check` component in your components:
 export default function Page() {
   return (
     <Check
-      path='entity.action'
+      path="entity.action"
       data={data}
       otherwise={<p>Will show this if a user doesn't have permission</p>}
       reverse
     >
       Will show this if a user has permission
     </Check>
-  )
+  );
 }
 ```
 
@@ -97,15 +97,15 @@ export default function Page() {
 Use the `usePermix` hook and checking components in your components:
 
 ```tsx title="page.tsx"
-import { usePermix } from 'permix/solid'
-import { permix } from './lib/permix'
-import { Check } from './lib/permix-components'
+import { usePermix } from "permix/solid";
+import { permix } from "./lib/permix";
+import { Check } from "./lib/permix-components";
 
 export default function Page() {
-  const post = usePost()
-  const { check, isReady } = usePermix(permix)
+  const post = usePost();
+  const { check, isReady } = usePermix(permix);
 
-  const canEdit = () => check('post.edit', post)
+  const canEdit = () => check("post.edit", post);
 
   return (
     <>
@@ -118,11 +118,13 @@ export default function Page() {
           ) : (
             <p>You don't have permission to edit this post</p>
           )}
-          <Check path='post.create'>Can I create a post inside the Check component?</Check>
+          <Check path="post.create">
+            Can I create a post inside the Check component?
+          </Check>
         </div>
       )}
     </>
-  )
+  );
 }
 ```
 
@@ -135,22 +137,27 @@ export default function Page() {
 For SSR, use `PermixHydrate` with the dehydrated server state, then call `permix.setup()` on the client to restore function-based rules:
 
 ```tsx title="App.tsx"
-import { onMount } from 'solid-js'
-import type { DehydratedState } from 'permix'
-import { PermixHydrate, PermixProvider } from 'permix/solid'
-import { permix } from './lib/permix'
-import { getClientRules } from './lib/permissions'
+import { onMount } from "solid-js";
+import type { DehydratedState } from "permix";
+import { PermixHydrate, PermixProvider } from "permix/solid";
+import { permix } from "./lib/permix";
+import { getClientRules } from "./lib/permissions";
 
-export function App(props: { dehydratedState: DehydratedState<any>; children: any }) {
+export function App(props: {
+  dehydratedState: DehydratedState<any>;
+  children: any;
+}) {
   onMount(() => {
-    permix.setup(getClientRules())
-  })
+    permix.setup(getClientRules());
+  });
 
   return (
     <PermixProvider permix={permix}>
-      <PermixHydrate state={props.dehydratedState}>{props.children}</PermixHydrate>
+      <PermixHydrate state={props.dehydratedState}>
+        {props.children}
+      </PermixHydrate>
     </PermixProvider>
-  )
+  );
 }
 ```
 

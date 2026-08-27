@@ -1,18 +1,18 @@
-import type { Component, Snippet } from 'svelte'
+import type { Component, Snippet } from "svelte";
 
-import type { DataAtPath, Definition, Permix, RulesPaths } from '../core'
-import Check from './Check.svelte'
+import type { DataAtPath, Definition, Permix, RulesPaths } from "../core";
+import Check from "./Check.svelte";
 
 export interface CheckProps<D extends Definition, P extends RulesPaths<D>> {
-  path: P
-  data?: DataAtPath<D, P>[0]
-  reverse?: boolean
-  children: Snippet
-  otherwise?: Snippet
+  path: P;
+  data?: DataAtPath<D, P>[0];
+  reverse?: boolean;
+  children: Snippet;
+  otherwise?: Snippet;
 }
 
 export interface PermixComponents<D extends Definition> {
-  Check: Component<CheckProps<D, RulesPaths<D>>>
+  Check: Component<CheckProps<D, RulesPaths<D>>>;
 }
 
 /**
@@ -22,9 +22,9 @@ export interface PermixComponents<D extends Definition> {
  */
 export function createComponents<D extends Definition>(
   // eslint-disable-next-line no-unused-vars
-  permix: Pick<Permix<D>, 'getRules' | 'check'>
+  permix: Pick<Permix<D>, "getRules" | "check">
 ): PermixComponents<D> {
   return {
-    Check: Check,
-  }
+    Check,
+  };
 }

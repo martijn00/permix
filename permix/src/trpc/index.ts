@@ -1,4 +1,4 @@
-export * from './permix'
+export * from "./permix";
 
 declare global {
   interface Disposable {}

@@ -1,29 +1,34 @@
-import type { TRPCMiddlewareBuilder } from '@trpc/server'
-import { initTRPC, TRPCError } from '@trpc/server'
+import type { TRPCMiddlewareBuilder } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 
-import type { Permix as PermixCore } from '../core'
+import type { Permix as PermixCore } from "../core";
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from '../core'
-import type { CheckArgs, CheckContext } from '../core/check'
-import type { Definition } from '../core/definitions'
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+} from "../core";
+import type { CheckArgs, CheckContext } from "../core/check";
+import type { Definition } from "../core/definitions";
+import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
 
 export interface PermixOptions<D extends Definition> {
   onForbidden?: (
-    params: CheckContext<D> & { ctx: Record<string, any>; next: (...args: any[]) => any }
-  ) => any
+    params: CheckContext<D> & {
+      ctx: Record<string, any>;
+      next: (...args: any[]) => any;
+    }
+  ) => any;
 }
 
-type TrpcContext<D extends Definition, Key extends string> = { [P in Key]: PermixCore<D> }
+type TrpcContext<D extends Definition, Key extends string> = {
+  [P in Key]: PermixCore<D>;
+};
 type TrpcRootContext<D extends Definition, Key extends string> =
   TrpcContext<D, Key> extends (...args: any[]) => infer TReturn
     ? Awaited<TReturn>
-    : TrpcContext<D, Key>
+    : TrpcContext<D, Key>;
 
 function buildPermix<D extends Definition, const Key extends string>(
   resolveKey: () => string,
@@ -33,44 +38,53 @@ function buildPermix<D extends Definition, const Key extends string>(
     options.onForbidden ??
     (() => {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have permission to perform this action',
-      })
-    })
+        code: "FORBIDDEN",
+        message: "You do not have permission to perform this action",
+      });
+    });
 
-  const hooks = createHooks<PermixHooks<D>>()
+  const hooks = createHooks<PermixHooks<D>>();
 
-  const t = initTRPC.context<{ [P in Key]: PermixCore<D> }>().create()
+  const t = initTRPC.context<{ [P in Key]: PermixCore<D> }>().create();
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
-    const instance = createPermixCore<D>(rules)
-    instance.hook('check', (context) => hooks.callHook('check', context))
-    return { [resolveKey() as Key]: instance } as { [P in Key]: PermixCore<D> }
+    const instance = createPermixCore<D>(rules);
+    instance.hook("check", (context) => {
+      hooks.callHook("check", context);
+    });
+    return { [resolveKey() as Key]: instance } as { [P in Key]: PermixCore<D> };
   }
 
   function checkMiddleware(...args: CheckArgs<D>) {
     return t.middleware(async (opts) => {
-      const ctx = opts.ctx as Record<string, PermixCore<D>>
-      const instance = ctx[resolveKey()]
+      const ctx = opts.ctx as Record<string, PermixCore<D>>;
+      const instance = ctx[resolveKey()];
 
       if (!instance) {
-        throw new PermixNotFoundError(resolveKey())
+        throw new PermixNotFoundError(resolveKey());
       }
 
       if (instance.check(...args)) {
-        return await opts.next()
+        return await opts.next();
       }
 
-      return forbiddenHandler({ ...opts, ...createCheckContext(...args) })
-    }) as TRPCMiddlewareBuilder<TrpcRootContext<D, Key>, object, unknown, unknown>
+      return forbiddenHandler({ ...opts, ...createCheckContext(...args) });
+    }) as TRPCMiddlewareBuilder<
+      TrpcRootContext<D, Key>,
+      object,
+      unknown,
+      unknown
+    >;
   }
 
-  function getRules(ctx: Record<string, PermixCore<D> | undefined>): Rules<D> | null {
-    return ctx[resolveKey()]?.getRules() ?? null
+  function getRules(
+    ctx: Record<string, PermixCore<D> | undefined>
+  ): Rules<D> | null {
+    return ctx[resolveKey()]?.getRules() ?? null;
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules)
+    return createTemplate<D, T>(rules);
   }
 
   return {
@@ -81,11 +95,11 @@ function buildPermix<D extends Definition, const Key extends string>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey() as Key
+      return resolveKey() as Key;
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  }
+  };
 }
 
 /**
@@ -123,16 +137,20 @@ function buildPermix<D extends Definition, const Key extends string>(
  *
  * @link https://permix.letstri.dev/docs/integrations/trpc
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
-  let key: string = 'permix'
-  const permix = buildPermix<D, 'permix'>(() => key, options)
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
+  let key: string = "permix";
+  const permix = buildPermix<D, "permix">(() => key, options);
 
   return Object.assign(permix, {
     contextKey<const Key extends string>(newKey: Key) {
-      key = newKey
-      return permix as unknown as ReturnType<typeof buildPermix<D, Key>>
+      key = newKey;
+      return permix as unknown as ReturnType<typeof buildPermix<D, Key>>;
     },
-  })
+  });
 }
 
-export type TrpcPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type TrpcPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>;

@@ -1,22 +1,20 @@
 ---
 name: permix-getting-started
 description: >-
-  Sets up Permix in an application: install, createPermix schema, setup rules,
-  templates for roles, createRules. Use when adding Permix, defining permission
-  types, role-based access, or permix.setup in a user project.
+  Sets up Permix in an application: install, createPermix schema, setup rules, templates for roles, createRules. Use when adding Permix, defining permission types, role-based access, or permix.setup in a user project.
 metadata:
   type: core
   library: permix
-  library_version: '4.1.2'
+  library_version: "4.1.2"
 requires: []
 sources:
-  - 'letstri/permix:docs/content/docs/quick-start.mdx'
-  - 'letstri/permix:docs/content/docs/guide/setup.mdx'
-  - 'letstri/permix:docs/content/docs/guide/template.mdx'
-  - 'letstri/permix:docs/content/docs/guide/instance.mdx'
-  - 'letstri/permix:docs/content/docs/guide/events.mdx'
-  - 'letstri/permix:docs/content/docs/migration-v3-to-v4.mdx'
-  - 'letstri/permix:permix/src/core/index.ts'
+  - "letstri/permix:docs/content/docs/quick-start.mdx"
+  - "letstri/permix:docs/content/docs/guide/setup.mdx"
+  - "letstri/permix:docs/content/docs/guide/template.mdx"
+  - "letstri/permix:docs/content/docs/guide/instance.mdx"
+  - "letstri/permix:docs/content/docs/guide/events.mdx"
+  - "letstri/permix:docs/content/docs/migration-v3-to-v4.mdx"
+  - "letstri/permix:permix/src/core/index.ts"
 ---
 
 # Permix — getting started
@@ -39,18 +37,18 @@ Create a shared module (e.g. `lib/permix.ts`). The generic on `createPermix<D>()
 **Nested resources** (most common):
 
 ```ts
-import { createPermix } from 'permix'
+import { createPermix } from "permix";
 
 export const permix = createPermix<{
-  post: ['create', 'read', 'update', 'delete']
-  comment: ['create', 'read']
-}>()
+  post: ["create", "read", "update", "delete"];
+  comment: ["create", "read"];
+}>();
 ```
 
 **Flat list** (single resource):
 
 ```ts
-export const permix = createPermix<['read', 'write']>()
+export const permix = createPermix<["read", "write"]>();
 ```
 
 **Deep tree** (orgs, workspaces, etc.):
@@ -58,10 +56,10 @@ export const permix = createPermix<['read', 'write']>()
 ```ts
 export const permix = createPermix<{
   workspace: {
-    billing: ['view', 'update']
-    member: ['invite', 'remove']
-  }
-}>()
+    billing: ["view", "update"];
+    member: ["invite", "remove"];
+  };
+}>();
 ```
 
 Every action you declare in `D` must appear in every `setup()` call (use `false` to deny).
@@ -80,7 +78,7 @@ permix.setup({
     create: true,
     read: true,
   },
-})
+});
 ```
 
 - Static leaf: `boolean`
@@ -93,12 +91,12 @@ Skip a separate bootstrap step when rules are known upfront:
 
 ```ts
 export const permix = createPermix<{
-  post: ['read']
+  post: ["read"];
 }>({
   post: { read: true },
-})
+});
 
-permix.isReady() // true immediately
+permix.isReady(); // true immediately
 ```
 
 ## 4. Reusable role presets — `template`
@@ -106,14 +104,14 @@ permix.isReady() // true immediately
 ```ts
 const admin = permix.template({
   post: { create: true, read: true, update: true, delete: true },
-})
+});
 
 const member = permix.template({
   post: { create: false, read: true, update: true, delete: false },
-})
+});
 
 // After resolving the user's role:
-permix.setup(admin())
+permix.setup(admin());
 ```
 
 Dynamic template (parameters):
@@ -123,9 +121,9 @@ const forUser = permix.template((user: User) => ({
   post: {
     update: (post) => post.authorId === user.id,
   },
-}))
+}));
 
-permix.setup(forUser(currentUser))
+permix.setup(forUser(currentUser));
 ```
 
 ## 5. Typed rules factory — `createRules`
@@ -133,21 +131,21 @@ permix.setup(forUser(currentUser))
 Use when rules live in another file but must stay type-safe:
 
 ```ts
-import { createPermix, createRules } from 'permix'
+import { createPermix, createRules } from "permix";
 
 const rules = createRules<{
-  post: ['create']
+  post: ["create"];
 }>({
   post: { create: true },
-})
+});
 
-permix.setup(rules)
+permix.setup(rules);
 ```
 
 ## 6. First check
 
 ```ts
-permix.check('post.read') // boolean
+permix.check("post.read"); // boolean
 ```
 
 Before `setup`, `check` throws `PermixNotReadyError`. Unknown paths throw `PermixRuleNotDefinedError`.
@@ -155,13 +153,13 @@ Before `setup`, `check` throws `PermixNotReadyError`. Unknown paths throw `Permi
 ## 7. React to permission changes (optional)
 
 ```ts
-permix.hook('setup', () => {
+permix.hook("setup", () => {
   // re-run when rules change (e.g. refresh UI cache)
-})
+});
 
-permix.hookOnce('ready', () => {
+permix.hookOnce("ready", () => {
   // first successful setup only
-})
+});
 ```
 
 Docs: https://permix.letstri.dev/docs/guide/events

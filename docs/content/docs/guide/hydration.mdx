@@ -7,10 +7,11 @@ description: Learn how to hydrate and dehydrate permissions in your application
 
 Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them on the client.
 
-<Callout type='warn'>
-  Note that function-based permissions will be converted to `false` during dehydration since
-  functions cannot be serialized to JSON. You should call `setup` method on the client side after
-  hydration to fully restore function-based permissions.
+<Callout type="warn">
+  Note that function-based permissions will be converted to `false` during
+  dehydration since functions cannot be serialized to JSON. You should call
+  `setup` method on the client side after hydration to fully restore
+  function-based permissions.
 </Callout>
 
 ## Usage
@@ -21,14 +22,14 @@ Permix provides two instance methods for handling hydration:
 - `hydrate(state)` - Restores permissions from a previously dehydrated state
 
 ```ts twoslash
-import { createPermix } from 'permix'
+import { createPermix } from "permix";
 
 const permix = createPermix<{
   post: [
-    { name: 'create'; type: { isPublic: boolean } },
-    { name: 'read'; type: { isPublic: boolean } },
-  ]
-}>()
+    { name: "create"; type: { isPublic: boolean } },
+    { name: "read"; type: { isPublic: boolean } },
+  ];
+}>();
 
 // Set up initial permissions
 permix.setup({
@@ -36,24 +37,24 @@ permix.setup({
     create: true,
     read: (post) => !!post?.isPublic,
   },
-})
+});
 
 // Dehydrate permissions to JSON
-const state = permix.dehydrate()
+const state = permix.dehydrate();
 // Result: { post: { create: true, read: false } }
 
 // Later, hydrate permissions from the state
-permix.hydrate(state)
+permix.hydrate(state);
 // isReady() is still false — call setup() to restore function-based rules
 
 // Hydrated booleans are checkable right away (even while not ready):
-permix.check('post.create') // true
-permix.check('post.read', { isPublic: true }) // false — function became false in JSON
+permix.check("post.create"); // true
+permix.check("post.read", { isPublic: true }); // false — function became false in JSON
 ```
 
 <Callout>
-  `dehydrate()` throws `PermixNotReadyError` if you call it before `setup()` (or without initial
-  rules).
+  `dehydrate()` throws `PermixNotReadyError` if you call it before `setup()` (or
+  without initial rules).
 </Callout>
 
 ## Server-Side Rendering
@@ -62,25 +63,25 @@ Hydration is particularly useful in server-side rendering scenarios where you wa
 
 ```ts twoslash
 // Express server
-import express from 'express'
-import { createPermix } from 'permix'
+import express from "express";
+import { createPermix } from "permix";
 
-const app = express()
+const app = express();
 const permix = createPermix<{
-  post: ['create', 'read']
-}>()
+  post: ["create", "read"];
+}>();
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   // Setup permissions on the server
   permix.setup({
     post: {
       create: true,
       read: true,
     },
-  })
+  });
 
   // Dehydrate permissions for client
-  const dehydratedState = permix.dehydrate()
+  const dehydratedState = permix.dehydrate();
 
   // Send HTML with embedded permissions data
   res.send(`
@@ -113,6 +114,6 @@ app.get('/', (req, res) => {
         </script>
       </body>
     </html>
-  `)
-})
+  `);
+});
 ```

@@ -8,8 +8,9 @@ description: Learn how to use Permix with Svelte applications
 Permix provides official Svelte integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your Svelte app using runes.
 
 <Callout>
-  Before getting started with Svelte integration, make sure you've completed the initial setup steps
-  in the [Quick Start](/docs/quick-start) guide. Svelte integration requires Svelte 5.
+  Before getting started with Svelte integration, make sure you've completed the
+  initial setup steps in the [Quick Start](/docs/quick-start) guide. Svelte
+  integration requires Svelte 5.
 </Callout>
 
 <Steps>
@@ -34,8 +35,8 @@ First, wrap your application with the `PermixProvider`:
 ```
 
 <Callout>
-  Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook
-  to maintain type safety.
+  Remember to always pass the same Permix instance to both the `PermixProvider`
+  and `usePermix` hook to maintain type safety.
 </Callout>
 
 </Step>
@@ -47,11 +48,11 @@ First, wrap your application with the `PermixProvider`:
 For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom utility:
 
 ```ts title="lib/use-permissions.ts"
-import { usePermix } from 'permix/svelte'
-import { permix } from './permix'
+import { usePermix } from "permix/svelte";
+import { permix } from "./permix";
 
 export function usePermissions() {
-  return usePermix(permix)
+  return usePermix(permix);
 }
 ```
 
@@ -64,11 +65,11 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/svelte` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from 'permix/svelte'
+import { createComponents } from "permix/svelte";
 
 // ...
 
-export const { Check } = createComponents(permix)
+export const { Check } = createComponents(permix);
 ```
 
 And then you can use the `Check` component in your components. The default content is rendered when a user has permission, and the `otherwise` snippet is rendered when they don't:
@@ -125,9 +126,9 @@ Use the `usePermix` hook and checking components in your components:
 ```
 
 <Callout>
-  `usePermix` returns an object with a reactive `isReady` getter and a `check` method. Access them
-  directly on the returned object (for example `permissions.isReady`) to keep reactivity — don't
-  destructure `isReady`.
+  `usePermix` returns an object with a reactive `isReady` getter and a `check`
+  method. Access them directly on the returned object (for example
+  `permissions.isReady`) to keep reactivity — don't destructure `isReady`.
 </Callout>
 
 </Step>

@@ -1,5 +1,5 @@
-import { createComponents } from 'permix/react'
+import { createComponents } from "permix/react";
 
-import { permix } from '../permix'
+import { permix } from "../permix";
 
-export const { Check } = createComponents(permix)
+export const { Check } = createComponents(permix);

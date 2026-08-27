@@ -1,29 +1,29 @@
-import { createEffect } from 'solid-js'
+import { createEffect } from "solid-js";
 
-import { usePermissions } from './hooks/permissions'
-import { usePosts } from './hooks/posts'
-import { useUser } from './hooks/user'
-import { Check, setupPermix } from './lib/permix'
+import { usePermissions } from "./hooks/permissions";
+import { usePosts } from "./hooks/posts";
+import { useUser } from "./hooks/user";
+import { Check, setupPermix } from "./lib/permix";
 
-import './App.css'
+import "./App.css";
 
 function App() {
-  const user = useUser()
-  const { check, isReady } = usePermissions()
-  const posts = usePosts()
+  const user = useUser();
+  const { check, isReady } = usePermissions();
+  const posts = usePosts();
 
   createEffect(() => {
-    const value = user()
+    const value = user();
     if (value) {
-      setupPermix(value)
+      setupPermix(value);
     }
-  })
+  });
 
   return (
     <>
-      Is Permix ready? {isReady() ? 'Yes' : 'No'}
+      Is Permix ready? {isReady() ? "Yes" : "No"}
       <hr />
-      My user is {user()?.id ?? '...'}
+      My user is {user()?.id ?? "..."}
       <hr />
       {posts().map((post) => (
         <div>
@@ -32,10 +32,10 @@ function App() {
           {post.authorId}
           ?
           <br />
-          {check('post.edit', post) ? 'Yes' : 'No'}
+          {check("post.edit", post) ? "Yes" : "No"}
           <br />
           <Check
-            path='post.edit'
+            path="post.edit"
             data={post}
             otherwise="I don't have permission to edit a post inside the Check component"
           >
@@ -45,7 +45,7 @@ function App() {
         </div>
       ))}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

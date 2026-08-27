@@ -1,50 +1,52 @@
-import type { Permix, Rules, ValidateDefinition } from 'permix'
-import { createPermix as createCorePermix } from 'permix'
-import { createPermix } from 'permix/tanstack-start'
+import type { Permix, Rules, ValidateDefinition } from "permix";
+import { createPermix as createCorePermix } from "permix";
+import { createPermix } from "permix/tanstack-start";
 
-import type { Session } from '@/lib/auth'
+import type { Session } from "@/lib/auth";
 
 export interface Post {
-  id: string
-  authorId: string
+  id: string;
+  authorId: string;
 }
 
 export type PermissionsDefinition = ValidateDefinition<{
   post: [
-    { name: 'create'; type: Post },
-    { name: 'read'; type: Post },
-    { name: 'update'; type: Post },
-    { name: 'delete'; type: Post },
-  ]
-}>
+    { name: "create"; type: Post },
+    { name: "read"; type: Post },
+    { name: "update"; type: Post },
+    { name: "delete"; type: Post },
+  ];
+}>;
 
-export type PermixInstance = Permix<PermissionsDefinition>
+export type PermixInstance = Permix<PermissionsDefinition>;
 
-export const permix = createPermix<PermissionsDefinition>()
+export const permix = createPermix<PermissionsDefinition>();
 
 export const adminTemplate = permix.template({
   post: { create: true, read: true, update: true, delete: true },
-})
+});
 
 export const guestTemplate = permix.template({
   post: { create: false, read: true, update: false, delete: false },
-})
+});
 
 export function createRouterPermix(): PermixInstance {
-  return createCorePermix<PermissionsDefinition>()
+  return createCorePermix<PermissionsDefinition>();
 }
 
 export interface RouterContext {
-  permix: PermixInstance
+  permix: PermixInstance;
 }
 
-export function createClientRules(session: Session | null): Rules<PermissionsDefinition> {
+export function createClientRules(
+  session: Session | null
+): Rules<PermissionsDefinition> {
   return {
     post: {
       create: !!session,
       read: true,
       update: (post) => post?.authorId === session?.userId,
-      delete: session?.role === 'admin',
+      delete: session?.role === "admin",
     },
-  }
+  };
 }

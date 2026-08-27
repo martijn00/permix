@@ -3,27 +3,27 @@ import type {
   FastifyReply,
   FastifyRequest,
   preHandlerHookHandler,
-} from 'fastify'
-import fp from 'fastify-plugin'
+} from "fastify";
+import fp from "fastify-plugin";
 
-import type { Permix as PermixCore } from '../core'
+import type { Permix as PermixCore } from "../core";
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from '../core'
-import type { CheckArgs, CheckContext } from '../core/check'
-import type { Definition } from '../core/definitions'
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
-import type { MaybePromise } from '../utils'
+} from "../core";
+import type { CheckArgs, CheckContext } from "../core/check";
+import type { Definition } from "../core/definitions";
+import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
+import type { MaybePromise } from "../utils";
 
-let pluginCounter = 0
+let pluginCounter = 0;
 
 export interface MiddlewareContext {
-  request: FastifyRequest
-  reply: FastifyReply
+  request: FastifyRequest;
+  reply: FastifyReply;
 }
 
 export interface PermixOptions<D extends Definition> {
@@ -31,7 +31,9 @@ export interface PermixOptions<D extends Definition> {
    * Called when a `checkHandler` denies the request. Defaults to a 403 JSON
    * response of `{ error: 'Forbidden' }`.
    */
-  onForbidden?: (params: CheckContext<D> & MiddlewareContext) => MaybePromise<void>
+  onForbidden?: (
+    params: CheckContext<D> & MiddlewareContext
+  ) => MaybePromise<void>;
 }
 
 function buildPermix<D extends Definition>(
@@ -41,76 +43,82 @@ function buildPermix<D extends Definition>(
   const onForbidden =
     options.onForbidden ??
     (({ reply }) => {
-      reply.status(403).send({ error: 'Forbidden' })
-    })
+      reply.status(403).send({ error: "Forbidden" });
+    });
 
-  const pluginName = `permix-${pluginCounter++}`
+  const pluginName = `permix-${pluginCounter++}`;
 
-  const hooks = createHooks<PermixHooks<D>>()
+  const hooks = createHooks<PermixHooks<D>>();
 
   function get(request: FastifyRequest): PermixCore<D> | null {
     try {
-      const instance = request.getDecorator<PermixCore<D> | undefined>(resolveKey())
-      return instance ?? null
+      const instance = request.getDecorator<PermixCore<D> | undefined>(
+        resolveKey()
+      );
+      return instance ?? null;
     } catch {
-      return null
+      return null;
     }
   }
 
   function getOrThrow(request: FastifyRequest): PermixCore<D> {
-    const instance = get(request)
+    const instance = get(request);
     if (!instance) {
-      throw new PermixNotFoundError(resolveKey())
+      throw new PermixNotFoundError(resolveKey());
     }
-    return instance
+    return instance;
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>
+    callbackOrRules:
+      | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
+      | Rules<D>
   ): FastifyPluginAsync {
     return fp(
       async (fastify) => {
-        fastify.decorateRequest(resolveKey(), null)
+        fastify.decorateRequest(resolveKey(), null);
 
-        fastify.addHook('onRequest', async (request, reply) => {
+        fastify.addHook("onRequest", async (request, reply) => {
           const rules =
-            typeof callbackOrRules === 'function'
+            typeof callbackOrRules === "function"
               ? await callbackOrRules({ request, reply })
-              : callbackOrRules
-          const instance = createPermixCore<D>(rules)
-          instance.hook('check', (context) => hooks.callHook('check', context))
-          request.setDecorator(resolveKey(), instance)
-        })
+              : callbackOrRules;
+          const instance = createPermixCore<D>(rules);
+          instance.hook("check", (context) => {
+            hooks.callHook("check", context);
+          });
+          request.setDecorator(resolveKey(), instance);
+        });
       },
       {
-        fastify: '5.x',
+        fastify: "5.x",
         name: pluginName,
       }
-    )
+    );
   }
 
-  const checkMiddleware: (...args: CheckArgs<D>) => preHandlerHookHandler = (...args) => {
-    return async (request, reply) => {
-      const permix = get(request)
+  const checkMiddleware: (...args: CheckArgs<D>) => preHandlerHookHandler =
+    (...args) =>
+    async (request, reply) => {
+      const permix = get(request);
 
       if (!permix) {
-        throw new PermixNotFoundError(resolveKey())
+        throw new PermixNotFoundError(resolveKey());
       }
 
-      const allowed = permix.check(...args)
+      const allowed = permix.check(...args);
 
       if (!allowed) {
-        await onForbidden({ request, reply, ...createCheckContext(...args) })
+        await onForbidden({ request, reply, ...createCheckContext(...args) });
       }
-    }
-  }
+    };
 
   function getRules(request: FastifyRequest): Rules<D> | null {
-    return get(request)?.getRules() ?? null
+    return get(request)?.getRules() ?? null;
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules)
+    return createTemplate<D, T>(rules);
   }
 
   return {
@@ -123,11 +131,11 @@ function buildPermix<D extends Definition>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey()
+      return resolveKey();
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  }
+  };
 }
 
 /**
@@ -157,16 +165,20 @@ function buildPermix<D extends Definition>(
  *
  * @link https://permix.letstri.dev/docs/integrations/fastify
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
-  let key: string | symbol = Symbol('permix')
-  const permix = buildPermix<D>(() => key, options)
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
+  let key: string | symbol = Symbol("permix");
+  const permix = buildPermix<D>(() => key, options);
 
   return Object.assign(permix, {
     contextKey(newKey: string | symbol) {
-      key = newKey
-      return permix
+      key = newKey;
+      return permix;
     },
-  })
+  });
 }
 
-export type FastifyPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type FastifyPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>;

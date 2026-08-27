@@ -1,7 +1,7 @@
-import type { Action } from './definitions'
-import type { Permix } from './permix'
+import type { Action } from "./definitions";
+import type { Permix } from "./permix";
 
-type AsDefinition<T> = T extends Permix<infer D> ? D : T
+type AsDefinition<T> = T extends Permix<infer D> ? D : T;
 
 type Merge2<A, B> = A extends readonly Action[]
   ? B extends readonly Action[]
@@ -16,7 +16,7 @@ type Merge2<A, B> = A extends readonly Action[]
             : A[K]
           : K extends keyof B
             ? B[K]
-            : never
-      }
+            : never;
+      };
 
-export type MergePermix<A, B> = Merge2<AsDefinition<A>, AsDefinition<B>>
+export type MergePermix<A, B> = Merge2<AsDefinition<A>, AsDefinition<B>>;
