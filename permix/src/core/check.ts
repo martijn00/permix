@@ -51,10 +51,14 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
     const last = parts.at(-1)
 
     if (isSpecialSymbol(last)) {
-      let subtree: Rule = rules
+      let subtree: Rule | undefined = rules
       for (let i = 0; i < parts.length - 1; i++) {
+        const segment = parts[i]
+        if (segment === undefined) {
+          break
+        }
         if (subtree && typeof subtree === 'object') {
-          subtree = (subtree as Record<string, Rule>)[parts[i]]
+          subtree = (subtree as Record<string, Rule>)[segment]
         }
       }
 
@@ -72,7 +76,10 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
           return void out.push(callRuleWithoutData(rule))
         }
         for (const key in rule) {
-          visit(rule[key])
+          const child = rule[key]
+          if (child !== undefined) {
+            visit(child)
+          }
         }
       }
       visit(subtree)
@@ -84,10 +91,14 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
     }
   }
 
-  let rule: Rule = rules
+  let rule: Rule | undefined = rules
   let i = 0
   for (; i < args.length && typeof rule === 'object'; i++) {
-    rule = rule[String(args[i])]
+    const arg = args[i]
+    if (typeof arg !== 'string') {
+      break
+    }
+    rule = (rule as Record<string, Rule>)[arg]
   }
 
   if (typeof rule === 'boolean') {
@@ -142,5 +153,10 @@ export function createCheckContext<D extends Definition>(
     return { path: first }
   }
 
-  return { path: first, data: params[1] }
+  const data = params[1]
+  if (data === undefined) {
+    return { path: first }
+  }
+
+  return { path: first, data }
 }

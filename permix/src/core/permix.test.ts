@@ -139,16 +139,18 @@ describe(createPermix, () => {
     expect(permix.check('post.create')).toBe(true)
   })
 
-  it('should work with enum-based permissions', () => {
-    enum PostAction {
-      Create = 'create',
-      Read = 'read',
-      Update = 'update',
-      Delete = 'delete',
-    }
+  it('should work with enum-like permissions', () => {
+    const PostAction = {
+      Create: 'create',
+      Read: 'read',
+      Update: 'update',
+      Delete: 'delete',
+    } as const
+
+    type PostActionName = (typeof PostAction)[keyof typeof PostAction]
 
     const permix = createPermix<{
-      post: [PostAction]
+      post: [PostActionName]
     }>()
 
     permix.setup({

@@ -28,7 +28,9 @@ export class PermixNotFoundError extends PermixError {
   constructor(key?: string | symbol) {
     super('Instance not found. Please setup the permix instance first.')
     this.name = 'PermixNotFoundError'
-    this.key = key
+    if (key !== undefined) {
+      this.key = key
+    }
   }
 }
 

@@ -10,15 +10,15 @@
   "dependencies": {
     "next": "16.2.6",
     "permix": "workspace:*",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
-    "@types/node": "^25.9.1",
-    "@types/react": "^19.2.15",
-    "@types/react-dom": "^19.2.3",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   }
 }

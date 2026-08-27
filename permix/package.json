@@ -119,9 +119,13 @@
     }
   },
   "scripts": {
-    "build": "tsdown && pnpm run build:svelte",
-    "build:svelte": "svelte-package -i src/svelte -o dist/svelte && node ./scripts/build-svelte.ts",
-    "check-types": "tsc --build && svelte-check --tsconfig ./tsconfig.svelte.json",
+    "build": "node --import ./scripts/register-typescript6.mjs ./node_modules/tsdown/dist/run.mjs && pnpm run build:svelte",
+    "build:svelte": "node --import ./scripts/register-typescript6.mjs ./node_modules/@sveltejs/package/src/cli.js -i src/svelte -o dist/svelte && node ./scripts/build-svelte.ts",
+    "check-types": "tsc --build && node --import ./scripts/register-typescript6.mjs ./node_modules/svelte-check/bin/svelte-check --tsconfig ./tsconfig.svelte.json",
+    "type-check:compat:5.9": "pnpm run build && node ./node_modules/typescript59/bin/tsc --build && node ./node_modules/typescript59/bin/tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
+    "type-check:compat:6": "pnpm run build && node ./node_modules/typescript6/bin/tsc6 --build && node ./node_modules/typescript6/bin/tsc6 -p tsconfig.compat.json --stableTypeOrdering && node ./scripts/smoke-exports.ts",
+    "type-check:compat:7": "pnpm run build && tsc --build && tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
+    "type-check:compat": "pnpm run type-check:compat:5.9 && pnpm run type-check:compat:6 && pnpm run type-check:compat:7",
     "prepublishOnly": "run-s check-types test build scripts:copy-readme skills:validate",
     "scripts:copy-readme": "node ./scripts/copy-readme.ts",
     "skills:stale": "intent stale skills",
@@ -138,23 +142,26 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/svelte": "^5.3.1",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.9.1",
-    "@types/react": "^19.2.15",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
     "@types/supertest": "^7.2.0",
-    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "happy-dom": "^20.9.0",
-    "react-dom": "^19.2.6",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "supertest": "^7.2.2",
     "svelte": "^5.56.0",
     "svelte-check": "^4.5.0",
     "tsdown": "^0.22.1",
-    "typescript": "^6.0.3",
+    "typescript": "catalog:",
+    "typescript59": "catalog:typescript-classic",
+    "typescript6": "catalog:typescript-classic",
     "vite-plugin-solid": "^2.11.12",
-    "vitest": "^4.1.8",
+    "vitest": "catalog:",
     "vue": "^3.5.17",
     "zod": "^4.4.3"
   },
@@ -174,6 +181,7 @@
     "react-dom": ">=18",
     "solid-js": ">=1",
     "svelte": ">=5",
+    "typescript": ">=5.9 <8",
     "vue": ">=3"
   },
   "peerDependenciesMeta": {
@@ -224,12 +232,15 @@
     },
     "vue": {
       "optional": true
+    },
+    "typescript": {
+      "optional": true
     }
   },
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@11.5.0",
+  "packageManager": "pnpm@11.24.0",
   "intent": {
     "repo": "letstri/permix",
     "docs": "../docs/content/docs"

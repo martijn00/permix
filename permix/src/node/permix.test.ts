@@ -325,7 +325,7 @@ describe('checkMiddleware without setupMiddleware', () => {
     await permix.checkMiddleware('post.create')(req, res, next)
 
     expect(next).toHaveBeenCalledOnce()
-    expect(next.mock.calls[0][0]).toBeInstanceOf(PermixNotFoundError)
+    expect(next.mock.calls[0]?.[0]).toBeInstanceOf(PermixNotFoundError)
   })
 })
 

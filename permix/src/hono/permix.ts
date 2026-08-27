@@ -93,7 +93,8 @@ function buildPermix<D extends Definition>(
         return await onForbidden({ c, ...createCheckContext(...args) })
       }
 
-      await next()
+      // oxlint-disable-next-line typescript/no-confusing-void-expression -- Hono's next() is Promise<void>
+      return await next()
     })
 
   function getRules(c: Context): Rules<D> | null {

@@ -119,6 +119,12 @@ export default defineConfig({
   overrides: [
     ...vitestOverrides,
     {
+      files: ['permix/test-d/**'],
+      rules: {
+        'typescript/consistent-type-definitions': 'off',
+      },
+    },
+    {
       files: nonReactGlobs,
       rules: {
         'react-hooks/rules-of-hooks': 'off',

@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "tsx": "^4.22.4"
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }
