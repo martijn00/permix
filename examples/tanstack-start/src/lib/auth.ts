@@ -18,7 +18,12 @@ export function getSessionForRole(role: DemoRole): Session | null {
 }
 
 function parseDemoRole(value: string | undefined): DemoRole {
-  if (value === 'guest' || value === 'alice' || value === 'bob' || value === 'admin') {
+  if (
+    value === 'guest' ||
+    value === 'alice' ||
+    value === 'bob' ||
+    value === 'admin'
+  ) {
     return value
   }
 
@@ -27,7 +32,7 @@ function parseDemoRole(value: string | undefined): DemoRole {
 
 export function getDemoRoleFromRequest(request: Request): DemoRole {
   const cookieHeader = request.headers.get('cookie') ?? ''
-  const match = cookieHeader.match(/(?:^|;\s*)demo-role=([^;]*)/)
+  const match = /(?:^|;\s*)demo-role=([^;]*)/.exec(cookieHeader)
   return parseDemoRole(match?.[1])
 }
 

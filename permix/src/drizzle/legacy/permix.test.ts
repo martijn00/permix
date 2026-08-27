@@ -3,6 +3,7 @@
 import { relations } from 'drizzle-orm/_relations'
 import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+
 import { PermixRuleNotDefinedError } from '../../core/errors'
 import { createPermix } from './permix'
 
@@ -14,7 +15,9 @@ const users = pgTable('users', {
 const posts = pgTable('posts', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
-  authorId: integer('author_id').notNull().references(() => users.id),
+  authorId: integer('author_id')
+    .notNull()
+    .references(() => users.id),
 })
 
 const usersRelations = relations(users, ({ many }) => ({
@@ -27,8 +30,8 @@ describe('drizzle createPermix', () => {
   it('discovers only tables from the schema and ignores non-table exports', () => {
     const permix = createPermix(schema)
 
-    expect(permix.tables).toEqual(['users', 'posts'])
-    expect(permix.actions).toEqual(['create', 'read', 'update', 'delete'])
+    expect(permix.tables).toStrictEqual(['users', 'posts'])
+    expect(permix.actions).toStrictEqual(['create', 'read', 'update', 'delete'])
   })
 
   it('produces a Permix instance that accepts rules for every detected table', () => {
@@ -54,13 +57,17 @@ describe('drizzle createPermix', () => {
     })
 
     // @ts-expect-error usersRelations is not a table, so it has no permissions
-    expect(() => permix.check('usersRelations.read')).toThrow(PermixRuleNotDefinedError)
+    expect(() => permix.check('usersRelations.read')).toThrow(
+      PermixRuleNotDefinedError
+    )
   })
 
   it('exposes correct types for tables and actions', () => {
     const permix = createPermix(schema)
 
     expectTypeOf(permix.tables).toEqualTypeOf<('users' | 'posts')[]>()
-    expectTypeOf(permix.actions).toEqualTypeOf<readonly ('create' | 'read' | 'update' | 'delete')[]>()
+    expectTypeOf(permix.actions).toEqualTypeOf<
+      readonly ('create' | 'read' | 'update' | 'delete')[]
+    >()
   })
 })

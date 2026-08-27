@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+
 import { permix } from '@/lib/permix'
 import { getPost } from '@/lib/posts'
+
 import { EditButton } from './edit-button'
 
 export default async function PostPage({
@@ -27,22 +29,16 @@ export default async function PostPage({
 
       <article className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Post
-          {' '}
-          {post.id}
+          Post {post.id}
         </h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          authorId:
-          {' '}
-          {post.authorId}
+          authorId: {post.authorId}
         </p>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          This page calls
-          {' '}
+          This page calls{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs dark:bg-zinc-800">
             permix.check(&apos;post.read&apos;, post)
-          </code>
-          {' '}
+          </code>{' '}
           on the server before rendering.
         </p>
         <div className="mt-6">

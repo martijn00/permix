@@ -1,6 +1,7 @@
-import type { ValidateDefinition } from '../core'
 import Fastify from 'fastify'
 import { describe, expect, it } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { PermixNotFoundError } from '../core'
 import { createPermix } from './permix'
 
@@ -15,10 +16,10 @@ type PermissionsDefinition = ValidateDefinition<{
 }>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create', type: Post }]
+  post: [{ name: 'create'; type: Post }]
 }>
 
-describe('createPermix', () => {
+describe(createPermix, () => {
   const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts error', () => {
@@ -29,35 +30,47 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: false, update: false },
-      user: { delete: false },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ success: true })
+    expect(response.json()).toStrictEqual({ success: true })
   })
 
   it('should deny access when permission is not granted', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(403)
-    expect(response.json()).toEqual({ error: 'Forbidden' })
+    expect(response.json()).toStrictEqual({ error: 'Forbidden' })
   })
 
   it('should work with custom error handler', async () => {
@@ -69,41 +82,57 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(403)
-    expect(response.json()).toEqual({ error: 'Custom error' })
+    expect(response.json()).toStrictEqual({ error: 'Custom error' })
   })
 
   it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ reply, path }) => {
-        reply.status(403).send({ error: `You do not have permission for ${path}` })
+        reply
+          .status(403)
+          .send({ error: `You do not have permission for ${path}` })
       },
     })
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(403)
-    expect(response.json()).toEqual({ error: 'You do not have permission for post.create' })
+    expect(response.json()).toStrictEqual({
+      error: 'You do not have permission for post.create',
+    })
   })
 
   it('should pass data through to a rule callback', async () => {
@@ -111,17 +140,28 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: post => post?.authorId === '1' },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: (post) => post?.authorId === '1' },
+      })
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }) }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      {
+        preHandler: permix.checkMiddleware('post.create', {
+          id: 'a',
+          authorId: '1',
+        }),
+      },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ success: true })
+    expect(response.json()).toStrictEqual({ success: true })
   })
 
   it('should work with checker callback form', async () => {
@@ -129,18 +169,28 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: true, update: false },
-      user: { delete: true },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: false },
+        user: { delete: true },
+      })
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware(c => c('post.create') && c('user.delete')) }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      {
+        preHandler: permix.checkMiddleware(
+          (c) => c('post.create') && c('user.delete')
+        ),
+      },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ success: true })
+    expect(response.json()).toStrictEqual({ success: true })
   })
 
   it('should work with template', async () => {
@@ -153,13 +203,17 @@ describe('createPermix', () => {
 
     await app.register(permix.setupMiddleware(() => template()))
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ success: true })
+    expect(response.json()).toStrictEqual({ success: true })
   })
 
   it('should dehydrate permissions', async () => {
@@ -177,7 +231,7 @@ describe('createPermix', () => {
 
     const response = await app.inject({ method: 'GET', url: '/dehydrate' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({
+    expect(response.json()).toStrictEqual({
       post: { create: true, read: false, update: true },
       user: { delete: false },
     })
@@ -189,29 +243,41 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(admin.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
-    await app.register(guest.setupMiddleware({
-      post: { create: false, read: true, update: false },
-      user: { delete: false },
-    }))
+    await app.register(
+      admin.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
+    await app.register(
+      guest.setupMiddleware({
+        post: { create: false, read: true, update: false },
+        user: { delete: false },
+      })
+    )
 
-    app.post('/admin', { preHandler: admin.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ scope: 'admin' })
-    })
-    app.post('/guest', { preHandler: guest.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ scope: 'guest' })
-    })
+    app.post(
+      '/admin',
+      { preHandler: admin.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ scope: 'admin' })
+      }
+    )
+    app.post(
+      '/guest',
+      { preHandler: guest.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ scope: 'guest' })
+      }
+    )
 
     const adminResponse = await app.inject({ method: 'POST', url: '/admin' })
     expect(adminResponse.statusCode).toBe(200)
-    expect(adminResponse.json()).toEqual({ scope: 'admin' })
+    expect(adminResponse.json()).toStrictEqual({ scope: 'admin' })
 
     const guestResponse = await app.inject({ method: 'POST', url: '/guest' })
     expect(guestResponse.statusCode).toBe(403)
-    expect(guestResponse.json()).toEqual({ error: 'Forbidden' })
+    expect(guestResponse.json()).toStrictEqual({ error: 'Forbidden' })
   })
 })
 
@@ -227,24 +293,28 @@ describe('get / getOrThrow', () => {
 
     const response = await app.inject({ method: 'GET', url: '/' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ result: null })
+    expect(response.json()).toStrictEqual({ result: null })
   })
 
   it('should return the instance when setupMiddleware has run', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
     app.get('/', (req, reply) => {
-      reply.send({ hasCheck: typeof permix.getOrThrow(req).check === 'function' })
+      reply.send({
+        hasCheck: typeof permix.getOrThrow(req).check === 'function',
+      })
     })
 
     const response = await app.inject({ method: 'GET', url: '/' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ hasCheck: true })
+    expect(response.json()).toStrictEqual({ hasCheck: true })
   })
 
   it('getOrThrow should throw PermixNotFoundError when missing', async () => {
@@ -264,8 +334,9 @@ describe('get / getOrThrow', () => {
 
     const response = await app.inject({ method: 'GET', url: '/' })
     expect(response.statusCode).toBe(500)
-    expect(response.json()).toEqual({
-      error: '[Permix]: Instance not found. Please setup the permix instance first.',
+    expect(response.json()).toStrictEqual({
+      error:
+        '[Permix]: Instance not found. Please setup the permix instance first.',
       name: 'PermixNotFoundError',
     })
   })
@@ -285,26 +356,32 @@ describe('checkMiddleware without setupMiddleware', () => {
       reply.status(500).send({ error: 'unknown' })
     })
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(500)
-    expect(response.json()).toEqual({
-      error: '[Permix]: Instance not found. Please setup the permix instance first.',
+    expect(response.json()).toStrictEqual({
+      error:
+        '[Permix]: Instance not found. Please setup the permix instance first.',
     })
   })
 })
 
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
-    const permix = createPermix<PermissionsDefinition>().contextKey('custom-key')
+    const permix =
+      createPermix<PermissionsDefinition>().contextKey('custom-key')
     expect(permix.key).toBe('custom-key')
   })
 
   it('should expose a symbol key when using default', () => {
     const permix = createPermix<PermissionsDefinition>()
-    expect(typeof permix.key).toBe('symbol')
+    expect(permix.key).toBeTypeOf('symbol')
   })
 })

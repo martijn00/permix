@@ -1,10 +1,17 @@
 import type { Context } from 'elysia'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface MiddlewareContext {
   context: Context
@@ -15,22 +22,28 @@ export interface PermixOptions<D extends Definition> {
    * Called when a `checkMiddleware` denies the request. Defaults to a 403 JSON
    * response of `{ error: 'Forbidden' }`.
    */
-  onForbidden?: (params: CheckContext<D> & MiddlewareContext) => MaybePromise<any>
+  onForbidden?: (
+    params: CheckContext<D> & MiddlewareContext
+  ) => MaybePromise<any>
 }
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const onForbidden = options.onForbidden ?? (({ context }) => {
-    context.set.status = 'Forbidden'
-    return { error: 'Forbidden' }
-  })
+  const onForbidden =
+    options.onForbidden ??
+    (({ context }) => {
+      context.set.status = 'Forbidden'
+      return { error: 'Forbidden' }
+    })
 
   const hooks = createHooks<PermixHooks<D>>()
 
   function get(context: Context): PermixCore<D> | null {
-    const instance = (context.store as any)[resolveKey()] as PermixCore<D> | undefined
+    const instance = (context.store as any)[resolveKey()] as
+      | PermixCore<D>
+      | undefined
     return instance ?? null
   }
 
@@ -43,20 +56,28 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules:
+      | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
+      | Rules<D>
   ) {
     return async (context: Context) => {
-      const rules = typeof callbackOrRules === 'function'
-        ? await callbackOrRules({ context })
-        : callbackOrRules
+      const rules =
+        typeof callbackOrRules === 'function'
+          ? await callbackOrRules({ context })
+          : callbackOrRules
       const instance = createPermixCore<D>(rules)
-      instance.hook('check', ctx => hooks.callHook('check', ctx))
+      instance.hook('check', (ctx) => {
+        hooks.callHook('check', ctx)
+      })
       ;(context.store as any)[resolveKey()] = instance
     }
   }
 
-  const checkMiddleware: (...args: CheckArgs<D>) => (context: Context) => MaybePromise<any> = (...args) => {
-    return async (context) => {
+  const checkMiddleware: (
+    ...args: CheckArgs<D>
+  ) => (context: Context) => MaybePromise<any> =
+    (...args) =>
+    async (context) => {
       const permix = getOrThrow(context)
       const allowed = permix.check(...args)
 
@@ -64,7 +85,6 @@ function buildPermix<D extends Definition>(
         return await onForbidden({ context, ...createCheckContext(...args) })
       }
     }
-  }
 
   function getRules(context: Context): Rules<D> | null {
     return get(context)?.getRules() ?? null
@@ -117,7 +137,9 @@ function buildPermix<D extends Definition>(
  *
  * @link https://permix.letstri.dev/docs/integrations/elysia
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
   let key: string | symbol = Symbol('permix')
   const permix = buildPermix<D>(() => key, options)
 
@@ -129,4 +151,6 @@ export function createPermix<D extends Definition>(options: PermixOptions<D> = {
   })
 }
 
-export type ElysiaPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type ElysiaPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>

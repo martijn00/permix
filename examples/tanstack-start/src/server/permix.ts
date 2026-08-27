@@ -1,6 +1,7 @@
-import type { DemoRole, Session } from '@/lib/auth'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
+
+import type { DemoRole, Session } from '@/lib/auth'
 import { getSessionForRole } from '@/lib/auth'
 import { permix } from '@/lib/permix'
 
@@ -10,12 +11,14 @@ export interface RootLoaderData {
   role: DemoRole
 }
 
-export const getRootLoaderData = createServerFn().handler(async ({ context }) => {
-  const role = (getCookie('demo-role') ?? 'alice') as DemoRole
+export const getRootLoaderData = createServerFn().handler(
+  async ({ context }) => {
+    const role = (getCookie('demo-role') ?? 'alice') as DemoRole
 
-  return {
-    state: permix.dehydrate(context),
-    session: getSessionForRole(role),
-    role,
-  } satisfies RootLoaderData
-})
+    return {
+      state: permix.dehydrate(context),
+      session: getSessionForRole(role),
+      role,
+    } satisfies RootLoaderData
+  }
+)

@@ -1,8 +1,9 @@
 'use client'
 
-import type { Post } from '@/lib/permix'
 import { usePermix } from 'permix/react'
+
 import { permix } from '@/app/providers'
+import type { Post } from '@/lib/permix'
 
 export function EditButton({ post }: { post: Post }) {
   const { check } = usePermix(permix)

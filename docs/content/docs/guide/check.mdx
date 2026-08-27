@@ -21,7 +21,7 @@ Combine multiple checks with a callback. All conditions must be truthy:
 
 ```ts
 // Check if both create and read are allowed
-permix.check(c => c('post.create') && c('post.read'))
+permix.check((c) => c('post.create') && c('post.read'))
 ```
 
 ## All
@@ -55,7 +55,7 @@ When permissions might be set up asynchronously, wait for the instance to be rea
 ```ts
 setTimeout(() => {
   permix.setup({
-    post: { create: true }
+    post: { create: true },
   })
 }, 1000)
 
@@ -64,7 +64,9 @@ permix.check('post.create')
 ```
 
 <Callout>
-In most cases you should use `check` directly. Use `isReadyAsync()` when you need to ensure permissions are ready before checking, for example in route middleware.
+  In most cases you should use `check` directly. Use `isReadyAsync()` when you
+  need to ensure permissions are ready before checking, for example in route
+  middleware.
 </Callout>
 
 ## Data-Based
@@ -75,10 +77,10 @@ You can define permissions that depend on the data being accessed:
 permix.setup({
   post: {
     // Only allow updates if user is the author
-    update: post => post.authorId === currentUserId,
+    update: (post) => post.authorId === currentUserId,
     // Static permission
-    read: true
-  }
+    read: true,
+  },
 })
 
 // Check with data
@@ -88,7 +90,8 @@ permix.check('post.update', post) // true if currentUserId === 'user1'
 ```
 
 <Callout type="warn">
-You can still check permissions without providing the data, but dynamic rules that require entity data will return `false` in that case.
+  You can still check permissions without providing the data, but dynamic rules
+  that require entity data will return `false` in that case.
 </Callout>
 
 ## Type Safety

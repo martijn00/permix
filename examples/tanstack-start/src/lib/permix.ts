@@ -1,7 +1,8 @@
 import type { Permix, Rules, ValidateDefinition } from 'permix'
-import type { Session } from '@/lib/auth'
 import { createPermix as createCorePermix } from 'permix'
 import { createPermix } from 'permix/tanstack-start'
+
+import type { Session } from '@/lib/auth'
 
 export interface Post {
   id: string
@@ -10,10 +11,10 @@ export interface Post {
 
 export type PermissionsDefinition = ValidateDefinition<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>
 
@@ -37,12 +38,14 @@ export interface RouterContext {
   permix: PermixInstance
 }
 
-export function createClientRules(session: Session | null): Rules<PermissionsDefinition> {
+export function createClientRules(
+  session: Session | null
+): Rules<PermissionsDefinition> {
   return {
     post: {
       create: !!session,
       read: true,
-      update: post => post?.authorId === session?.userId,
+      update: (post) => post?.authorId === session?.userId,
       delete: session?.role === 'admin',
     },
   }

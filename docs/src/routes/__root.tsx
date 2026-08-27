@@ -1,8 +1,15 @@
-import type { ReactNode } from 'react'
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router'
 import { RootProvider } from 'fumadocs-ui/provider/tanstack'
+import type { ReactNode } from 'react'
+
 import { AnalyticsProvider } from '@/components/analytics'
 import { appName, siteUrl } from '@/lib/shared'
+
 import appCss from '@/styles/app.css?url'
 
 export const Route = createRootRoute({
@@ -20,11 +27,13 @@ export const Route = createRootRoute({
       },
       {
         name: 'description',
-        content: 'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side JavaScript applications.',
+        content:
+          'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side JavaScript applications.',
       },
       {
         name: 'keywords',
-        content: 'permissions, authorization, acl, access-control, typescript, react, vue, type-safe, rbac, security, permissions-management, frontend, javascript',
+        content:
+          'permissions, authorization, acl, access-control, typescript, react, vue, type-safe, rbac, security, permissions-management, frontend, javascript',
       },
       {
         property: 'og:title',
@@ -32,7 +41,8 @@ export const Route = createRootRoute({
       },
       {
         property: 'og:description',
-        content: 'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side TypeScript applications.',
+        content:
+          'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side TypeScript applications.',
       },
       {
         property: 'og:url',
@@ -62,10 +72,8 @@ function RootDocument({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="flex flex-col min-h-screen">
-        <RootProvider>
-          {children}
-        </RootProvider>
+      <body className="flex min-h-screen flex-col">
+        <RootProvider>{children}</RootProvider>
         <AnalyticsProvider />
         <Scripts />
       </body>

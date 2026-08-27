@@ -8,10 +8,10 @@ export interface Post {
 
 export type PermissionsDefinition = ValidateDefinition<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>
 

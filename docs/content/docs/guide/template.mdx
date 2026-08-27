@@ -8,7 +8,8 @@ description: Learn how to define permissions using templates
 Permix provides a `template` method that allows you to define permissions in a separate location from where they are set up. This is useful for organizing permission definitions and reusing them across different parts of your application.
 
 <Callout>
-Templates are type-checked at compile time, ensuring your permission definitions match the instance definition.
+  Templates are type-checked at compile time, ensuring your permission
+  definitions match the instance definition.
 </Callout>
 
 ## Basic Usage
@@ -19,8 +20,8 @@ The simplest way to use templates is to define static permissions:
 const adminPermissions = permix.template({
   post: {
     create: true,
-    read: true
-  }
+    read: true,
+  },
 })
 
 // Later, use the template to setup permissions
@@ -41,8 +42,8 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
     create: true,
     read: true,
-    update: post => post?.authorId === userId
-  }
+    update: (post) => post?.authorId === userId,
+  },
 }))
 
 // Use with specific user data
@@ -65,8 +66,8 @@ const permix = createPermix<{
 // This will cause a TypeScript error
 const invalidTemplate = permix.template({
   post: {
-    edit: true
-  }
+    edit: true,
+  },
 })
 ```
 
@@ -79,18 +80,18 @@ const editorPermissions = permix.template({
   post: {
     create: true,
     read: true,
-    update: post => !post?.published,
-    delete: post => !post?.published
-  }
+    update: (post) => !post?.published,
+    delete: (post) => !post?.published,
+  },
 })
 
 const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
     create: false,
     read: true,
-    update: post => post?.authorId === userId,
-    delete: false
-  }
+    update: (post) => post?.authorId === userId,
+    delete: false,
+  },
 }))
 
 // Setup based on user role
@@ -98,7 +99,7 @@ async function setupPermissions() {
   const user = await getUser()
   const permissionsMap = {
     editor: () => editorPermissions(),
-    user: () => userPermissions(user)
+    user: () => userPermissions(user),
   }
 
   return permix.setup(permissionsMap[user.role]())
@@ -115,10 +116,10 @@ import { createPermix } from 'permix'
 
 type PermissionsDefinition = {
   post: [
-    { name: 'create', type: { id: string; authorId: string } },
-    { name: 'read', type: { id: string; authorId: string } },
-    { name: 'update', type: { id: string; authorId: string } },
-    { name: 'delete', type: { id: string; authorId: string } },
+    { name: 'create'; type: { id: string; authorId: string } },
+    { name: 'read'; type: { id: string; authorId: string } },
+    { name: 'update'; type: { id: string; authorId: string } },
+    { name: 'delete'; type: { id: string; authorId: string } },
   ]
 }
 
@@ -126,14 +127,17 @@ type PermissionsDefinition = {
 const permix = createPermix<PermissionsDefinition>()
 
 // Create a standalone template function
-function userPermissions(userId: string, role: 'admin' | 'user'): Rules<PermissionsDefinition> {
+function userPermissions(
+  userId: string,
+  role: 'admin' | 'user'
+): Rules<PermissionsDefinition> {
   return {
     post: {
       create: role === 'admin',
       read: true,
       update: role === 'admin' ? true : (post) => post?.authorId === userId,
-      delete: role === 'admin'
-    }
+      delete: role === 'admin',
+    },
   }
 }
 
@@ -144,6 +148,7 @@ permix.setup(permissions)
 ```
 
 This approach allows you to:
+
 - Keep permission logic separate from your Permix instance
 - Reuse permission templates across different parts of your application
 - Maintain full type safety with your Permix definition

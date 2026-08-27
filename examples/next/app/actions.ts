@@ -1,13 +1,19 @@
 'use server'
 
-import type { DemoRole } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+
+import type { DemoRole } from '@/lib/auth'
 
 export async function switchRole(formData: FormData) {
   const role = formData.get('role')
 
-  if (role !== 'guest' && role !== 'alice' && role !== 'bob' && role !== 'admin') {
+  if (
+    role !== 'guest' &&
+    role !== 'alice' &&
+    role !== 'bob' &&
+    role !== 'admin'
+  ) {
     return
   }
 

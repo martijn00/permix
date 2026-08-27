@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix, PermixRuleNotDefinedError } from '../core'
 import { createComponents, PermixHydrate, PermixProvider } from './components'
 import { usePermix } from './hooks'
@@ -34,7 +35,7 @@ describe('components', () => {
         <PermixHydrate state={dehydrated}>
           <TestComponent />
         </PermixHydrate>
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container.firstChild).toHaveTextContent('true')
@@ -55,18 +56,16 @@ describe('components', () => {
 
     const { Check } = createComponents(permix)
 
-    const TestPost = () => {
-      return (
-        <Check path="post.create">
-          <div>{text}</div>
-        </Check>
-      )
-    }
+    const TestPost = () => (
+      <Check path="post.create">
+        <div>{text}</div>
+      </Check>
+    )
 
     const { getByText } = render(
       <PermixProvider permix={permix}>
         <TestPost />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(getByText(text)).toBeInTheDocument()
@@ -74,12 +73,12 @@ describe('components', () => {
 
   it('should work with Check component and data', () => {
     const permix = createPermix<{
-      post: [{ name: 'edit', type: { authorId: string } }]
+      post: [{ name: 'edit'; type: { authorId: string } }]
     }>()
 
     permix.setup({
       post: {
-        edit: post => post?.authorId === '1',
+        edit: (post) => post?.authorId === '1',
       },
     })
 
@@ -88,38 +87,34 @@ describe('components', () => {
 
     const { Check } = createComponents(permix)
 
-    const TestPost1 = () => {
-      return (
-        <Check path="post.edit" data={{ authorId: '1' }}>
-          <div data-testid="post-can-be-created">{canText}</div>
-        </Check>
-      )
-    }
+    const TestPost1 = () => (
+      <Check path="post.edit" data={{ authorId: '1' }}>
+        <div data-testid="post-can-be-created">{canText}</div>
+      </Check>
+    )
 
     const { container: container1 } = render(
       <PermixProvider permix={permix}>
         <TestPost1 />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container1.innerHTML).toContain(canText)
 
-    const TestPost2 = () => {
-      return (
-        <Check
-          path="post.edit"
-          data={{ authorId: '2' }}
-          otherwise={<div data-testid="otherwise">{cannotText}</div>}
-        >
-          <div data-testid="post-can-be-created">{canText}</div>
-        </Check>
-      )
-    }
+    const TestPost2 = () => (
+      <Check
+        path="post.edit"
+        data={{ authorId: '2' }}
+        otherwise={<div data-testid="otherwise">{cannotText}</div>}
+      >
+        <div data-testid="post-can-be-created">{canText}</div>
+      </Check>
+    )
 
     const { container: container2 } = render(
       <PermixProvider permix={permix}>
         <TestPost2 />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container2.innerHTML).not.toContain(canText)
@@ -141,18 +136,16 @@ describe('components', () => {
 
     const { Check } = createComponents(permix)
 
-    const TestComponent = () => {
-      return (
-        <Check path="post.read">
-          <span data-testid="read">{text}</span>
-        </Check>
-      )
-    }
+    const TestComponent = () => (
+      <Check path="post.read">
+        <span data-testid="read">{text}</span>
+      </Check>
+    )
 
     const { container } = render(
       <PermixProvider permix={permix}>
         <TestComponent />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container.innerHTML).not.toContain(text)
@@ -184,22 +177,16 @@ describe('components', () => {
 
     const { Check } = createComponents(permix)
 
-    const TestComponent = () => {
-      return (
-        <Check
-          path="post.create"
-          reverse
-          otherwise={<div>{otherwiseText}</div>}
-        >
-          <div>{defaultText}</div>
-        </Check>
-      )
-    }
+    const TestComponent = () => (
+      <Check path="post.create" reverse otherwise={<div>{otherwiseText}</div>}>
+        <div>{defaultText}</div>
+      </Check>
+    )
 
     const { container } = render(
       <PermixProvider permix={permix}>
         <TestComponent />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container.innerHTML).not.toContain(defaultText)
@@ -230,34 +217,34 @@ describe('components', () => {
 
     const { Check } = createComponents(permix)
 
-    const TestEntityComponent = () => {
-      return (
-        // @ts-expect-error path does not exist
-        <Check path="not-exist">
-          <div>Entity prop</div>
-        </Check>
+    const TestEntityComponent = () => (
+      // @ts-expect-error path does not exist
+      <Check path="not-exist">
+        <div>Entity prop</div>
+      </Check>
+    )
+
+    const TestActionComponent = () => (
+      // @ts-expect-error path does not exist
+      <Check path="post.not-exist">
+        <div>Action prop</div>
+      </Check>
+    )
+
+    expect(() =>
+      render(
+        <PermixProvider permix={permix}>
+          <TestEntityComponent />
+        </PermixProvider>
       )
-    }
+    ).toThrow(PermixRuleNotDefinedError)
 
-    const TestActionComponent = () => {
-      return (
-        // @ts-expect-error path does not exist
-        <Check path="post.not-exist">
-          <div>Action prop</div>
-        </Check>
+    expect(() =>
+      render(
+        <PermixProvider permix={permix}>
+          <TestActionComponent />
+        </PermixProvider>
       )
-    }
-
-    expect(() => render(
-      <PermixProvider permix={permix}>
-        <TestEntityComponent />
-      </PermixProvider>,
-    )).toThrow(PermixRuleNotDefinedError)
-
-    expect(() => render(
-      <PermixProvider permix={permix}>
-        <TestActionComponent />
-      </PermixProvider>,
-    )).toThrow(PermixRuleNotDefinedError)
+    ).toThrow(PermixRuleNotDefinedError)
   })
 })

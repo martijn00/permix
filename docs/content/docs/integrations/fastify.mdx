@@ -8,7 +8,8 @@ description: Learn how to use Permix with Fastify
 Permix provides a plugin for Fastify that allows you to easily check permissions in your routes. The plugin can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with Fastify integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Fastify integration, make sure you've completed
+  the initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -36,27 +37,30 @@ const fastify = Fastify()
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
   ]
 }>()
 
 // Set up the plugin with your permission rules
-await fastify.register(permix.setupMiddleware(({ request, reply }) => {
-  // You can access request.user or other properties to determine permissions
-  return {
-    post: {
-      create: true,
-      read: true,
-      update: false
+await fastify.register(
+  permix.setupMiddleware(({ request, reply }) => {
+    // You can access request.user or other properties to determine permissions
+    return {
+      post: {
+        create: true,
+        read: true,
+        update: false,
+      },
     }
-  }
-}))
+  })
+)
 ```
 
 <Callout>
-The plugin preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+  The plugin preserves full type safety from your Permix definition, ensuring
+  your permission checks are type-safe.
 </Callout>
 
 </Step>
@@ -68,32 +72,50 @@ The plugin preserves full type safety from your Permix definition, ensuring your
 Use the `checkMiddleware` function in your Fastify routes to check permissions:
 
 ```ts
-fastify.post('/posts', {
-  preHandler: permix.checkMiddleware('post.create'),
-}, (request, reply) => {
-  reply.send({ success: true })
-})
+fastify.post(
+  '/posts',
+  {
+    preHandler: permix.checkMiddleware('post.create'),
+  },
+  (request, reply) => {
+    reply.send({ success: true })
+  }
+)
 
 // Check multiple actions
-fastify.put('/posts/:id', {
-  preHandler: permix.checkMiddleware(c => c('post.read') && c('post.update')),
-}, (request, reply) => {
-  reply.send({ success: true })
-})
+fastify.put(
+  '/posts/:id',
+  {
+    preHandler: permix.checkMiddleware(
+      (c) => c('post.read') && c('post.update')
+    ),
+  },
+  (request, reply) => {
+    reply.send({ success: true })
+  }
+)
 
 // Check all actions
-fastify.delete('/posts/:id', {
-  preHandler: permix.checkMiddleware('post.~all'),
-}, (request, reply) => {
-  reply.send({ success: true })
-})
+fastify.delete(
+  '/posts/:id',
+  {
+    preHandler: permix.checkMiddleware('post.~all'),
+  },
+  (request, reply) => {
+    reply.send({ success: true })
+  }
+)
 
 // Check any action
-fastify.get('/posts', {
-  preHandler: permix.checkMiddleware('post.~any'),
-}, (request, reply) => {
-  reply.send({ posts: getAllPosts() })
-})
+fastify.get(
+  '/posts',
+  {
+    preHandler: permix.checkMiddleware('post.~any'),
+  },
+  (request, reply) => {
+    reply.send({ posts: getAllPosts() })
+  }
+)
 ```
 
 </Step>
@@ -113,7 +135,9 @@ fastify.get('/posts', (request, reply) => {
     // User has permission to read posts
     reply.send({ posts: getAllPosts() })
   } else {
-    reply.status(403).send({ error: 'You do not have permission to read posts' })
+    reply
+      .status(403)
+      .send({ error: 'You do not have permission to read posts' })
   }
 })
 ```
@@ -134,25 +158,27 @@ const adminTemplate = permix.template({
   post: {
     create: true,
     read: true,
-    update: true
-  }
+    update: true,
+  },
 })
 
 // Use the template in your middleware
-await fastify.register(permix.setupMiddleware(({ request }) => {
-  // You can still customize the template based on request data
-  if (request.user?.role === 'admin') {
-    return adminTemplate()
-  }
-
-  return {
-    post: {
-      create: false,
-      read: true,
-      update: false
+await fastify.register(
+  permix.setupMiddleware(({ request }) => {
+    // You can still customize the template based on request data
+    if (request.user?.role === 'admin') {
+      return adminTemplate()
     }
-  }
-}))
+
+    return {
+      post: {
+        create: false,
+        read: true,
+        update: false,
+      },
+    }
+  })
+)
 ```
 
 </Step>
@@ -171,7 +197,7 @@ const permix = createPermix<Definition>({
     reply.status(403).send({
       error: 'Custom forbidden message',
     })
-  }
+  },
 })
 ```
 
@@ -192,11 +218,12 @@ const permix = createPermix<Definition>({
     reply.status(403).send({
       error: 'You do not have permission to perform this action',
     })
-  }
+  },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `request`: Fastify Request object
 - `reply`: Fastify Reply object
 - `path`: The permission path that was checked (or `null` for callback checks)
@@ -209,18 +236,20 @@ The `onForbidden` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-await fastify.register(permix.setupMiddleware(async ({ request }) => {
-  // Fetch user permissions from database
-  const userPermissions = await getUserPermissions(request.user.id)
+await fastify.register(
+  permix.setupMiddleware(async ({ request }) => {
+    // Fetch user permissions from database
+    const userPermissions = await getUserPermissions(request.user.id)
 
-  return {
-    post: {
-      create: userPermissions.canCreatePosts,
-      read: userPermissions.canReadPosts,
-      update: userPermissions.canUpdatePosts
+    return {
+      post: {
+        create: userPermissions.canCreatePosts,
+        read: userPermissions.canReadPosts,
+        update: userPermissions.canUpdatePosts,
+      },
     }
-  }
-}))
+  })
+)
 ```
 
 ### Dynamic Data-Based Permissions
@@ -240,7 +269,7 @@ fastify.put('/posts/:id', {
     } else {
       reply.status(403).send({ error: 'You cannot update this post' })
     }
-  }
+  },
 })
 ```
 

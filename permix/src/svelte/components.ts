@@ -1,4 +1,5 @@
 import type { Component, Snippet } from 'svelte'
+
 import type { DataAtPath, Definition, Permix, RulesPaths } from '../core'
 import Check from './Check.svelte'
 
@@ -20,10 +21,10 @@ export interface PermixComponents<D extends Definition> {
  * @link https://permix.letstri.dev/docs/integrations/svelte
  */
 export function createComponents<D extends Definition>(
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  permix: Pick<Permix<D>, 'getRules' | 'check'>,
+  // eslint-disable-next-line no-unused-vars
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
   return {
-    Check: Check as unknown as PermixComponents<D>['Check'],
+    Check,
   }
 }

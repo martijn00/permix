@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
+
 import { createHooks } from './hooks'
 
-describe('createHooks', () => {
+describe(createHooks, () => {
   it('should register and call hooks', () => {
     const { hook, callHook } = createHooks()
     const mockFn = vi.fn()
@@ -31,7 +32,7 @@ describe('createHooks', () => {
     callHook('test', 'arg1')
     callHook('test', 'arg2')
 
-    expect(mockFn).toHaveBeenCalledTimes(1)
+    expect(mockFn).toHaveBeenCalledOnce()
     expect(mockFn).toHaveBeenCalledWith('arg1')
   })
 
@@ -90,7 +91,9 @@ describe('createHooks', () => {
 
   it('should safely handle calling non-existent hooks', () => {
     const { callHook } = createHooks()
-    expect(() => callHook('nonexistent', 'arg')).not.toThrow()
+    expect(() => {
+      callHook('nonexistent', 'arg')
+    }).not.toThrow()
   })
 
   it('should call hooks with generic', () => {

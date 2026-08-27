@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/svelte'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix } from '../core'
 import HookApp from './__fixtures__/HookApp.svelte'
 import HookConsumer from './__fixtures__/HookConsumer.svelte'
@@ -8,12 +9,12 @@ import '@testing-library/jest-dom/vitest'
 describe('permix svelte', () => {
   it('should work with custom hook', () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     permix.setup({
       post: {
-        create: post => post?.id === '1',
+        create: (post) => post?.id === '1',
         read: false,
       },
     })
@@ -26,12 +27,12 @@ describe('permix svelte', () => {
 
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     permix.setup({
       post: {
-        create: post => post?.id === '1',
+        create: (post) => post?.id === '1',
         read: false,
       },
     })
@@ -43,7 +44,7 @@ describe('permix svelte', () => {
 
     permix.setup({
       post: {
-        create: post => post?.id === '2',
+        create: (post) => post?.id === '2',
         read: true,
       },
     })
@@ -56,7 +57,7 @@ describe('permix svelte', () => {
 
   it('should check isReady', async () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     const { getByTestId } = render(HookApp, { props: { permix } })
@@ -77,7 +78,7 @@ describe('permix svelte', () => {
 
   it('should throw error when PermixProvider is missing', () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     expect(() => render(HookConsumer, { props: { permix } })).toThrow()

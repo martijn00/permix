@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix } from '../core'
 import { PermixProvider } from './components'
 
@@ -12,7 +13,9 @@ describe('permix vue provider', () => {
           permix: undefined,
         },
       })
-    }).toThrow('[Permix]: Looks like you forgot to provide the permix instance to PermixProvider')
+    }).toThrow(
+      '[Permix]: Looks like you forgot to provide the permix instance to PermixProvider'
+    )
   })
 
   it('should not throw an error when permix instance is provided', () => {

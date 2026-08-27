@@ -1,13 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
+const currentDir = import.meta.dirname
 const srcDir = path.join(currentDir, '..', 'src')
 const svelteDist = path.join(currentDir, '..', 'dist', 'svelte')
 
 if (!fs.existsSync(svelteDist)) {
-  throw new Error('[Permix]: dist/svelte not found. Run `svelte-package` before this script.')
+  throw new Error(
+    '[Permix]: dist/svelte not found. Run `svelte-package` before this script.'
+  )
 }
 
 /**
@@ -70,7 +71,10 @@ function rewriteCoreImports(dir: string) {
     }
 
     const content = fs.readFileSync(fullPath, 'utf-8')
-    const rewritten = content.replace(/(['"])\.\.\/core\1/g, '$1../core/index.mjs$1')
+    const rewritten = content.replaceAll(
+      /(['"])\.\.\/core\1/g,
+      '$1../core/index.mjs$1'
+    )
 
     if (rewritten !== content) {
       fs.writeFileSync(fullPath, rewritten)

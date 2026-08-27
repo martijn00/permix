@@ -8,7 +8,8 @@ description: Learn how to use Permix with oRPC
 Permix provides a middleware for oRPC that allows you to easily check permissions in your middlewares. The middleware can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with oRPC integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with oRPC integration, make sure you've completed the
+  initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -52,18 +53,20 @@ const protectedMiddleware = orpcPermix.use(({ context, next }) => {
       post: {
         create: true,
         read: true,
-        update: isAdmin
+        update: isAdmin,
       },
       user: {
-        delete: isAdmin
-      }
-    })
+        delete: isAdmin,
+      },
+    }),
   })
 })
 ```
 
 <Callout>
-Call `.contextKey('name')` on the returned builder to set a custom context key — its literal type is inferred automatically. Omit it to use the default key `'permix'`. Pass `onForbidden` as an option to `createPermix` itself.
+  Call `.contextKey('name')` on the returned builder to set a custom context key
+  — its literal type is inferred automatically. Omit it to use the default key
+  `'permix'`. Pass `onForbidden` as an option to `createPermix` itself.
 </Callout>
 
 </Step>
@@ -84,7 +87,7 @@ const router = orpcPermix.router({
     }),
 
   updatePost: protectedMiddleware
-    .use(permix.checkMiddleware(c => c('post.read') && c('post.update')))
+    .use(permix.checkMiddleware((c) => c('post.read') && c('post.update')))
     .handler(({ context }) => {
       // Update post logic here
       return { success: true }
@@ -95,7 +98,7 @@ const router = orpcPermix.router({
     .handler(({ context }) => {
       // Delete user logic here
       return { success: true }
-    })
+    }),
 })
 ```
 
@@ -109,21 +112,21 @@ Permix is automatically added to your oRPC context under the key you specified, 
 
 ```ts
 const router = orpcPermix.router({
-  getPosts: protectedMiddleware
-    .handler(({ context }) => {
-      // Check permissions manually
-      if (context.permissions.check('post.read')) {
-        return getAllPosts()
-      }
+  getPosts: protectedMiddleware.handler(({ context }) => {
+    // Check permissions manually
+    if (context.permissions.check('post.read')) {
+      return getAllPosts()
+    }
 
-      throw new ORPCError('FORBIDDEN', {
-        message: 'You do not have permission to read posts'
-      })
+    throw new ORPCError('FORBIDDEN', {
+      message: 'You do not have permission to read posts',
     })
+  }),
 })
 ```
 
 The `context.permissions` object provides:
+
 - `check`: Synchronously check a permission
 - `dehydrate`: Serialize the current rules for client hydration
 - `template`: Create reusable permission templates
@@ -142,11 +145,11 @@ const adminTemplate = permix.template({
   post: {
     create: true,
     read: true,
-    update: true
+    update: true,
   },
   user: {
-    delete: true
-  }
+    delete: true,
+  },
 })
 
 // Create a template for regular user permissions
@@ -154,20 +157,18 @@ const userTemplate = permix.template({
   post: {
     create: true,
     read: true,
-    update: false
+    update: false,
   },
   user: {
-    delete: false
-  }
+    delete: false,
+  },
 })
 
 // Use templates in your middleware
 const protectedMiddleware = orpcPermix.use(({ context, next }) => {
   return next({
     context: permix.setupContext(
-      context.user.role === 'admin'
-        ? adminTemplate()
-        : userTemplate()
+      context.user.role === 'admin' ? adminTemplate() : userTemplate()
     ),
   })
 })
@@ -187,9 +188,9 @@ By default, the middleware throws an `ORPCError` with code `FORBIDDEN`. You can 
 const permix = createPermix<Definition>({
   onForbidden: ({ path, context }) => {
     throw new ORPCError('FORBIDDEN', {
-      message: `User ${context.user.id} doesn't have permission for ${path}`
+      message: `User ${context.user.id} doesn't have permission for ${path}`,
     })
-  }
+  },
 })
 ```
 
@@ -202,11 +203,12 @@ const permix = createPermix<Definition>({
   onForbidden: ({ path, next }) => {
     console.warn(`Permission denied for ${path}, allowing through`)
     return next()
-  }
+  },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `path`: The permission path that was checked (e.g. `'post.create'`)
 - `data`: Optional data passed to the check
 - `context`: Your oRPC context object
@@ -227,12 +229,12 @@ const protectedMiddleware = orpcPermix.use(async ({ context, next }) => {
       post: {
         create: userPermissions.canCreatePosts,
         read: userPermissions.canReadPosts,
-        update: userPermissions.canUpdatePosts
+        update: userPermissions.canUpdatePosts,
       },
       user: {
-        delete: userPermissions.canDeleteUsers
-      }
-    })
+        delete: userPermissions.canDeleteUsers,
+      },
+    }),
   })
 })
 ```

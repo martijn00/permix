@@ -1,6 +1,7 @@
 import type { PropType, SetupContext, SlotsType, VNode } from 'vue'
-import type { CheckArgs, Definition, DehydratedState, Permix } from '../core'
 import { defineComponent, onUnmounted, watch } from 'vue'
+
+import type { CheckArgs, Definition, DehydratedState, Permix } from '../core'
 import { usePermix } from './composables'
 import { providePermixContext, usePermixContext } from './context'
 
@@ -32,15 +33,18 @@ export interface CheckProps<D extends Definition> {
   reverse?: boolean
 }
 
-type CheckContext = SetupContext<any, SlotsType<{
-  default: void
-  otherwise?: void
-}>>
+type CheckContext = SetupContext<
+  any,
+  SlotsType<{
+    default: void
+    otherwise?: void
+  }>
+>
 
 export interface PermixComponents<D extends Definition> {
   Check: (
     props: CheckProps<D>,
-    context: CheckContext,
+    context: CheckContext
   ) => VNode | VNode[] | undefined
 }
 
@@ -60,7 +64,9 @@ export const PermixHydrate = defineComponent({
   setup(props, { slots }) {
     const context = usePermixContext()
 
-    const hydrate = () => context.value.permix.hydrate(props.state)
+    const hydrate = () => {
+      context.value.permix.hydrate(props.state)
+    }
 
     hydrate()
     watch(() => props.state, hydrate)
@@ -69,17 +75,22 @@ export const PermixHydrate = defineComponent({
   },
 })
 
-export function createComponents<D extends Definition>(permix: Pick<Permix<D>, 'getRules' | 'check'>): PermixComponents<D> {
-  function Check(
-    props: CheckProps<D>,
-    context: CheckContext,
-  ) {
+export function createComponents<D extends Definition>(
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
+): PermixComponents<D> {
+  function Check(props: CheckProps<D>, context: CheckContext) {
     const { check } = usePermix(permix)
 
-    const hasPermission = check(...([props.path, props.data] as unknown as CheckArgs<D>))
+    const hasPermission = check(
+      ...([props.path, props.data] as unknown as CheckArgs<D>)
+    )
     return props.reverse
-      ? (hasPermission ? context.slots.otherwise?.() : context.slots.default?.())
-      : (hasPermission ? context.slots.default?.() : context.slots.otherwise?.())
+      ? hasPermission
+        ? context.slots.otherwise?.()
+        : context.slots.default?.()
+      : hasPermission
+        ? context.slots.default?.()
+        : context.slots.otherwise?.()
   }
 
   Check.inheritAttrs = false

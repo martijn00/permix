@@ -1,5 +1,7 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+
 import { createRouterPermix } from '@/lib/permix'
+
 import { routeTree } from './routeTree.gen'
 
 export function getRouter() {

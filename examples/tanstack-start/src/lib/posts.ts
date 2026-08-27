@@ -10,5 +10,5 @@ export async function getPosts(): Promise<Post[]> {
 }
 
 export async function getPost(id: string): Promise<Post | null> {
-  return posts.find(post => post.id === id) ?? null
+  return posts.find((post) => post.id === id) ?? null
 }

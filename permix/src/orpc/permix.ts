@@ -1,23 +1,37 @@
+import { ORPCError, os } from '@orpc/server'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
-import { ORPCError, os } from '@orpc/server'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface PermixOptions<D extends Definition> {
-  onForbidden?: (params: CheckContext<D> & { context: Record<string, any>, next: (...args: any[]) => any }) => any
+  onForbidden?: (
+    params: CheckContext<D> & {
+      context: Record<string, any>
+      next: (...args: any[]) => any
+    }
+  ) => any
 }
 
 function buildPermix<D extends Definition, const Key extends string>(
   resolveKey: () => string,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const forbiddenHandler = options.onForbidden ?? (() => {
-    throw new ORPCError('FORBIDDEN', {
-      message: 'You do not have permission to perform this action',
+  const forbiddenHandler =
+    options.onForbidden ??
+    (() => {
+      throw new ORPCError('FORBIDDEN', {
+        message: 'You do not have permission to perform this action',
+      })
     })
-  })
 
   const hooks = createHooks<PermixHooks<D>>()
 
@@ -25,7 +39,9 @@ function buildPermix<D extends Definition, const Key extends string>(
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
     const instance = createPermixCore<D>(rules)
-    instance.hook('check', context => hooks.callHook('check', context))
+    instance.hook('check', (context) => {
+      hooks.callHook('check', context)
+    })
     return { [resolveKey()]: instance } as { [P in Key]: PermixCore<D> }
   }
 
@@ -39,14 +55,16 @@ function buildPermix<D extends Definition, const Key extends string>(
       }
 
       if (instance.check(...args)) {
-        return opts.next()
+        return await opts.next()
       }
 
-      return forbiddenHandler({ ...opts, ...createCheckContext(...args) }) as any
+      return forbiddenHandler({ ...opts, ...createCheckContext(...args) })
     })
   }
 
-  function getRules(context: Record<string, PermixCore<D> | undefined>): Rules<D> | null {
+  function getRules(
+    context: Record<string, PermixCore<D> | undefined>
+  ): Rules<D> | null {
     return context[resolveKey()]?.getRules() ?? null
   }
 
@@ -100,7 +118,9 @@ function buildPermix<D extends Definition, const Key extends string>(
  *
  * @link https://permix.letstri.dev/docs/integrations/orpc
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
   let key: string = 'permix'
   const permix = buildPermix<D, 'permix'>(() => key, options)
 
@@ -112,4 +132,6 @@ export function createPermix<D extends Definition>(options: PermixOptions<D> = {
   })
 }
 
-export type OrpcPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type OrpcPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>

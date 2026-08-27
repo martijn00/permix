@@ -1,5 +1,5 @@
-import type { ValidateDefinition } from 'permix'
 import express from 'express'
+import type { ValidateDefinition } from 'permix'
 import { createPermix } from 'permix/express'
 
 const app = express()
@@ -10,16 +10,20 @@ type PermissionsDefinition = ValidateDefinition<{
 
 const permix = createPermix<PermissionsDefinition>({
   onForbidden: ({ res }) => {
-    res.status(403).json({ error: 'You do not have permission to access this resource' })
+    res
+      .status(403)
+      .json({ error: 'You do not have permission to access this resource' })
   },
 })
 
-app.use(permix.setupMiddleware(() => ({
-  user: {
-    read: true,
-    write: false,
-  },
-})))
+app.use(
+  permix.setupMiddleware(() => ({
+    user: {
+      read: true,
+      write: false,
+    },
+  }))
+)
 
 const router = express.Router()
 

@@ -40,7 +40,7 @@ Restart Cursor or start a new agent chat so skills are picked up.
 ## Skills
 
 | Skill | Intent id | When to use |
-|-------|-----------|-------------|
+| --- | --- | --- |
 | [permix-getting-started](./permix-getting-started/SKILL.md) | `permix#permix-getting-started` | New project, schema, `setup`, roles/templates |
 | [permix](./permix/SKILL.md) | `permix#permix` | Everything past setup: `check`/ReBAC (`references/check.md`), React/Vue/Solid/Svelte + SSR (`references/frontend.md`), Express/Hono/Fastify/tRPC/oRPC middleware (`references/server.md`) |
 
@@ -56,7 +56,7 @@ The package includes the `tanstack-intent` npm keyword. Published versions are i
 ## Optional integrations (docs only)
 
 | Topic | Docs |
-|-------|------|
+| --- | --- |
 | Effect | https://permix.letstri.dev/docs/integrations/effect |
 | Drizzle ORM | https://permix.letstri.dev/docs/integrations/drizzle |
 | Events (`hook`, `hookOnce`) | https://permix.letstri.dev/docs/guide/events |

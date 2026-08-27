@@ -5,12 +5,12 @@
     "#/*": "./src/*"
   },
   "scripts": {
+    "build": "vite build",
+    "check-types": "tsc --noEmit",
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
-    "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "check-types": "tsc --noEmit"
+    "test": "vitest run"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

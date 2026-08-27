@@ -1,9 +1,10 @@
+import { cache } from 'react'
+
 import type { Permix as PermixCore } from '../core'
+import { createPermix as createPermixCore, createTemplate } from '../core'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { DehydratedState } from '../core/rules'
-import { cache } from 'react'
-import { createPermix as createPermixCore, createTemplate } from '../core'
 
 /**
  * Create a per-request Permix instance for Next.js App Router.
@@ -72,12 +73,18 @@ export function createPermix<D extends Definition>() {
     return createTemplate<D, T>(rules)
   }
 
-  function hook<K extends keyof PermixHooks<D>>(name: K, fn: PermixHooks<D>[K]) {
+  function hook<K extends keyof PermixHooks<D>>(
+    name: K,
+    fn: PermixHooks<D>[K]
+  ) {
     return getPermix().hook(name, fn)
   }
 
-  function hookOnce<K extends keyof PermixHooks<D>>(name: K, fn: PermixHooks<D>[K]) {
-    return getPermix().hookOnce(name, fn)
+  function hookOnce<K extends keyof PermixHooks<D>>(
+    name: K,
+    fn: PermixHooks<D>[K]
+  ) {
+    getPermix().hookOnce(name, fn)
   }
 
   return {
@@ -94,4 +101,6 @@ export function createPermix<D extends Definition>() {
   }
 }
 
-export type NextPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type NextPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>

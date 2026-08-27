@@ -1,29 +1,47 @@
 import type { TRPCMiddlewareBuilder } from '@trpc/server'
+import { initTRPC, TRPCError } from '@trpc/server'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
-import { initTRPC, TRPCError } from '@trpc/server'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface PermixOptions<D extends Definition> {
-  onForbidden?: (params: CheckContext<D> & { ctx: Record<string, any>, next: (...args: any[]) => any }) => any
+  onForbidden?: (
+    params: CheckContext<D> & {
+      ctx: Record<string, any>
+      next: (...args: any[]) => any
+    }
+  ) => any
 }
 
-type TrpcContext<D extends Definition, Key extends string> = { [P in Key]: PermixCore<D> }
-type TrpcRootContext<D extends Definition, Key extends string>
-  = TrpcContext<D, Key> extends (...args: any[]) => infer TReturn ? Awaited<TReturn> : TrpcContext<D, Key>
+type TrpcContext<D extends Definition, Key extends string> = {
+  [P in Key]: PermixCore<D>
+}
+type TrpcRootContext<D extends Definition, Key extends string> =
+  TrpcContext<D, Key> extends (...args: any[]) => infer TReturn
+    ? Awaited<TReturn>
+    : TrpcContext<D, Key>
 
 function buildPermix<D extends Definition, const Key extends string>(
   resolveKey: () => string,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const forbiddenHandler = options.onForbidden ?? (() => {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have permission to perform this action',
+  const forbiddenHandler =
+    options.onForbidden ??
+    (() => {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to perform this action',
+      })
     })
-  })
 
   const hooks = createHooks<PermixHooks<D>>()
 
@@ -31,7 +49,9 @@ function buildPermix<D extends Definition, const Key extends string>(
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
     const instance = createPermixCore<D>(rules)
-    instance.hook('check', context => hooks.callHook('check', context))
+    instance.hook('check', (context) => {
+      hooks.callHook('check', context)
+    })
     return { [resolveKey() as Key]: instance } as { [P in Key]: PermixCore<D> }
   }
 
@@ -45,14 +65,21 @@ function buildPermix<D extends Definition, const Key extends string>(
       }
 
       if (instance.check(...args)) {
-        return opts.next()
+        return await opts.next()
       }
 
       return forbiddenHandler({ ...opts, ...createCheckContext(...args) })
-    }) as TRPCMiddlewareBuilder<TrpcRootContext<D, Key>, object, unknown, unknown>
+    }) as TRPCMiddlewareBuilder<
+      TrpcRootContext<D, Key>,
+      object,
+      unknown,
+      unknown
+    >
   }
 
-  function getRules(ctx: Record<string, PermixCore<D> | undefined>): Rules<D> | null {
+  function getRules(
+    ctx: Record<string, PermixCore<D> | undefined>
+  ): Rules<D> | null {
     return ctx[resolveKey()]?.getRules() ?? null
   }
 
@@ -110,7 +137,9 @@ function buildPermix<D extends Definition, const Key extends string>(
  *
  * @link https://permix.letstri.dev/docs/integrations/trpc
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
   let key: string = 'permix'
   const permix = buildPermix<D, 'permix'>(() => key, options)
 
@@ -122,4 +151,6 @@ export function createPermix<D extends Definition>(options: PermixOptions<D> = {
   })
 }
 
-export type TrpcPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type TrpcPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>

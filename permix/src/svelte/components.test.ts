@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/svelte'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix } from '../core'
 import CreateApp from './__fixtures__/CreateApp.svelte'
 import EditApp from './__fixtures__/EditApp.svelte'
@@ -27,7 +28,9 @@ describe('components', () => {
       post: ['create', 'read']
     }>()
 
-    const { getByTestId } = render(HydrateApp, { props: { permix: permixClient, state: dehydrated } })
+    const { getByTestId } = render(HydrateApp, {
+      props: { permix: permixClient, state: dehydrated },
+    })
 
     expect(getByTestId('create')).toHaveTextContent('true')
   })
@@ -50,20 +53,24 @@ describe('components', () => {
 
   it('should work with Check component and data', () => {
     const permix = createPermix<{
-      post: [{ name: 'edit', type: { authorId: string } }]
+      post: [{ name: 'edit'; type: { authorId: string } }]
     }>()
 
     permix.setup({
       post: {
-        edit: post => post?.authorId === '1',
+        edit: (post) => post?.authorId === '1',
       },
     })
 
-    const { container: container1 } = render(EditApp, { props: { permix, authorId: '1' } })
+    const { container: container1 } = render(EditApp, {
+      props: { permix, authorId: '1' },
+    })
 
     expect(container1.innerHTML).toContain('Post can be created')
 
-    const { container: container2 } = render(EditApp, { props: { permix, authorId: '2' } })
+    const { container: container2 } = render(EditApp, {
+      props: { permix, authorId: '2' },
+    })
 
     expect(container2.innerHTML).not.toContain('Post can be created')
     expect(container2.innerHTML).toContain('Post cannot be created')

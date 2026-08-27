@@ -1,26 +1,28 @@
 {
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@11.5.0",
+  "type": "module",
   "scripts": {
+    "build": "cd permix && pnpm run build",
+    "check-types": "turbo check-types",
+    "format": "oxfmt --config ./oxfmt.config.ts --ignore-path .gitignore .",
+    "format:check": "oxfmt --config ./oxfmt.config.ts --ignore-path .gitignore --check .",
+    "lint": "oxlint --type-aware --config ./oxlint.config.ts --ignore-path .gitignore --deny-warnings .",
+    "lint:fix": "oxlint --type-aware --config ./oxlint.config.ts --ignore-path .gitignore --fix --deny-warnings .",
     "prepare": "husky",
     "publish": "cd permix && pnpm publish",
-    "build": "cd permix && pnpm run build",
     "test": "cd permix && pnpm run test",
-    "check-types": "turbo check-types",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "update": "taze -r -I major"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.0.0",
-    "@eslint-react/eslint-plugin": "^5.8.9",
-    "eslint": "^10.4.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
     "husky": "^9.1.7",
     "npm-run-all2": "^9.0.1",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "taze": "^19.14.1",
     "turbo": "^2.9.16",
-    "typescript": "^6.0.3"
-  }
+    "typescript": "^6.0.3",
+    "ultracite": "^7.10.6"
+  },
+  "packageManager": "pnpm@11.5.0"
 }

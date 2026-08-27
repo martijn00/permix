@@ -1,6 +1,8 @@
 type HookFn = (...args: any[]) => void
 
-export function createHooks<T extends { [K in keyof T]: HookFn } = Record<string, HookFn>>() {
+export function createHooks<
+  T extends { [K in keyof T]: HookFn } = Record<string, HookFn>,
+>() {
   const hooks = new Map<keyof T, HookFn[]>()
 
   function getList(name: keyof T): HookFn[] {
@@ -17,36 +19,45 @@ export function createHooks<T extends { [K in keyof T]: HookFn } = Record<string
 
     return () => {
       const list = hooks.get(name)
-      if (!list)
+      if (!list) {
         return
+      }
       const index = list.indexOf(fn)
-      if (index !== -1)
+      if (index !== -1) {
         list.splice(index, 1)
+      }
     }
   }
 
   const hookOnce = <K extends keyof T>(name: K, fn: T[K]): void => {
-    let remove: (() => void) | undefined
     const wrapper: HookFn = (...args) => {
-      remove?.()
+      removeHook(name, wrapper as T[K])
       fn(...args)
     }
-    remove = hook(name, wrapper as T[K])
+    hook(name, wrapper as T[K])
   }
 
   const removeHook = <K extends keyof T>(name: K, fn: T[K]): void => {
     const list = hooks.get(name)
-    if (!list)
+    if (!list) {
       return
+    }
     const index = list.indexOf(fn)
-    if (index !== -1)
+    if (index !== -1) {
       list.splice(index, 1)
+    }
   }
 
-  const callHook = <K extends keyof T>(name: K, ...args: Parameters<T[K]>): void => {
+  const callHook = <K extends keyof T>(
+    name: K,
+    ...args: Parameters<T[K]>
+  ): void => {
     const list = hooks.get(name)
-    if (!list)
+    if (!list) {
       return
+    }
+    // Copy so a hook can unsubscribe while this call is still iterating.
+    // eslint-disable-next-line unicorn/no-useless-spread
     for (const fn of [...list]) {
       fn(...args)
     }

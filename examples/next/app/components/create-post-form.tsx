@@ -14,7 +14,7 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
     setResult(
       response.ok
         ? data.message
-        : `${response.status}: ${data.error ?? 'Request failed'}`,
+        : `${response.status}: ${data.error ?? 'Request failed'}`
     )
   }
 
@@ -22,17 +22,12 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
     <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <h2 className="text-lg font-medium">Route handler check</h2>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        POST /api/posts calls
-        {' '}
+        POST /api/posts calls{' '}
         <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs dark:bg-zinc-800">
           permix.check(&apos;post.create&apos;)
-        </code>
-        {' '}
-        on the server. Server says create is
-        {' '}
-        <strong>{canCreate ? 'allowed' : 'denied'}</strong>
-        {' '}
-        for this request.
+        </code>{' '}
+        on the server. Server says create is{' '}
+        <strong>{canCreate ? 'allowed' : 'denied'}</strong> for this request.
       </p>
       <button
         type="button"
@@ -41,11 +36,11 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
       >
         POST /api/posts
       </button>
-      {result
-        ? (
-            <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{result}</p>
-          )
-        : null}
+      {result ? (
+        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+          {result}
+        </p>
+      ) : null}
     </section>
   )
 }

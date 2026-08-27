@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+
 import { usePermissions } from './hooks/use-permissions'
 import { permix, setupFeatureFlags } from './lib/permix'
 
@@ -26,7 +27,9 @@ export default function App() {
   return (
     <div>
       <h1>New UI</h1>
-      <button type="button" onClick={handleApiCall}>Call experimental API</button>
+      <button type="button" onClick={handleApiCall}>
+        Call experimental API
+      </button>
     </div>
   )
 }

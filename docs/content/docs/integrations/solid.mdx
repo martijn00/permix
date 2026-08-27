@@ -8,7 +8,8 @@ description: Learn how to use Permix with Solid applications
 Permix provides official Solid integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your Solid app.
 
 <Callout>
-Before getting started with Solid integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Solid integration, make sure you've completed the
+  initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -33,7 +34,8 @@ function App() {
 ```
 
 <Callout>
-Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook to maintain type safety.
+  Remember to always pass the same Permix instance to both the `PermixProvider`
+  and `usePermix` hook to maintain type safety.
 </Callout>
 
 </Step>
@@ -107,21 +109,20 @@ export default function Page() {
 
   return (
     <>
-      {!isReady()
-        ? <div>Loading permissions...</div>
-        : (
-          <div>
-            {canEdit() ? (
-              <button>Edit Post</button>
-            ) : (
-              <p>You don't have permission to edit this post</p>
-            )}
-            <Check path="post.create">
-              Can I create a post inside the Check component?
-            </Check>
-          </div>
-        )
-      }
+      {!isReady() ? (
+        <div>Loading permissions...</div>
+      ) : (
+        <div>
+          {canEdit() ? (
+            <button>Edit Post</button>
+          ) : (
+            <p>You don't have permission to edit this post</p>
+          )}
+          <Check path="post.create">
+            Can I create a post inside the Check component?
+          </Check>
+        </div>
+      )}
     </>
   )
 }
@@ -142,7 +143,10 @@ import { PermixHydrate, PermixProvider } from 'permix/solid'
 import { permix } from './lib/permix'
 import { getClientRules } from './lib/permissions'
 
-export function App(props: { dehydratedState: DehydratedState<any>, children: any }) {
+export function App(props: {
+  dehydratedState: DehydratedState<any>
+  children: any
+}) {
   onMount(() => {
     permix.setup(getClientRules())
   })

@@ -32,7 +32,7 @@ All figures are **gzip**. Measured on **2026-06-02** from production builds.
 Built with `pnpm run build` in the `permix` package (`tsdown` for all entries except Svelte).
 
 | Entry | gzip | Notes |
-| --- | ---: | --- |
+| --- | --: | --- |
 | **`permix` (core)** | **2.64 kB** | `dist/core/index.mjs` (7.96 kB raw) |
 | `permix/react` | 0.86 kB | adapter |
 | `permix/vue` | 0.87 kB | adapter |
@@ -57,7 +57,7 @@ Integration entries import `../core/index.mjs`, so a typical app ships **core + 
 ### CASL (`@casl/ability@7.0.0`, `@casl/react@7.0.0`)
 
 | Entry | gzip | Notes |
-| --- | ---: | --- |
+| --- | --: | --- |
 | **`@casl/ability` (core)** | **6.17 kB** | minified + gzip, esbuild bundle of `createMongoAbility([])` |
 | `@casl/react` | 0.62 kB | published `dist/esm/index.mjs` only (adapter; ability loaded separately) |
 

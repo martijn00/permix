@@ -1,6 +1,7 @@
-import type { ValidateDefinition } from '../core'
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { createPermix as createCorePermix } from '../core'
 import { PermixHydrate, PermixProvider, usePermix } from '../react'
 import { createPermix as createStartPermix } from './permix'
@@ -52,7 +53,7 @@ describe('tanstack-start → react hydration round-trip', () => {
         <PermixHydrate state={state}>
           <PostStatus />
         </PermixHydrate>
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(getByTestId('create')).toHaveTextContent('true')

@@ -8,7 +8,7 @@ const user = await fetchUser()
 permix.setup({
   post: {
     create: true,
-    edit: post => post ? !post.published : user.role === 'admin',
+    edit: (post) => (post ? !post.published : user.role === 'admin'),
     delete: user.role === 'admin',
   },
 })

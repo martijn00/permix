@@ -1,11 +1,18 @@
 import type { Context, MiddlewareHandler } from 'hono'
+import { createMiddleware } from 'hono/factory'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import { createMiddleware } from 'hono/factory'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface MiddlewareContext {
   c: Context
@@ -16,7 +23,9 @@ export interface PermixOptions<D extends Definition> {
    * Called when a `checkMiddleware` denies the request. Defaults to a 403 JSON
    * response of `{ error: 'Forbidden' }`.
    */
-  onForbidden?: (params: CheckContext<D> & MiddlewareContext) => MaybePromise<Response>
+  onForbidden?: (
+    params: CheckContext<D> & MiddlewareContext
+  ) => MaybePromise<Response>
 }
 
 // Hono's TypeScript types for `c.get`/`c.set` only accept strings, but the
@@ -27,14 +36,17 @@ function keyToString(key: string | symbol): string {
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const onForbidden = options.onForbidden ?? (({ c }) => c.json({ error: 'Forbidden' }, 403))
+  const onForbidden =
+    options.onForbidden ?? (({ c }) => c.json({ error: 'Forbidden' }, 403))
 
   const hooks = createHooks<PermixHooks<D>>()
 
   function get(c: Context): PermixCore<D> | null {
-    const instance = c.get(keyToString(resolveKey())) as PermixCore<D> | undefined
+    const instance = c.get(keyToString(resolveKey())) as
+      | PermixCore<D>
+      | undefined
     return instance ?? null
   }
 
@@ -47,21 +59,28 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules:
+      | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
+      | Rules<D>
   ): MiddlewareHandler {
     return createMiddleware(async (c, next) => {
-      const rules = typeof callbackOrRules === 'function'
-        ? await callbackOrRules({ c })
-        : callbackOrRules
+      const rules =
+        typeof callbackOrRules === 'function'
+          ? await callbackOrRules({ c })
+          : callbackOrRules
       const instance = createPermixCore<D>(rules)
-      instance.hook('check', context => hooks.callHook('check', context))
+      instance.hook('check', (context) => {
+        hooks.callHook('check', context)
+      })
       c.set(keyToString(resolveKey()), instance)
       await next()
     })
   }
 
-  const checkMiddleware: (...args: CheckArgs<D>) => MiddlewareHandler = (...args) => {
-    return createMiddleware(async (c, next) => {
+  const checkMiddleware: (...args: CheckArgs<D>) => MiddlewareHandler = (
+    ...args
+  ) =>
+    createMiddleware(async (c, next) => {
       const permix = get(c)
 
       if (!permix) {
@@ -76,7 +95,6 @@ function buildPermix<D extends Definition>(
 
       await next()
     })
-  }
 
   function getRules(c: Context): Rules<D> | null {
     return get(c)?.getRules() ?? null
@@ -128,7 +146,9 @@ function buildPermix<D extends Definition>(
  *
  * @link https://permix.letstri.dev/docs/integrations/hono
  */
-export function createPermix<D extends Definition>(options: PermixOptions<D> = {}) {
+export function createPermix<D extends Definition>(
+  options: PermixOptions<D> = {}
+) {
   let key: string | symbol = Symbol('permix')
   const permix = buildPermix<D>(() => key, options)
 
@@ -141,4 +161,6 @@ export function createPermix<D extends Definition>(options: PermixOptions<D> = {
 }
 
 /** Return type of {@link createPermix}. */
-export type HonoPermix<D extends Definition> = ReturnType<typeof createPermix<D>>
+export type HonoPermix<D extends Definition> = ReturnType<
+  typeof createPermix<D>
+>

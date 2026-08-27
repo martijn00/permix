@@ -1,8 +1,9 @@
 import type { ErrorRequestHandler } from 'express'
-import type { ValidateDefinition } from '../core'
 import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { PermixNotFoundError } from '../core'
 import { createPermix } from './permix'
 
@@ -17,10 +18,10 @@ type PermissionsDefinition = ValidateDefinition<{
 }>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create', type: Post }]
+  post: [{ name: 'create'; type: Post }]
 }>
 
-describe('createPermix', () => {
+describe(createPermix, () => {
   const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts error', () => {
@@ -31,10 +32,12 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
       res.json({ success: true })
@@ -45,16 +48,18 @@ describe('createPermix', () => {
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
+    expect(response.body).toStrictEqual({ success: true })
   })
 
   it('should deny access when permission is not granted', async () => {
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
       res.json({ success: true })
@@ -65,7 +70,7 @@ describe('createPermix', () => {
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(403)
-    expect(response.body).toEqual({ error: 'Forbidden' })
+    expect(response.body).toStrictEqual({ error: 'Forbidden' })
   })
 
   it('should work with custom error handler', async () => {
@@ -77,10 +82,12 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
       res.json({ success: true })
@@ -91,22 +98,26 @@ describe('createPermix', () => {
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(403)
-    expect(response.body).toEqual({ error: 'Custom error' })
+    expect(response.body).toStrictEqual({ error: 'Custom error' })
   })
 
   it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ res, path }) => {
-        res.status(403).json({ error: `You do not have permission for ${path}` })
+        res
+          .status(403)
+          .json({ error: `You do not have permission for ${path}` })
       },
     })
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
       res.json({ success: true })
@@ -117,7 +128,9 @@ describe('createPermix', () => {
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(403)
-    expect(response.body).toEqual({ error: 'You do not have permission for post.create' })
+    expect(response.body).toStrictEqual({
+      error: 'You do not have permission for post.create',
+    })
   })
 
   it('should pass data through to a rule callback', async () => {
@@ -125,22 +138,28 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: {
-        create: post => post?.authorId === '1',
-      },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: {
+          create: (post) => post?.authorId === '1',
+        },
+      })
+    )
 
-    app.post('/posts', permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }), (req, res) => {
-      res.json({ success: true })
-    })
+    app.post(
+      '/posts',
+      permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }),
+      (req, res) => {
+        res.json({ success: true })
+      }
+    )
 
     const response = await request(app)
       .post('/posts')
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
+    expect(response.body).toStrictEqual({ success: true })
   })
 
   it('should work with checker callback form', async () => {
@@ -148,21 +167,27 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: false },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: false },
+        user: { delete: true },
+      })
+    )
 
-    app.post('/posts', permix.checkMiddleware(c => c('post.create') && c('user.delete')), (req, res) => {
-      res.json({ success: true })
-    })
+    app.post(
+      '/posts',
+      permix.checkMiddleware((c) => c('post.create') && c('user.delete')),
+      (req, res) => {
+        res.json({ success: true })
+      }
+    )
 
     const response = await request(app)
       .post('/posts')
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
+    expect(response.body).toStrictEqual({ success: true })
   })
 
   it('should work with template', async () => {
@@ -184,7 +209,7 @@ describe('createPermix', () => {
       .send({ title: 'Test Post' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ success: true })
+    expect(response.body).toStrictEqual({ success: true })
   })
 
   it('should dehydrate permissions', async () => {
@@ -203,7 +228,7 @@ describe('createPermix', () => {
     const response = await request(app).get('/dehydrate')
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({
+    expect(response.body).toStrictEqual({
       post: { create: true, read: false, update: true },
       user: { delete: false },
     })
@@ -215,14 +240,18 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(admin.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
-    app.use(guest.setupMiddleware({
-      post: { create: false, read: true, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      admin.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
+    app.use(
+      guest.setupMiddleware({
+        post: { create: false, read: true, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/admin', admin.checkMiddleware('post.create'), (req, res) => {
       res.json({ scope: 'admin' })
@@ -233,11 +262,11 @@ describe('createPermix', () => {
 
     const adminResponse = await request(app).post('/admin')
     expect(adminResponse.status).toBe(200)
-    expect(adminResponse.body).toEqual({ scope: 'admin' })
+    expect(adminResponse.body).toStrictEqual({ scope: 'admin' })
 
     const guestResponse = await request(app).post('/guest')
     expect(guestResponse.status).toBe(403)
-    expect(guestResponse.body).toEqual({ error: 'Forbidden' })
+    expect(guestResponse.body).toStrictEqual({ error: 'Forbidden' })
   })
 
   it('should default to a per-instance symbol so two factories without a key do not collide', async () => {
@@ -246,14 +275,18 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(first.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
-    app.use(second.setupMiddleware({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      first.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
+    app.use(
+      second.setupMiddleware({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/first', first.checkMiddleware('post.create'), (req, res) => {
       res.json({ ok: true })
@@ -275,10 +308,12 @@ describe('createPermix', () => {
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
     app.get('/probe', (req, res) => {
       res.json({ attached: Boolean((req as any)[key]) })
@@ -286,7 +321,7 @@ describe('createPermix', () => {
 
     const response = await request(app).get('/probe')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ attached: true })
+    expect(response.body).toStrictEqual({ attached: true })
   })
 })
 
@@ -303,16 +338,18 @@ describe('get / getOrThrow', () => {
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ result: null })
+    expect(response.body).toStrictEqual({ result: null })
   })
 
   it('should return the instance when setupMiddleware has run', async () => {
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
     app.get('/', (req, res) => {
       const p = permix.getOrThrow(req)
@@ -321,7 +358,7 @@ describe('get / getOrThrow', () => {
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ hasCheck: true })
+    expect(response.body).toStrictEqual({ hasCheck: true })
   })
 
   it('getOrThrow should throw PermixNotFoundError when missing', async () => {
@@ -342,8 +379,9 @@ describe('get / getOrThrow', () => {
 
     const response = await request(app).get('/')
     expect(response.status).toBe(500)
-    expect(response.body).toEqual({
-      error: '[Permix]: Instance not found. Please setup the permix instance first.',
+    expect(response.body).toStrictEqual({
+      error:
+        '[Permix]: Instance not found. Please setup the permix instance first.',
       name: 'PermixNotFoundError',
     })
   })
@@ -357,16 +395,18 @@ describe('get / getOrThrow', () => {
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ rules: null })
+    expect(response.body).toStrictEqual({ rules: null })
   })
 
   it('getRules should return the current rules when setupMiddleware has run', async () => {
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: false, update: false },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: false, update: false },
+        user: { delete: true },
+      })
+    )
 
     app.get('/', (req, res) => {
       res.json({ rules: permix.getRules(req) })
@@ -374,7 +414,7 @@ describe('get / getOrThrow', () => {
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({
+    expect(response.body).toStrictEqual({
       rules: {
         post: { create: true, read: false, update: false },
         user: { delete: true },
@@ -404,8 +444,9 @@ describe('checkMiddleware without setupMiddleware', () => {
 
     const response = await request(app).post('/posts')
     expect(response.status).toBe(500)
-    expect(response.body).toEqual({
-      error: '[Permix]: Instance not found. Please setup the permix instance first.',
+    expect(response.body).toStrictEqual({
+      error:
+        '[Permix]: Instance not found. Please setup the permix instance first.',
     })
   })
 })
@@ -420,10 +461,12 @@ describe('onForbidden receives next', () => {
 
     const app = express()
 
-    app.use(permix.setupMiddleware({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
       res.json({ success: true })
@@ -436,18 +479,21 @@ describe('onForbidden receives next', () => {
 
     const response = await request(app).post('/posts')
     expect(response.status).toBe(403)
-    expect(response.body).toEqual({ customError: 'Forbidden: post.create' })
+    expect(response.body).toStrictEqual({
+      customError: 'Forbidden: post.create',
+    })
   })
 })
 
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
-    const permix = createPermix<PermissionsDefinition>().contextKey('custom-key')
+    const permix =
+      createPermix<PermissionsDefinition>().contextKey('custom-key')
     expect(permix.key).toBe('custom-key')
   })
 
   it('should expose a symbol key when using default', () => {
     const permix = createPermix<PermissionsDefinition>()
-    expect(typeof permix.key).toBe('symbol')
+    expect(permix.key).toBeTypeOf('symbol')
   })
 })

@@ -10,7 +10,10 @@ Permix provides a dedicated integration for [TanStack Start](https://tanstack.co
 You `setupMiddleware()` the rules once per request and `get()` them on the server inside **server functions** and **server routes** — without threading the instance through props. A second instance lives on the **router context**, so `beforeLoad` and `loader` can check permissions isomorphically, and the same instance backs the React integration (`permix/react`) via `PermixProvider` + `PermixHydrate`.
 
 <Callout>
-Before getting started with the TanStack Start integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide. Familiarity with the [Hydration guide](/docs/guide/hydration) helps too.
+  Before getting started with the TanStack Start integration, make sure you've
+  completed the initial setup steps in the [Quick Start](/docs/quick-start)
+  guide. Familiarity with the [Hydration guide](/docs/guide/hydration) helps
+  too.
 </Callout>
 
 <Steps>
@@ -33,10 +36,10 @@ interface Post {
 // Define your permissions once and reuse this type on the server and client.
 export type PermissionsDefinition = ValidateDefinition<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>
 
@@ -46,7 +49,9 @@ export const permix = createPermix<PermissionsDefinition>()
 The returned helper does **not** hold any permission state at module scope — every request gets its own isolated instance.
 
 <Callout>
-By default the instance is stored on the request context under `'__permix'`. Call `.contextKey('permissions')` if you need a custom key (e.g. when running multiple Permix instances side by side).
+  By default the instance is stored on the request context under `'__permix'`.
+  Call `.contextKey('permissions')` if you need a custom key (e.g. when running
+  multiple Permix instances side by side).
 </Callout>
 
 </Step>
@@ -71,7 +76,7 @@ export const startInstance = createStart(() => ({
         post: {
           create: !!session,
           read: true,
-          update: post => post?.authorId === session?.userId,
+          update: (post) => post?.authorId === session?.userId,
           delete: session?.role === 'admin',
         },
       }
@@ -81,7 +86,9 @@ export const startInstance = createStart(() => ({
 ```
 
 <Callout>
-You can also attach `setupMiddleware()` to a specific server route's `middleware` array instead of registering it globally, if only some routes need permissions.
+  You can also attach `setupMiddleware()` to a specific server route's
+  `middleware` array instead of registering it globally, if only some routes
+  need permissions.
 </Callout>
 
 ### Server-only imports in the setup callback
@@ -109,11 +116,11 @@ const permixMiddleware = createMiddleware().server(
       post: {
         create: !!session,
         read: true,
-        update: post => post?.authorId === session?.userId,
+        update: (post) => post?.authorId === session?.userId,
         delete: session?.role === 'admin',
       },
     }
-  }),
+  })
 )
 
 export const startInstance = createStart(() => ({
@@ -164,7 +171,13 @@ export const Route = createFileRoute('/posts/$id')({
 Use `get(context)` instead of `getOrThrow(context)` when you want a nullable value rather than a [`PermixNotFoundError`](/docs/guide/instance) if setup didn't run.
 
 <Callout type="warn">
-`permix.get(context)` only works where `context` is the **server request context** — server functions and server routes. A route `loader` or `beforeLoad` receives the [router context](https://tanstack.com/router/latest/docs/framework/react/guide/router-context) instead, and runs **isomorphically** on both server and client. To check permissions there, put an instance on the router context — see [Check in `beforeLoad` and loaders](#check-in-beforeload-and-loaders).
+  `permix.get(context)` only works where `context` is the **server request
+  context** — server functions and server routes. A route `loader` or
+  `beforeLoad` receives the [router
+  context](https://tanstack.com/router/latest/docs/framework/react/guide/router-context)
+  instead, and runs **isomorphically** on both server and client. To check
+  permissions there, put an instance on the router context — see [Check in
+  `beforeLoad` and loaders](#check-in-beforeload-and-loaders).
 </Callout>
 
 </Step>
@@ -240,7 +253,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 ```
 
 <Callout type="warn">
-Typing the context is not enough on its own — the runtime value must be passed to `createTanStackRouter({ context })` too, otherwise `context.permix` is `undefined` in every route.
+  Typing the context is not enough on its own — the runtime value must be passed
+  to `createTanStackRouter({context})` too, otherwise `context.permix` is
+  `undefined` in every route.
 </Callout>
 
 </Step>
@@ -252,15 +267,19 @@ Typing the context is not enough on its own — the runtime value must be passed
 Use `dehydrate(context)` to serialize the request's permissions, then hydrate the router-context instance in the root route's `beforeLoad`. The server cannot send the instance itself across the boundary — only the JSON state.
 
 <Callout>
-`beforeLoad` and `loader` are **isomorphic** — they run on both server and client. Since the request-scoped instance only exists in the server context, `dehydrate()` must be called inside a `createServerFn` so it always executes on the server.
+  `beforeLoad` and `loader` are **isomorphic** — they run on both server and
+  client. Since the request-scoped instance only exists in the server context,
+  `dehydrate()` must be called inside a `createServerFn` so it always executes
+  on the server.
 </Callout>
 
 ```ts title="src/lib/permix.server.ts"
 import { createServerFn } from '@tanstack/react-start'
 import { permix } from './permix'
 
-export const getPermixState = createServerFn()
-  .handler(({ context }) => permix.dehydrate(context))
+export const getPermixState = createServerFn().handler(({ context }) =>
+  permix.dehydrate(context)
+)
 ```
 
 The root route's `beforeLoad` runs before every child route's `beforeLoad` and `loader`, so hydrating there makes `context.permix` ready everywhere below it. Returning the state also puts it on the context for the components.
@@ -343,7 +362,9 @@ export const Route = createFileRoute('/dashboard')({
 ```
 
 <Callout type="warn">
-This is a **UX guard**, not enforcement. The client can always call your server functions directly, so mirror every guard with `checkMiddleware()` (or a `getOrThrow(context).check()`) on the server.
+  This is a **UX guard**, not enforcement. The client can always call your
+  server functions directly, so mirror every guard with `checkMiddleware()` (or
+  a `getOrThrow(context).check()`) on the server.
 </Callout>
 
 Two limits are worth knowing:
@@ -373,7 +394,11 @@ export function usePermix() {
 ```tsx title="src/components/edit-button.tsx"
 import { usePermix } from '../lib/use-permix'
 
-export function EditButton({ post }: { post: { id: string, authorId: string } }) {
+export function EditButton({
+  post,
+}: {
+  post: { id: string; authorId: string }
+}) {
   const { check } = usePermix()
 
   if (!check('post.update', post)) {
@@ -437,8 +462,8 @@ A runnable app wiring all of the above together lives [here](https://github.com/
 
 The router-context instance is separate, and isolated for the same reason: `getRouter()` is called once per request on the server, so each SSR render builds its own router with its own Permix instance. In the browser `getRouter()` runs once, so that instance doubles as the per-tab client cache.
 
-| | Server request context | Router context |
-|---|---|---|
+|  | Server request context | Router context |
+| --- | --- | --- |
 | Created by | `setupMiddleware()` | `getRouter()` |
 | Read with | `permix.get(context)` / `getOrThrow(context)` | `context.permix` |
 | Available in | server functions, server routes | `beforeLoad`, `loader`, components |
@@ -452,7 +477,7 @@ The router-context instance is separate, and isolated for the same reason: `getR
 Returns an object with the following methods:
 
 | Method | Description |
-|---|---|
+| --- | --- |
 | `setupMiddleware(rules \| ({ request }) => rules)` | A **request** middleware that creates a per-request instance and runs `setup()`. Register it globally in `src/start.ts` or on a server route. |
 | `createSetupHandler(rules \| ({ request }) => rules)` | The server handler behind `setupMiddleware`, for passing to your own `createMiddleware().server(...)`. Use when the callback has [server-only imports](#server-only-imports-in-the-setup-callback). |
 | `checkMiddleware(...args)` | A **function** middleware that enforces a permission check before a server function's handler. |
@@ -467,7 +492,7 @@ Returns an object with the following methods:
 #### Options
 
 | Option | Description |
-|---|---|
+| --- | --- |
 | `onForbidden({ path, data })` | Called when `checkMiddleware` denies a request. Defaults to throwing a `PermixError`. |
 
 ### Hooks

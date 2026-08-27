@@ -1,11 +1,12 @@
 'use client'
 
 import type { DehydratedState } from 'permix'
-import type { Session } from '@/lib/auth'
-import type { PermissionsDefinition } from '@/lib/permix'
 import { createPermix } from 'permix'
 import { PermixHydrate, PermixProvider } from 'permix/react'
 import { useLayoutEffect } from 'react'
+
+import type { Session } from '@/lib/auth'
+import type { PermissionsDefinition } from '@/lib/permix'
 
 const permix = createPermix<PermissionsDefinition>()
 
@@ -21,7 +22,7 @@ function ClientRulesSetup({
       post: {
         create: !!session,
         read: true,
-        update: post => post?.authorId === session?.userId,
+        update: (post) => post?.authorId === session?.userId,
         delete: session?.role === 'admin',
       },
     })

@@ -13,7 +13,7 @@ When you change public API behavior, docs examples, or integration patterns, kee
 ## Repository layout
 
 | Path | Purpose |
-|------|---------|
+| --- | --- |
 | `permix/` | Published npm package (`permix`); build inside this folder |
 | `permix/src/core/` | Core API (`createPermix`, `setup`, `check`, `template`, `merge`, events) |
 | `permix/src/<framework>/` | Adapters (`react`, `vue`, `express`, `trpc`, `next`, …) |
@@ -35,6 +35,8 @@ From repo root (pnpm workspace: `permix`, `docs`, `examples/*`):
 pnpm install
 pnpm test && pnpm run check-types
 pnpm run lint
+pnpm run format
+pnpm run format:check
 cd permix && pnpm run build
 cd docs && pnpm dev          # http://localhost:3000
 cd docs && pnpm types:check  # fumadocs-mdx + tsc for docs only

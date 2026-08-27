@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+
 import { createPermix } from './permix'
 
 // React's `cache()` only memoizes within a Next.js request scope (backed by
@@ -15,8 +16,9 @@ vi.mock('react', async () => {
       const store = new Map<string, ReturnType<T>>()
       return ((...args: Parameters<T>) => {
         const key = JSON.stringify(args)
-        if (!store.has(key))
+        if (!store.has(key)) {
           store.set(key, fn(...args))
+        }
         return store.get(key)!
       }) as T
     },
@@ -85,7 +87,7 @@ describe('next createPermix', () => {
       },
     })
 
-    expect(permix.getRules()).toEqual({
+    expect(permix.getRules()).toStrictEqual({
       post: {
         create: true,
         read: false,
@@ -105,7 +107,7 @@ describe('next createPermix', () => {
       },
     })
 
-    expect(permix.dehydrate()).toEqual({
+    expect(permix.dehydrate()).toStrictEqual({
       post: {
         create: true,
         read: false,
@@ -150,7 +152,7 @@ describe('next createPermix', () => {
       },
     })
 
-    expect(adminTemplate()).toEqual({
+    expect(adminTemplate()).toStrictEqual({
       post: {
         create: true,
         read: true,
@@ -160,17 +162,20 @@ describe('next createPermix', () => {
 
   it('supports parameterized templates', () => {
     const permix = createPermix<{
-      post: [{ name: 'edit', type: { authorId: string } }]
+      post: [{ name: 'edit'; type: { authorId: string } }]
     }>()
 
     const template = permix.template((userId: string) => ({
       post: {
-        edit: (post: { authorId: string } | undefined) => post?.authorId === userId,
+        edit: (post: { authorId: string } | undefined) =>
+          post?.authorId === userId,
       },
     }))
 
     const rules = template('user-1')
-    const editFn = rules.post.edit as (post: { authorId: string } | undefined) => boolean
+    const editFn = rules.post.edit as (
+      post: { authorId: string } | undefined
+    ) => boolean
 
     expect(editFn({ authorId: 'user-1' })).toBe(true)
     expect(editFn({ authorId: 'user-2' })).toBe(false)

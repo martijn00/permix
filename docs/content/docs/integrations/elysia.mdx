@@ -8,7 +8,8 @@ description: Learn how to use Permix with Elysia
 Permix provides integration for Elysia that allows you to easily check permissions in your routes. The integration can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with Elysia integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Elysia integration, make sure you've completed the
+  initial setup steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -33,16 +34,16 @@ interface Post {
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>()
 
 // Initialize Elysia
-const app = new Elysia()
-  .onBeforeHandle(permix.setupMiddleware(({ context }) => {
+const app = new Elysia().onBeforeHandle(
+  permix.setupMiddleware(({ context }) => {
     // You can access headers or other properties to determine permissions
     const isAuthorized = !!context.headers.authorization?.slice(7)
 
@@ -51,14 +52,16 @@ const app = new Elysia()
         create: true,
         read: true,
         update: isAuthorized,
-        delete: isAuthorized
-      }
+        delete: isAuthorized,
+      },
     }
-  }))
+  })
+)
 ```
 
 <Callout>
-The middleware preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+  The middleware preserves full type safety from your Permix definition,
+  ensuring your permission checks are type-safe.
 </Callout>
 
 </Step>
@@ -70,36 +73,54 @@ The middleware preserves full type safety from your Permix definition, ensuring 
 Use the `checkMiddleware` function in your Elysia routes to check permissions:
 
 ```ts
-app.post('/posts', () => {
-  // Create post logic here
-  return { success: true }
-}, {
-  beforeHandle: permix.checkMiddleware('post.create')
-})
+app.post(
+  '/posts',
+  () => {
+    // Create post logic here
+    return { success: true }
+  },
+  {
+    beforeHandle: permix.checkMiddleware('post.create'),
+  }
+)
 
 // Check multiple actions
-app.put('/posts/:id', () => {
-  // Update post logic here
-  return { success: true }
-}, {
-  beforeHandle: permix.checkMiddleware(c => c('post.read') && c('post.update'))
-})
+app.put(
+  '/posts/:id',
+  () => {
+    // Update post logic here
+    return { success: true }
+  },
+  {
+    beforeHandle: permix.checkMiddleware(
+      (c) => c('post.read') && c('post.update')
+    ),
+  }
+)
 
 // Check all actions
-app.delete('/posts/:id', () => {
-  // Delete post logic here
-  return { success: true }
-}, {
-  beforeHandle: permix.checkMiddleware('post.~all')
-})
+app.delete(
+  '/posts/:id',
+  () => {
+    // Delete post logic here
+    return { success: true }
+  },
+  {
+    beforeHandle: permix.checkMiddleware('post.~all'),
+  }
+)
 
 // Check any action
-app.get('/posts', () => {
-  // Get posts logic here
-  return { posts: getAllPosts() }
-}, {
-  beforeHandle: permix.checkMiddleware('post.~any')
-})
+app.get(
+  '/posts',
+  () => {
+    // Get posts logic here
+    return { posts: getAllPosts() }
+  },
+  {
+    beforeHandle: permix.checkMiddleware('post.~any'),
+  }
+)
 ```
 
 </Step>
@@ -141,8 +162,8 @@ const adminTemplate = permix.template({
     create: true,
     read: true,
     update: true,
-    delete: true
-  }
+    delete: true,
+  },
 })
 
 // Create a template for regular user permissions
@@ -151,18 +172,18 @@ const userTemplate = permix.template({
     create: true,
     read: true,
     update: false,
-    delete: false
-  }
+    delete: false,
+  },
 })
 
 // Use templates in your middleware
-app.onBeforeHandle(permix.setupMiddleware(async ({ context }) => {
-  const user = await getUserFromDb(context.headers.authorization?.slice(7))
+app.onBeforeHandle(
+  permix.setupMiddleware(async ({ context }) => {
+    const user = await getUserFromDb(context.headers.authorization?.slice(7))
 
-  return user?.role === 'admin'
-    ? adminTemplate()
-    : userTemplate()
-}))
+    return user?.role === 'admin' ? adminTemplate() : userTemplate()
+  })
+)
 ```
 
 </Step>
@@ -180,7 +201,7 @@ const permix = createPermix<Definition>({
   onForbidden: ({ context }) => {
     context.set.status = 403
     return { error: 'Custom forbidden message' }
-  }
+  },
 })
 ```
 
@@ -195,18 +216,19 @@ const permix = createPermix<Definition>({
 
     if (path === 'post.create') {
       return {
-        error: `You don't have permission for ${path}`
+        error: `You don't have permission for ${path}`,
       }
     }
 
     return {
-      error: 'You do not have permission to perform this action'
+      error: 'You do not have permission to perform this action',
     }
-  }
+  },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `context`: Elysia Context object
 - `path`: The permission path that was checked (or `null` for callback checks)
 - `data`: Optional entity data passed to the check
@@ -218,20 +240,22 @@ The `onForbidden` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-app.onBeforeHandle(permix.setupMiddleware(async ({ context }) => {
-  // Fetch user permissions from database
-  const userId = context.headers.authorization?.slice(7)
-  const userPermissions = await getUserPermissions(userId)
+app.onBeforeHandle(
+  permix.setupMiddleware(async ({ context }) => {
+    // Fetch user permissions from database
+    const userId = context.headers.authorization?.slice(7)
+    const userPermissions = await getUserPermissions(userId)
 
-  return {
-    post: {
-      create: userPermissions.canCreatePosts,
-      read: userPermissions.canReadPosts,
-      update: userPermissions.canUpdatePosts,
-      delete: userPermissions.canDeletePosts
+    return {
+      post: {
+        create: userPermissions.canCreatePosts,
+        read: userPermissions.canReadPosts,
+        update: userPermissions.canUpdatePosts,
+        delete: userPermissions.canDeletePosts,
+      },
     }
-  }
-}))
+  })
+)
 ```
 
 ### Dynamic Data-Based Permissions

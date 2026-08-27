@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+
 import { createPermix as createCorePermix } from '../core'
 import { PermixHydrate, PermixProvider, usePermix } from '../react'
 import { createPermix as createNextPermix } from './permix'
@@ -15,8 +16,9 @@ vi.mock('react', async () => {
       const store = new Map<string, ReturnType<T>>()
       return ((...args: Parameters<T>) => {
         const key = JSON.stringify(args)
-        if (!store.has(key))
+        if (!store.has(key)) {
           store.set(key, fn(...args))
+        }
         return store.get(key)!
       }) as T
     },
@@ -59,7 +61,7 @@ describe('next → react hydration round-trip', () => {
         <PermixHydrate state={state}>
           <PostStatus />
         </PermixHydrate>
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(getByTestId('create')).toHaveTextContent('true')

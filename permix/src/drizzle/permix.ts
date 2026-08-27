@@ -1,13 +1,19 @@
 import type { ExtractTablesFromSchema } from 'drizzle-orm'
-import type { Permix as PermixCore } from '../core'
 import { extractTablesFromSchema } from 'drizzle-orm'
+
+import type { Permix as PermixCore } from '../core'
 import { createPermix as createPermixCore } from '../core'
 import { PermixInvalidActionsError } from './errors'
 
 /**
  * The default CRUD action set used when no `actions` are provided.
  */
-export const DEFAULT_DRIZZLE_ACTIONS = ['create', 'read', 'update', 'delete'] as const
+export const DEFAULT_DRIZZLE_ACTIONS = [
+  'create',
+  'read',
+  'update',
+  'delete',
+] as const
 
 export type DefaultDrizzleAction = (typeof DEFAULT_DRIZZLE_ACTIONS)[number]
 
@@ -15,8 +21,8 @@ export type DefaultDrizzleAction = (typeof DEFAULT_DRIZZLE_ACTIONS)[number]
  * Keys of `S` that Drizzle v1 recognises as schema entries (tables and views).
  * Relations, enums, helpers, and other non-entity exports are filtered out.
  */
-export type DrizzleTableKeys<S extends Record<string, unknown>>
-  = keyof ExtractTablesFromSchema<S> & string
+export type DrizzleTableKeys<S extends Record<string, unknown>> =
+  keyof ExtractTablesFromSchema<S> & string
 
 /**
  * Permix {@link import('../core/definitions').Definition} derived from a
@@ -29,8 +35,9 @@ export type DrizzleDefinition<
   [K in DrizzleTableKeys<S>]: [...Actions]
 }
 
-export type ActionMap<Actions extends readonly string[]>
-  = Partial<Record<Actions[number], boolean>>
+export type ActionMap<Actions extends readonly string[]> = Partial<
+  Record<Actions[number], boolean>
+>
 
 export interface CreateDrizzlePermixOptions<Actions extends readonly string[]> {
   /**
@@ -99,21 +106,24 @@ export function createPermix<
   const Actions extends readonly string[] = readonly DefaultDrizzleAction[],
 >(
   schema: S,
-  options: CreateDrizzlePermixOptions<Actions> = {},
+  options: CreateDrizzlePermixOptions<Actions> = {}
 ): DrizzlePermix<S, Actions> {
-  const actions = (options.actions ?? DEFAULT_DRIZZLE_ACTIONS) as unknown as Actions
+  const actions = (options.actions ??
+    DEFAULT_DRIZZLE_ACTIONS) as unknown as Actions
 
   if (!Array.isArray(actions) || actions.length === 0) {
     throw new PermixInvalidActionsError()
   }
 
-  const tables = Object.keys(extractTablesFromSchema(schema)) as DrizzleTableKeys<S>[]
+  const tables = Object.keys(
+    extractTablesFromSchema(schema)
+  ) as DrizzleTableKeys<S>[]
 
   type D = DrizzleDefinition<S, Actions>
 
   const permix = createPermixCore<D>()
 
-  return Object.assign(permix, { actions, tables }) as DrizzlePermix<S, Actions>
+  return Object.assign(permix, { actions, tables })
 }
 
 /** Return type of {@link createPermix}. */

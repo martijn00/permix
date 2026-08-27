@@ -1,7 +1,13 @@
-import type { RouterContext } from '@/lib/permix'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+
+import type { RouterContext } from '@/lib/permix'
 import { Providers } from '@/providers'
 import { getRootLoaderData } from '@/server/permix'
 

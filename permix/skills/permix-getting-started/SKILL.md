@@ -1,9 +1,7 @@
 ---
 name: permix-getting-started
 description: >-
-  Sets up Permix in an application: install, createPermix schema, setup rules,
-  templates for roles, createRules. Use when adding Permix, defining permission
-  types, role-based access, or permix.setup in a user project.
+  Sets up Permix in an application: install, createPermix schema, setup rules, templates for roles, createRules. Use when adding Permix, defining permission types, role-based access, or permix.setup in a user project.
 metadata:
   type: core
   library: permix
@@ -121,7 +119,7 @@ Dynamic template (parameters):
 ```ts
 const forUser = permix.template((user: User) => ({
   post: {
-    update: post => post.authorId === user.id,
+    update: (post) => post.authorId === user.id,
   },
 }))
 

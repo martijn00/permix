@@ -45,11 +45,9 @@ export function usePermissions() {
 function EditButton({ post }) {
   const { check, isReady } = usePermissions()
 
-  if (!isReady)
-    return null
+  if (!isReady) return null
 
-  if (!check('post.update', post))
-    return null
+  if (!check('post.update', post)) return null
 
   return <button>Edit</button>
 }
@@ -173,7 +171,11 @@ Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
 ```tsx
 import { DehydratedState, PermixHydrate, PermixProvider } from 'permix/react'
 
-function App({ dehydratedState }: { dehydratedState: DehydratedState<typeof schema> }) {
+function App({
+  dehydratedState,
+}: {
+  dehydratedState: DehydratedState<typeof schema>
+}) {
   return (
     <PermixProvider permix={permix}>
       <PermixHydrate state={dehydratedState}>
@@ -209,7 +211,7 @@ Client: hydrate(state) → setup(fullRules) → isReady() → check() / usePermi
 ### Pitfalls
 
 | Issue | Cause |
-|-------|--------|
+| --- | --- |
 | UI stuck not ready | `hydrate` without follow-up `setup` |
 | Wrong dynamic checks | Relying on dehydrated booleans only |
 | Mismatch server/client | Different schemas or missing actions in client `setup` |

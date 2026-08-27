@@ -14,17 +14,17 @@ permix.check('workspace.billing.view')
 The callback receives `c`. Each `c('path')` is evaluated immediately to a boolean:
 
 ```ts
-permix.check(c => c('post.read') && c('post.update'))
-permix.check(c => c('post.delete') || c('admin.override'))
-permix.check(c => !c('post.read'))
+permix.check((c) => c('post.read') && c('post.update'))
+permix.check((c) => c('post.delete') || c('admin.override'))
+permix.check((c) => !c('post.read'))
 ```
 
 ## Aggregate tokens
 
-| Token | Meaning |
-|-------|---------|
+| Token    | Meaning                              |
+| -------- | ------------------------------------ |
 | `'~any'` | At least one rule in scope is truthy |
-| `'~all'` | Every rule in scope is truthy |
+| `'~all'` | Every rule in scope is truthy        |
 
 ```ts
 permix.check('~any') // any permission in the tree
@@ -47,8 +47,8 @@ interface Post {
 const permix = createPermix<{
   post: [
     'read',
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post, required: true },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post; required: true },
   ]
 }>()
 
@@ -57,8 +57,8 @@ const currentUser = { id: userId }
 permix.setup({
   post: {
     read: true,
-    update: post => post?.authorId === currentUser.id,
-    delete: post => post.authorId === currentUser.id,
+    update: (post) => post?.authorId === currentUser.id,
+    delete: (post) => post.authorId === currentUser.id,
   },
 })
 
@@ -80,7 +80,7 @@ Gate UI or early checks when permissions load asynchronously (fetch user, then `
 ## Common mistakes
 
 | Mistake | Fix |
-|---------|-----|
+| --- | --- |
 | Checking before `setup` | Call `setup` after auth; use `isReady` in UI |
 | Path not in schema | Add action to `createPermix<D>()` generic |
 | Missing check data | Add `type` / `required: true` on action; pass entity to `check` |

@@ -1,7 +1,6 @@
 # Permix
 
-[![npm version](https://badge.fury.io/js/permix.svg)](https://npmjs.com/package/permix)
-![You need Permix](https://img.shields.io/badge/You_need-Permix-purple)
+[![npm version](https://badge.fury.io/js/permix.svg)](https://npmjs.com/package/permix) ![You need Permix](https://img.shields.io/badge/You_need-Permix-purple)
 
 Permix is a lightweight, framework-agnostic, type-safe permissions management library for JavaScript applications on the client and server sides.
 
@@ -23,7 +22,7 @@ const permix = createPermix<{
 permix.setup({
   post: {
     read: true,
-  }
+  },
 })
 
 permix.check('post.read') // true

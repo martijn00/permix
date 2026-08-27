@@ -1,7 +1,7 @@
-import type { DemoRole } from '@/lib/auth'
 import { switchRole } from '@/app/actions'
+import type { DemoRole } from '@/lib/auth'
 
-const roles: { value: DemoRole, label: string }[] = [
+const roles: { value: DemoRole; label: string }[] = [
   { value: 'guest', label: 'Guest' },
   { value: 'alice', label: 'Alice' },
   { value: 'bob', label: 'Bob' },
@@ -20,7 +20,7 @@ export function RoleSwitcher({ currentRole }: { currentRole: DemoRole }) {
         defaultValue={currentRole}
         className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
       >
-        {roles.map(role => (
+        {roles.map((role) => (
           <option key={role.value} value={role.value}>
             {role.label}
           </option>

@@ -1,5 +1,6 @@
 import { render, renderHook, waitFor } from '@solidjs/testing-library'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix } from '../core'
 import { PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
@@ -20,7 +21,7 @@ describe('permix solid', () => {
     const usePermissions = () => usePermix(permix)
 
     const { result } = renderHook(() => usePermissions(), {
-      wrapper: props => (
+      wrapper: (props) => (
         <PermixProvider permix={permix}>{props.children}</PermixProvider>
       ),
     })
@@ -31,12 +32,12 @@ describe('permix solid', () => {
 
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     permix.setup({
       post: {
-        create: post => post?.id === '1',
+        create: (post) => post?.id === '1',
         read: false,
       },
     })
@@ -48,14 +49,16 @@ describe('permix solid', () => {
 
       return (
         <div>
-          <span data-testid="create">{check('post.create', post).toString()}</span>
+          <span data-testid="create">
+            {check('post.create', post).toString()}
+          </span>
           <span data-testid="read">{check('post.read').toString()}</span>
         </div>
       )
     }
 
     const { getByTestId } = render(() => <TestComponent />, {
-      wrapper: props => (
+      wrapper: (props) => (
         <PermixProvider permix={permix}>{props.children}</PermixProvider>
       ),
     })
@@ -65,7 +68,7 @@ describe('permix solid', () => {
 
     permix.setup({
       post: {
-        create: post => post?.id === '2',
+        create: (post) => post?.id === '2',
         read: true,
       },
     })
@@ -87,7 +90,7 @@ describe('permix solid', () => {
     }
 
     const { container } = render(() => <TestComponent />, {
-      wrapper: props => (
+      wrapper: (props) => (
         <PermixProvider permix={permix}>{props.children}</PermixProvider>
       ),
     })
@@ -108,7 +111,7 @@ describe('permix solid', () => {
 
   it('should throw error when PermixProvider is missing', () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     const TestComponent = () => {

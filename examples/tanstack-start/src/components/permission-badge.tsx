@@ -13,9 +13,7 @@ export function PermissionBadge({
           : 'bg-rose-100 text-rose-800'
       }`}
     >
-      {label}
-      :
-      {allowed ? 'allowed' : 'denied'}
+      {label}:{allowed ? 'allowed' : 'denied'}
     </span>
   )
 }

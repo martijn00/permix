@@ -1,30 +1,33 @@
-import type { Action, ActionName, Definition } from './definitions'
 import { callRuleWithoutData } from './check'
+import type { Action, ActionName, Definition } from './definitions'
 
-type ActionRule<A extends Action>
-  = A extends { type: infer T, required: true } ? (data: T) => boolean
-    : A extends { type: infer T } ? ((data?: T) => boolean) | boolean
-      : boolean | (() => boolean)
+type ActionRule<A extends Action> = A extends { type: infer T; required: true }
+  ? (data: T) => boolean
+  : A extends { type: infer T }
+    ? ((data?: T) => boolean) | boolean
+    : boolean | (() => boolean)
 
 /**
  * The shape of the object passed to `permix.setup()` (and produced by
  * {@link createRules}). It mirrors the `Definition` `D`: every leaf action
  * becomes either a `boolean` or a `(data) => boolean` validator.
  */
-export type Rules<D extends Definition>
-  = D extends readonly Action[]
-    ? { [E in D[number] as ActionName<E>]: ActionRule<E> }
-    : { [K in keyof D]: D[K] extends Definition ? Rules<D[K]> : never }
+export type Rules<D extends Definition> = D extends readonly Action[]
+  ? { [E in D[number] as ActionName<E>]: ActionRule<E> }
+  : { [K in keyof D]: D[K] extends Definition ? Rules<D[K]> : never }
 
 /**
  * The JSON-safe form of {@link Rules}, where every leaf rule has been
  * collapsed to a plain `boolean`. Produced by `permix.dehydrate()` and
  * consumed by `permix.hydrate()`.
  */
-export type DehydratedState<D extends Definition>
-  = D extends readonly Action[]
-    ? { [E in D[number] as ActionName<E>]: boolean }
-    : { [K in keyof D & string]: D[K] extends Definition ? DehydratedState<D[K]> : never }
+export type DehydratedState<D extends Definition> = D extends readonly Action[]
+  ? { [E in D[number] as ActionName<E>]: boolean }
+  : {
+      [K in keyof D & string]: D[K] extends Definition
+        ? DehydratedState<D[K]>
+        : never
+    }
 
 /**
  * Recursively collapse a rules tree into its JSON-safe {@link DehydratedState}.
@@ -33,14 +36,17 @@ export type DehydratedState<D extends Definition>
  * validators that throw on `undefined` are treated as `false`.
  */
 export function dehydrateRules(node: unknown): unknown {
-  if (typeof node === 'boolean')
+  if (typeof node === 'boolean') {
     return node
-  if (typeof node === 'function')
+  }
+  if (typeof node === 'function') {
     return callRuleWithoutData(node as () => unknown)
+  }
   if (node && typeof node === 'object') {
     const result: Record<string, unknown> = {}
-    for (const key in node as Record<string, unknown>)
+    for (const key in node as Record<string, unknown>) {
       result[key] = dehydrateRules((node as Record<string, unknown>)[key])
+    }
     return result
   }
   return node
@@ -50,11 +56,16 @@ export function dehydrateRules(node: unknown): unknown {
  * Rebuild a {@link Rules} tree from a {@link DehydratedState} produced by
  * {@link dehydrateRules}. Only the serialized booleans are restored.
  */
-export function hydrateRules<D extends Definition>(state: DehydratedState<D>): Rules<D> {
+export function hydrateRules<D extends Definition>(
+  state: DehydratedState<D>
+): Rules<D> {
   const result: Record<string, unknown> = {}
   for (const key in state as Record<string, unknown>) {
     const value = (state as Record<string, unknown>)[key]
-    result[key] = typeof value === 'boolean' ? value : hydrateRules(value as DehydratedState<Definition>)
+    result[key] =
+      typeof value === 'boolean'
+        ? value
+        : hydrateRules(value as DehydratedState<Definition>)
   }
   return result as Rules<D>
 }

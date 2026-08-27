@@ -1,6 +1,8 @@
-import type { RouterOutput } from '@/shared/trpc'
 import { useEffect, useState } from 'react'
+
 import { getRules } from '@/shared/permix'
+import type { RouterOutput } from '@/shared/trpc'
+
 import { Check } from './components/permix'
 import { usePermissions } from './hooks/use-permissions'
 import { permix } from './permix'
@@ -31,24 +33,34 @@ export default function App() {
 
   return (
     <>
-      Is Permix ready?
-      {' '}
-      {isReady ? 'Yes' : 'No'}
+      Is Permix ready? {isReady ? 'Yes' : 'No'}
       <hr />
-      Can I read a user?
-      {' '}
-      {check('user.read') ? 'Yes' : 'No'}
+      Can I read a user? {check('user.read') ? 'Yes' : 'No'}
       <hr />
-      <Check path="user.read" otherwise={<div>You don't have permission to read a user</div>}>
+      <Check
+        path="user.read"
+        otherwise={<div>You don't have permission to read a user</div>}
+      >
         Can I read a user inside the Check component?
       </Check>
       <hr />
-      {users.map(user => (
+      {users.map((user) => (
         <div key={user.id}>{user.name}</div>
       ))}
       <hr />
-      <Check path="user.create" otherwise={<div>You don't have permission to create a user</div>}>
-        <button type="button" onClick={() => trpc.userWrite.mutate({ name: 'John Doe', email: 'john.doe@example.com' })}>
+      <Check
+        path="user.create"
+        otherwise={<div>You don't have permission to create a user</div>}
+      >
+        <button
+          type="button"
+          onClick={() =>
+            trpc.userWrite.mutate({
+              name: 'John Doe',
+              email: 'john.doe@example.com',
+            })
+          }
+        >
           Create user
         </button>
       </Check>

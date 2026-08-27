@@ -26,7 +26,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Key files
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `src/lib/permix.ts` | Permission definition, TanStack Start helper, router-context instance |
 | `src/start.ts` | Per-request setup via `createSetupHandler()` in an app-owned `.server()` boundary |
 | `src/router.tsx` | Puts the Permix instance on the router context |

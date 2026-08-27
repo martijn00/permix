@@ -1,13 +1,12 @@
 {
   "name": "react",
-  "type": "module",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
     "check-types": "tsc --noEmit",
-    "lint": "eslint .",
+    "dev": "vite",
     "preview": "vite preview"
   },
   "dependencies": {
