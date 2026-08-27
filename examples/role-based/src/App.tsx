@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import { usePermissions } from "./hooks/use-permissions";
-import { Check, permix, setupPermissions } from "./lib/permix";
+import { usePermissions } from './hooks/use-permissions';
+import { Check, permix, setupPermissions } from './lib/permix';
 
 export default function App() {
   const { check } = usePermissions();
@@ -12,16 +12,16 @@ export default function App() {
 
   function createPost() {
     // You still can use the permix instance to check permissions
-    if (!permix.check("post.create")) {
+    if (!permix.check('post.create')) {
       return;
     }
 
-    console.log("Creating a post");
+    console.log('Creating a post');
   }
 
   return (
     <div>
-      Can I create a post? {check("post.create").toString()}
+      Can I create a post? {check('post.create').toString()}
       <Check path="post.create" otherwise={<div>I can't create a post</div>}>
         <div>I can create a post</div>
       </Check>

@@ -1,18 +1,18 @@
-import type { ExtractTablesFromSchema } from "drizzle-orm";
-import { extractTablesFromSchema } from "drizzle-orm";
+import type { ExtractTablesFromSchema } from 'drizzle-orm';
+import { extractTablesFromSchema } from 'drizzle-orm';
 
-import type { Permix as PermixCore } from "../core";
-import { createPermix as createPermixCore } from "../core";
-import { PermixInvalidActionsError } from "./errors";
+import type { Permix as PermixCore } from '../core';
+import { createPermix as createPermixCore } from '../core';
+import { PermixInvalidActionsError } from './errors';
 
 /**
  * The default CRUD action set used when no `actions` are provided.
  */
 export const DEFAULT_DRIZZLE_ACTIONS = [
-  "create",
-  "read",
-  "update",
-  "delete",
+  'create',
+  'read',
+  'update',
+  'delete',
 ] as const;
 
 export type DefaultDrizzleAction = (typeof DEFAULT_DRIZZLE_ACTIONS)[number];

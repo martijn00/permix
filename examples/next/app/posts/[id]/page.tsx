@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { permix } from "@/lib/permix";
-import { getPost } from "@/lib/posts";
+import { permix } from '@/lib/permix';
+import { getPost } from '@/lib/posts';
 
-import { EditButton } from "./edit-button";
+import { EditButton } from './edit-button';
 
 export default async function PostPage({
   params,
@@ -14,7 +14,7 @@ export default async function PostPage({
   const { id } = await params;
   const post = await getPost(id);
 
-  if (!post || !permix.check("post.read", post)) {
+  if (!post || !permix.check('post.read', post)) {
     notFound();
   }
 
@@ -35,10 +35,10 @@ export default async function PostPage({
           authorId: {post.authorId}
         </p>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          This page calls{" "}
+          This page calls{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs dark:bg-zinc-800">
             permix.check(&apos;post.read&apos;, post)
-          </code>{" "}
+          </code>{' '}
           on the server before rendering.
         </p>
         <div className="mt-6">

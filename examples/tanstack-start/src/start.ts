@@ -1,7 +1,7 @@
-import { createMiddleware, createStart } from "@tanstack/react-start";
+import { createMiddleware, createStart } from '@tanstack/react-start';
 
-import { getSessionFromRequest } from "@/lib/auth";
-import { adminTemplate, guestTemplate, permix } from "@/lib/permix";
+import { getSessionFromRequest } from '@/lib/auth';
+import { adminTemplate, guestTemplate, permix } from '@/lib/permix';
 
 // The `.server()` boundary lives in app code so TanStack Start strips the
 // callback — and its server-only imports like `@/lib/auth` — from the client
@@ -15,7 +15,7 @@ const permixMiddleware = createMiddleware().server(
       return guestTemplate();
     }
 
-    if (session.role === "admin") {
+    if (session.role === 'admin') {
       return adminTemplate();
     }
 

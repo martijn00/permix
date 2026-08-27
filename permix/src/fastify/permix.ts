@@ -3,21 +3,21 @@ import type {
   FastifyReply,
   FastifyRequest,
   preHandlerHookHandler,
-} from "fastify";
-import fp from "fastify-plugin";
+} from 'fastify';
+import fp from 'fastify-plugin';
 
-import type { Permix as PermixCore } from "../core";
+import type { Permix as PermixCore } from '../core';
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from "../core";
-import type { CheckArgs, CheckContext } from "../core/check";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
-import type { MaybePromise } from "../utils";
+} from '../core';
+import type { CheckArgs, CheckContext } from '../core/check';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+import type { MaybePromise } from '../utils';
 
 let pluginCounter = 0;
 
@@ -43,7 +43,7 @@ function buildPermix<D extends Definition>(
   const onForbidden =
     options.onForbidden ??
     (({ reply }) => {
-      reply.status(403).send({ error: "Forbidden" });
+      reply.status(403).send({ error: 'Forbidden' });
     });
 
   const pluginName = `permix-${pluginCounter++}`;
@@ -78,20 +78,20 @@ function buildPermix<D extends Definition>(
       async (fastify) => {
         fastify.decorateRequest(resolveKey(), null);
 
-        fastify.addHook("onRequest", async (request, reply) => {
+        fastify.addHook('onRequest', async (request, reply) => {
           const rules =
-            typeof callbackOrRules === "function"
+            typeof callbackOrRules === 'function'
               ? await callbackOrRules({ request, reply })
               : callbackOrRules;
           const instance = createPermixCore<D>(rules);
-          instance.hook("check", (context) => {
-            hooks.callHook("check", context);
+          instance.hook('check', (context) => {
+            hooks.callHook('check', context);
           });
           request.setDecorator(resolveKey(), instance);
         });
       },
       {
-        fastify: "5.x",
+        fastify: '5.x',
         name: pluginName,
       }
     );
@@ -168,7 +168,7 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol("permix");
+  let key: string | symbol = Symbol('permix');
   const permix = buildPermix<D>(() => key, options);
 
   return Object.assign(permix, {

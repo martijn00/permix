@@ -1,15 +1,15 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
-import { createPermix as createCorePermix } from "../core";
-import { PermixHydrate, PermixProvider, usePermix } from "../react";
-import { createPermix as createNextPermix } from "./permix";
-import "@testing-library/jest-dom/vitest";
+import { createPermix as createCorePermix } from '../core';
+import { PermixHydrate, PermixProvider, usePermix } from '../react';
+import { createPermix as createNextPermix } from './permix';
+import '@testing-library/jest-dom/vitest';
 
 // See ./permix.test.ts — outside a Next.js request scope `cache()` does not
 // memoize, so we mock it for the test environment.
-vi.mock("react", async () => {
-  const actual = await vi.importActual<typeof import("react")>("react");
+vi.mock('react', async () => {
+  const actual = await vi.importActual<typeof import('react')>('react');
   return {
     ...actual,
     cache: <T extends (...args: any[]) => any>(fn: T): T => {
@@ -25,11 +25,11 @@ vi.mock("react", async () => {
   };
 });
 
-describe("next → react hydration round-trip", () => {
-  it("hydrates dehydrated server state on the client", async () => {
+describe('next → react hydration round-trip', () => {
+  it('hydrates dehydrated server state on the client', async () => {
     // Server: setup + dehydrate using the Next.js per-request helper.
     const permixServer = createNextPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     permixServer.setup({
@@ -43,15 +43,15 @@ describe("next → react hydration round-trip", () => {
 
     // Client: separate singleton + hydrate via the react integration.
     const permixClient = createCorePermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     function PostStatus() {
       const { check } = usePermix(permixClient);
       return (
         <div>
-          <span data-testid="create">{String(check("post.create"))}</span>
-          <span data-testid="read">{String(check("post.read"))}</span>
+          <span data-testid="create">{String(check('post.create'))}</span>
+          <span data-testid="read">{String(check('post.read'))}</span>
         </div>
       );
     }
@@ -64,7 +64,7 @@ describe("next → react hydration round-trip", () => {
       </PermixProvider>
     );
 
-    expect(getByTestId("create")).toHaveTextContent("true");
-    expect(getByTestId("read")).toHaveTextContent("false");
+    expect(getByTestId('create')).toHaveTextContent('true');
+    expect(getByTestId('read')).toHaveTextContent('false');
   });
 });

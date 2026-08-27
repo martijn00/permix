@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export interface User {
   id: string;
@@ -12,8 +12,8 @@ export function useUser() {
     // Simulate a network request
     new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
       setUser({
-        id: Math.random() < 0.5 ? "1" : "2",
-        name: "John Doe",
+        id: Math.random() < 0.5 ? '1' : '2',
+        name: 'John Doe',
       });
     });
   }, []);

@@ -1,9 +1,9 @@
-import { createServerFn } from "@tanstack/react-start";
-import { getCookie } from "@tanstack/react-start/server";
+import { createServerFn } from '@tanstack/react-start';
+import { getCookie } from '@tanstack/react-start/server';
 
-import type { DemoRole, Session } from "@/lib/auth";
-import { getSessionForRole } from "@/lib/auth";
-import { permix } from "@/lib/permix";
+import type { DemoRole, Session } from '@/lib/auth';
+import { getSessionForRole } from '@/lib/auth';
+import { permix } from '@/lib/permix';
 
 export interface RootLoaderData {
   state: ReturnType<typeof permix.dehydrate>;
@@ -13,7 +13,7 @@ export interface RootLoaderData {
 
 export const getRootLoaderData = createServerFn().handler(
   async ({ context }) => {
-    const role = (getCookie("demo-role") ?? "alice") as DemoRole;
+    const role = (getCookie('demo-role') ?? 'alice') as DemoRole;
 
     return {
       state: permix.dehydrate(context),

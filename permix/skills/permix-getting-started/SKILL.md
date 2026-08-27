@@ -5,16 +5,16 @@ description: >-
 metadata:
   type: core
   library: permix
-  library_version: "4.1.2"
+  library_version: '4.1.2'
 requires: []
 sources:
-  - "letstri/permix:docs/content/docs/quick-start.mdx"
-  - "letstri/permix:docs/content/docs/guide/setup.mdx"
-  - "letstri/permix:docs/content/docs/guide/template.mdx"
-  - "letstri/permix:docs/content/docs/guide/instance.mdx"
-  - "letstri/permix:docs/content/docs/guide/events.mdx"
-  - "letstri/permix:docs/content/docs/migration-v3-to-v4.mdx"
-  - "letstri/permix:permix/src/core/index.ts"
+  - 'letstri/permix:docs/content/docs/quick-start.mdx'
+  - 'letstri/permix:docs/content/docs/guide/setup.mdx'
+  - 'letstri/permix:docs/content/docs/guide/template.mdx'
+  - 'letstri/permix:docs/content/docs/guide/instance.mdx'
+  - 'letstri/permix:docs/content/docs/guide/events.mdx'
+  - 'letstri/permix:docs/content/docs/migration-v3-to-v4.mdx'
+  - 'letstri/permix:permix/src/core/index.ts'
 ---
 
 # Permix — getting started
@@ -37,18 +37,18 @@ Create a shared module (e.g. `lib/permix.ts`). The generic on `createPermix<D>()
 **Nested resources** (most common):
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 export const permix = createPermix<{
-  post: ["create", "read", "update", "delete"];
-  comment: ["create", "read"];
+  post: ['create', 'read', 'update', 'delete'];
+  comment: ['create', 'read'];
 }>();
 ```
 
 **Flat list** (single resource):
 
 ```ts
-export const permix = createPermix<["read", "write"]>();
+export const permix = createPermix<['read', 'write']>();
 ```
 
 **Deep tree** (orgs, workspaces, etc.):
@@ -56,8 +56,8 @@ export const permix = createPermix<["read", "write"]>();
 ```ts
 export const permix = createPermix<{
   workspace: {
-    billing: ["view", "update"];
-    member: ["invite", "remove"];
+    billing: ['view', 'update'];
+    member: ['invite', 'remove'];
   };
 }>();
 ```
@@ -91,7 +91,7 @@ Skip a separate bootstrap step when rules are known upfront:
 
 ```ts
 export const permix = createPermix<{
-  post: ["read"];
+  post: ['read'];
 }>({
   post: { read: true },
 });
@@ -131,10 +131,10 @@ permix.setup(forUser(currentUser));
 Use when rules live in another file but must stay type-safe:
 
 ```ts
-import { createPermix, createRules } from "permix";
+import { createPermix, createRules } from 'permix';
 
 const rules = createRules<{
-  post: ["create"];
+  post: ['create'];
 }>({
   post: { create: true },
 });
@@ -145,7 +145,7 @@ permix.setup(rules);
 ## 6. First check
 
 ```ts
-permix.check("post.read"); // boolean
+permix.check('post.read'); // boolean
 ```
 
 Before `setup`, `check` throws `PermixNotReadyError`. Unknown paths throw `PermixRuleNotDefinedError`.
@@ -153,11 +153,11 @@ Before `setup`, `check` throws `PermixNotReadyError`. Unknown paths throw `Permi
 ## 7. React to permission changes (optional)
 
 ```ts
-permix.hook("setup", () => {
+permix.hook('setup', () => {
   // re-run when rules change (e.g. refresh UI cache)
 });
 
-permix.hookOnce("ready", () => {
+permix.hookOnce('ready', () => {
   // first successful setup only
 });
 ```

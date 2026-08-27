@@ -1,5 +1,5 @@
-import { callRuleWithoutData } from "./check";
-import type { Action, ActionName, Definition } from "./definitions";
+import { callRuleWithoutData } from './check';
+import type { Action, ActionName, Definition } from './definitions';
 
 type ActionRule<A extends Action> = A extends { type: infer T; required: true }
   ? (data: T) => boolean
@@ -36,13 +36,13 @@ export type DehydratedState<D extends Definition> = D extends readonly Action[]
  * validators that throw on `undefined` are treated as `false`.
  */
 export function dehydrateRules(node: unknown): unknown {
-  if (typeof node === "boolean") {
+  if (typeof node === 'boolean') {
     return node;
   }
-  if (typeof node === "function") {
+  if (typeof node === 'function') {
     return callRuleWithoutData(node as () => unknown);
   }
-  if (node && typeof node === "object") {
+  if (node && typeof node === 'object') {
     const result: Record<string, unknown> = {};
     for (const key in node as Record<string, unknown>) {
       result[key] = dehydrateRules((node as Record<string, unknown>)[key]);
@@ -63,7 +63,7 @@ export function hydrateRules<D extends Definition>(
   for (const key in state as Record<string, unknown>) {
     const value = (state as Record<string, unknown>)[key];
     result[key] =
-      typeof value === "boolean"
+      typeof value === 'boolean'
         ? value
         : hydrateRules(value as DehydratedState<Definition>);
   }

@@ -22,12 +22,12 @@ Permix provides two instance methods for handling hydration:
 - `hydrate(state)` - Restores permissions from a previously dehydrated state
 
 ```ts twoslash
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
   post: [
-    { name: "create"; type: { isPublic: boolean } },
-    { name: "read"; type: { isPublic: boolean } },
+    { name: 'create'; type: { isPublic: boolean } },
+    { name: 'read'; type: { isPublic: boolean } },
   ];
 }>();
 
@@ -48,8 +48,8 @@ permix.hydrate(state);
 // isReady() is still false — call setup() to restore function-based rules
 
 // Hydrated booleans are checkable right away (even while not ready):
-permix.check("post.create"); // true
-permix.check("post.read", { isPublic: true }); // false — function became false in JSON
+permix.check('post.create'); // true
+permix.check('post.read', { isPublic: true }); // false — function became false in JSON
 ```
 
 <Callout>
@@ -63,15 +63,15 @@ Hydration is particularly useful in server-side rendering scenarios where you wa
 
 ```ts twoslash
 // Express server
-import express from "express";
-import { createPermix } from "permix";
+import express from 'express';
+import { createPermix } from 'permix';
 
 const app = express();
 const permix = createPermix<{
-  post: ["create", "read"];
+  post: ['create', 'read'];
 }>();
 
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   // Setup permissions on the server
   permix.setup({
     post: {

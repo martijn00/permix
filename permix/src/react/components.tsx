@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 import type {
   CheckArgs,
@@ -7,9 +7,9 @@ import type {
   DehydratedState,
   Permix,
   RulesPaths,
-} from "../core";
-import type { PermixContext } from "./hooks";
-import { Context, usePermix, usePermixContext } from "./hooks";
+} from '../core';
+import type { PermixContext } from './hooks';
+import { Context, usePermix, usePermixContext } from './hooks';
 
 /**
  * Provides Permix context to the React component tree.
@@ -40,8 +40,8 @@ export function PermixProvider<D extends Definition>({
         setContext((c) => ({ ...c, isReady: permix.isReady() }));
       });
     };
-    const setup = permix.hook("setup", syncRules);
-    const ready = permix.hook("ready", syncReady);
+    const setup = permix.hook('setup', syncRules);
+    const ready = permix.hook('ready', syncReady);
 
     return () => {
       setup();
@@ -84,7 +84,7 @@ export interface PermixComponents<D extends Definition> {
 }
 
 export function createComponents<D extends Definition>(
-  permix: Pick<Permix<D>, "getRules" | "check">
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
   function Check<P extends RulesPaths<D>>({
     children,
@@ -105,7 +105,7 @@ export function createComponents<D extends Definition>(
         : otherwise;
   }
 
-  Check.displayName = "Check";
+  Check.displayName = 'Check';
 
   return {
     Check,

@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { CreatePostForm } from "@/components/create-post-form";
-import { EditButton } from "@/components/edit-button";
-import { PermissionBadge } from "@/components/permission-badge";
-import { RoleSwitcher } from "@/components/role-switcher";
-import { usePermix } from "@/lib/use-permix";
-import { getHomePageData } from "@/server/posts";
+import { CreatePostForm } from '@/components/create-post-form';
+import { EditButton } from '@/components/edit-button';
+import { PermissionBadge } from '@/components/permission-badge';
+import { RoleSwitcher } from '@/components/role-switcher';
+import { usePermix } from '@/lib/use-permix';
+import { getHomePageData } from '@/server/posts';
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   loader: () => getHomePageData(),
   component: Home,
 });
@@ -27,14 +27,14 @@ function Home() {
           Per-request permissions demo
         </h1>
         <p className="max-w-2xl text-zinc-600">
-          This example mirrors the{" "}
+          This example mirrors the{' '}
           <a
             href="https://permix.letstri.dev/docs/integrations/tanstack-start"
             className="font-medium underline underline-offset-4"
           >
             TanStack Start integration guide
           </a>
-          . Rules are set once per request in{" "}
+          . Rules are set once per request in{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             start.ts
           </code>
@@ -48,7 +48,7 @@ function Home() {
           <div>
             <h2 className="text-lg font-medium">Current session</h2>
             <p className="mt-1 text-sm text-zinc-600">
-              {session ? session.label : "Signed out (guest)"}
+              {session ? session.label : 'Signed out (guest)'}
             </p>
           </div>
           <RoleSwitcher currentRole={role} />
@@ -71,19 +71,19 @@ function Home() {
         <p className="mt-2 text-sm text-zinc-600">
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             /admin
-          </code>{" "}
-          calls{" "}
+          </code>{' '}
+          calls{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             context.permix.check(&apos;post.delete&apos;)
-          </code>{" "}
-          in{" "}
+          </code>{' '}
+          in{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             beforeLoad
-          </code>{" "}
+          </code>{' '}
           — no server function involved. Only the admin role gets in.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <PermissionBadge label="post.delete" allowed={check("post.delete")} />
+          <PermissionBadge label="post.delete" allowed={check('post.delete')} />
           <Link
             to="/admin"
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100"

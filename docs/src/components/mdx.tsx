@@ -1,10 +1,10 @@
-import * as Twoslash from "fumadocs-twoslash/ui";
-import * as StepsComponents from "fumadocs-ui/components/steps";
-import * as TabsComponents from "fumadocs-ui/components/tabs";
-import defaultMdxComponents from "fumadocs-ui/mdx";
-import type { MDXComponents } from "mdx/types";
+import * as Twoslash from 'fumadocs-twoslash/ui';
+import * as StepsComponents from 'fumadocs-ui/components/steps';
+import * as TabsComponents from 'fumadocs-ui/components/tabs';
+import defaultMdxComponents from 'fumadocs-ui/mdx';
+import type { MDXComponents } from 'mdx/types';
 
-import { Mermaid } from "@/components/mdx/mermaid";
+import { Mermaid } from '@/components/mdx/mermaid';
 
 function getMDXComponents(components?: MDXComponents) {
   return {

@@ -61,10 +61,10 @@ permix
 To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions:
 
 ```ts title="/lib/permix.ts"
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 export const permix = createPermix<{
-  post: ["create", "read", "update", "delete"];
+  post: ['create', 'read', 'update', 'delete'];
 }>();
 
 // ...
@@ -105,7 +105,7 @@ export function setupPermissions() {
 After setup, you can use `check` method to check available permissions:
 
 ```ts
-permix.check("post.create"); // true
+permix.check('post.create'); // true
 ```
 
 </Step>

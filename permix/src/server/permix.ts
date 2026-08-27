@@ -1,15 +1,15 @@
-import type { Permix as PermixCore } from "../core";
+import type { Permix as PermixCore } from '../core';
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from "../core";
-import type { CheckArgs, CheckContext } from "../core/check";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
-import type { MaybePromise } from "../utils";
+} from '../core';
+import type { CheckArgs, CheckContext } from '../core/check';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+import type { MaybePromise } from '../utils';
 
 export type NextFunction = () => MaybePromise<Response>;
 
@@ -44,9 +44,9 @@ function buildPermix<D extends Definition>(
   const onForbidden =
     options.onForbidden ??
     (() =>
-      new Response(JSON.stringify({ error: "Forbidden" }), {
+      new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }));
 
   const hooks = createHooks<PermixHooks<D>>();
@@ -71,12 +71,12 @@ function buildPermix<D extends Definition>(
   ): Middleware {
     return async (req, next) => {
       const rules =
-        typeof callbackOrRules === "function"
+        typeof callbackOrRules === 'function'
           ? await callbackOrRules({ req, next })
           : callbackOrRules;
       const instance = createPermixCore<D>(rules);
-      instance.hook("check", (context) => {
-        hooks.callHook("check", context);
+      instance.hook('check', (context) => {
+        hooks.callHook('check', context);
       });
       (req as any)[resolveKey()] = instance;
       return await next();
@@ -161,7 +161,7 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol("permix");
+  let key: string | symbol = Symbol('permix');
   const permix = buildPermix<D>(() => key, options);
 
   return Object.assign(permix, {

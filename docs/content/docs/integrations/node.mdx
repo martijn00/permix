@@ -21,8 +21,8 @@ Permix provides middleware for Node.js HTTP servers that allows you to easily ch
 Here's a basic example of how to use the Permix middleware with a Node.js HTTP server:
 
 ```ts
-import http from "node:http";
-import { createPermix } from "permix/node";
+import http from 'node:http';
+import { createPermix } from 'permix/node';
 
 interface Post {
   id: string;
@@ -34,26 +34,26 @@ interface Post {
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: "create"; type: Post },
-    { name: "read"; type: Post },
-    { name: "update"; type: Post },
-    { name: "delete"; type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ];
 }>();
 
 // Create an HTTP server
 const server = http.createServer(async (req, res) => {
   // Parse the URL
-  const url = new URL(req.url || "/", `http://${req.headers.host}`);
+  const url = new URL(req.url || '/', `http://${req.headers.host}`);
   const path = url.pathname;
-  const method = req.method || "GET";
+  const method = req.method || 'GET';
 
   const next = () => {};
 
   // Setup Permix with permission rules
   await permix.setupMiddleware(({ req }) => {
     // Determine user permissions (e.g., from headers, auth token, etc.)
-    const isAdmin = req.headers["x-user-role"] === "admin";
+    const isAdmin = req.headers['x-user-role'] === 'admin';
 
     return {
       post: {
@@ -66,24 +66,24 @@ const server = http.createServer(async (req, res) => {
   })(req, res, next);
 
   // Route handling
-  if (path === "/posts" && method === "POST") {
-    await permix.checkMiddleware("post.create")(req, res, next);
-  } else if (path.startsWith("/posts/") && method === "PUT") {
-    await permix.checkMiddleware((c) => c("post.read") && c("post.update"))(
+  if (path === '/posts' && method === 'POST') {
+    await permix.checkMiddleware('post.create')(req, res, next);
+  } else if (path.startsWith('/posts/') && method === 'PUT') {
+    await permix.checkMiddleware((c) => c('post.read') && c('post.update'))(
       req,
       res,
       next
     );
-  } else if (path.startsWith("/posts/") && method === "DELETE") {
-    await permix.checkMiddleware("post.delete")(req, res, next);
+  } else if (path.startsWith('/posts/') && method === 'DELETE') {
+    await permix.checkMiddleware('post.delete')(req, res, next);
   } else {
     res.statusCode = 404;
-    res.end(JSON.stringify({ error: "Not found" }));
+    res.end(JSON.stringify({ error: 'Not found' }));
   }
 });
 
 server.listen(3000, () => {
-  console.log("Server running at http://localhost:3000/");
+  console.log('Server running at http://localhost:3000/');
 });
 ```
 
@@ -102,17 +102,17 @@ Use the `checkMiddleware` function to check permissions for specific routes:
 
 ```ts
 // Check a single action
-await permix.checkMiddleware("post.create")(req, res, next);
+await permix.checkMiddleware('post.create')(req, res, next);
 
 // Check multiple actions
-await permix.checkMiddleware((c) => c("post.read") && c("post.update"))(
+await permix.checkMiddleware((c) => c('post.read') && c('post.update'))(
   req,
   res,
   next
 );
 
 // Check all actions
-await permix.checkMiddleware("post.~all")(req, res, next);
+await permix.checkMiddleware('post.~all')(req, res, next);
 ```
 
 </Step>
@@ -128,9 +128,9 @@ http.createServer((req, res) => {
   const { check } = permix.get(req);
 
   // User has permission to read posts
-  if (check("post.read")) {
+  if (check('post.read')) {
     res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ posts: getAllPosts() }));
   }
 });
@@ -169,7 +169,7 @@ const userTemplate = permix.template({
 
 // Use templates in your middleware
 await permix.setupMiddleware(({ req }) => {
-  const isAdmin = req.headers["x-user-role"] === "admin";
+  const isAdmin = req.headers['x-user-role'] === 'admin';
 
   if (isAdmin) {
     return adminTemplate();
@@ -193,8 +193,8 @@ By default, the middleware returns a 403 Forbidden response if the user doesn't 
 const permix = createPermix<Definition>({
   onForbidden: ({ res }) => {
     res.statusCode = 403;
-    res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ error: "Custom forbidden message" }));
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Custom forbidden message' }));
   },
 });
 ```
@@ -207,9 +207,9 @@ You can also provide a handler that returns different responses based on the ent
 const permix = createPermix<Definition>({
   onForbidden: ({ res, path }) => {
     res.statusCode = 403;
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader('Content-Type', 'application/json');
 
-    if (path === "post.create") {
+    if (path === 'post.create') {
       res.end(
         JSON.stringify({
           error: `You don't have permission for ${path}`,
@@ -220,7 +220,7 @@ const permix = createPermix<Definition>({
 
     res.end(
       JSON.stringify({
-        error: "You do not have permission to perform this action",
+        error: 'You do not have permission to perform this action',
       })
     );
   },
@@ -243,7 +243,7 @@ You can use async functions in your permission setup:
 ```ts
 permix.setupMiddleware(async ({ req }) => {
   // Extract user ID from request
-  const userId = req.headers["x-user-id"];
+  const userId = req.headers['x-user-id'];
 
   // Fetch user permissions from database
   const userPermissions = await getUserPermissions(userId);
@@ -268,11 +268,11 @@ http.createServer(async (req, res) => {
   // Setup Permix middleware first...
 
   // Extract post ID from URL
-  const url = new URL(req.url || "/", `http://${req.headers.host}`);
-  const pathParts = url.pathname.split("/");
+  const url = new URL(req.url || '/', `http://${req.headers.host}`);
+  const pathParts = url.pathname.split('/');
   const postId = pathParts[2]; // e.g., /posts/123
 
-  if (req.method === "PUT" && pathParts[1] === "posts" && postId) {
+  if (req.method === 'PUT' && pathParts[1] === 'posts' && postId) {
     // Fetch the post data
     const post = await getPostById(postId);
 
@@ -280,15 +280,15 @@ http.createServer(async (req, res) => {
     const { check } = permix.get(req);
 
     // Check if user can update this specific post
-    if (check("post.update", post)) {
+    if (check('post.update', post)) {
       // Process update...
       res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
+      res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ success: true }));
     } else {
       res.statusCode = 403;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: "You cannot update this post" }));
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'You cannot update this post' }));
     }
   }
 });
@@ -306,7 +306,7 @@ This integration is designed for raw Node.js HTTP servers. If you're using a web
 You can register hooks at the factory level to listen for events across all requests:
 
 ```ts
-permix.hook("check", ({ path, data }) => {
+permix.hook('check', ({ path, data }) => {
   console.log(`Permission checked: ${path}`, data);
 });
 ```

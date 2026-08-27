@@ -1,19 +1,19 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import type { ValidateDefinition } from "../core";
+import type { ValidateDefinition } from '../core';
 import {
   createPermix as createCorePermix,
   PermixError,
   PermixNotFoundError,
-} from "../core";
-import { createPermix } from "./permix";
+} from '../core';
+import { createPermix } from './permix';
 
 type PermissionsDefinition = ValidateDefinition<{
-  post: ["create", "read"];
+  post: ['create', 'read'];
 }>;
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: "edit"; type: { authorId: string } }];
+  post: [{ name: 'edit'; type: { authorId: string } }];
 }>;
 
 /**
@@ -45,8 +45,8 @@ function runServer(
   };
 }
 
-describe("tanstack-start createPermix", () => {
-  it("sets up rules from an object and exposes the instance on context", async () => {
+describe('tanstack-start createPermix', () => {
+  it('sets up rules from an object and exposes the instance on context', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const middleware = permix.setupMiddleware({
@@ -57,22 +57,22 @@ describe("tanstack-start createPermix", () => {
     });
 
     const run = runServer(middleware, {
-      request: new Request("http://localhost"),
+      request: new Request('http://localhost'),
     });
     await run.result;
 
     const instance = permix.getOrThrow(run.received.context);
 
-    expect(instance.check("post.create")).toBe(true);
-    expect(instance.check("post.read")).toBe(false);
+    expect(instance.check('post.create')).toBe(true);
+    expect(instance.check('post.read')).toBe(false);
   });
 
-  it("supports an async callback that receives the request", async () => {
+  it('supports an async callback that receives the request', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const callback = vi.fn(async ({ request }: { request: Request }) => ({
       post: {
-        create: new URL(request.url).searchParams.get("admin") === "1",
+        create: new URL(request.url).searchParams.get('admin') === '1',
         read: true,
       },
     }));
@@ -80,28 +80,28 @@ describe("tanstack-start createPermix", () => {
     const middleware = permix.setupMiddleware(callback);
 
     const run = runServer(middleware, {
-      request: new Request("http://localhost/?admin=1"),
+      request: new Request('http://localhost/?admin=1'),
     });
     await run.result;
 
     expect(callback).toHaveBeenCalledOnce();
-    expect(permix.getOrThrow(run.received.context).check("post.create")).toBe(
+    expect(permix.getOrThrow(run.received.context).check('post.create')).toBe(
       true
     );
   });
 
-  it("isolates instances between requests", async () => {
+  it('isolates instances between requests', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const middleware = permix.setupMiddleware(({ request }) => ({
-      post: { create: new URL(request.url).pathname === "/admin", read: true },
+      post: { create: new URL(request.url).pathname === '/admin', read: true },
     }));
 
     const a = runServer(middleware, {
-      request: new Request("http://localhost/admin"),
+      request: new Request('http://localhost/admin'),
     });
     const b = runServer(middleware, {
-      request: new Request("http://localhost/guest"),
+      request: new Request('http://localhost/guest'),
     });
     await Promise.all([a.result, b.result]);
 
@@ -109,70 +109,70 @@ describe("tanstack-start createPermix", () => {
     const instanceB = permix.getOrThrow(b.received.context);
 
     expect(instanceA).not.toBe(instanceB);
-    expect(instanceA.check("post.create")).toBe(true);
-    expect(instanceB.check("post.create")).toBe(false);
+    expect(instanceA.check('post.create')).toBe(true);
+    expect(instanceB.check('post.create')).toBe(false);
   });
 
-  it("uses a string as the default context key", async () => {
+  it('uses a string as the default context key', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
-    expect(permix.key).toBe("__permix");
+    expect(permix.key).toBe('__permix');
 
     const middleware = permix.setupMiddleware({
       post: { create: true, read: true },
     });
     const run = runServer(middleware, {
-      request: new Request("http://localhost"),
+      request: new Request('http://localhost'),
     });
     await run.result;
 
     expect(run.received.context[permix.key]).toBeDefined();
   });
 
-  it("stores the instance under a custom context key via contextKey()", async () => {
+  it('stores the instance under a custom context key via contextKey()', async () => {
     const permix =
-      createPermix<PermissionsDefinition>().contextKey("permissions");
+      createPermix<PermissionsDefinition>().contextKey('permissions');
 
-    expect(permix.key).toBe("permissions");
+    expect(permix.key).toBe('permissions');
 
     const middleware = permix.setupMiddleware({
       post: { create: true, read: true },
     });
     const run = runServer(middleware, {
-      request: new Request("http://localhost"),
+      request: new Request('http://localhost'),
     });
     await run.result;
 
     expect(run.received.context.permissions).toBeDefined();
-    expect(permix.getOrThrow(run.received.context).check("post.create")).toBe(
+    expect(permix.getOrThrow(run.received.context).check('post.create')).toBe(
       true
     );
   });
 
-  describe("createSetupHandler", () => {
-    it("returns a handler usable inside an app-owned server boundary", async () => {
+  describe('createSetupHandler', () => {
+    it('returns a handler usable inside an app-owned server boundary', async () => {
       const permix = createPermix<PermissionsDefinition>();
 
       const handler = permix.createSetupHandler(async ({ request }) => ({
         post: {
-          create: new URL(request.url).searchParams.get("admin") === "1",
+          create: new URL(request.url).searchParams.get('admin') === '1',
           read: true,
         },
       }));
 
       let received: Record<string | symbol, unknown> = {};
       await handler({
-        request: new Request("http://localhost/?admin=1"),
+        request: new Request('http://localhost/?admin=1'),
         next: async (arg) => {
           received = arg.context;
           return arg;
         },
       });
 
-      expect(permix.getOrThrow(received).check("post.create")).toBe(true);
+      expect(permix.getOrThrow(received).check('post.create')).toBe(true);
     });
 
-    it("accepts a plain rules object", async () => {
+    it('accepts a plain rules object', async () => {
       const permix = createPermix<PermissionsDefinition>();
       const handler = permix.createSetupHandler({
         post: { create: true, read: false },
@@ -180,7 +180,7 @@ describe("tanstack-start createPermix", () => {
 
       let received: Record<string | symbol, unknown> = {};
       await handler({
-        request: new Request("http://localhost"),
+        request: new Request('http://localhost'),
         next: async (arg) => {
           received = arg.context;
           return arg;
@@ -188,14 +188,14 @@ describe("tanstack-start createPermix", () => {
       });
 
       const instance = permix.getOrThrow(received);
-      expect(instance.check("post.create")).toBe(true);
-      expect(instance.check("post.read")).toBe(false);
+      expect(instance.check('post.create')).toBe(true);
+      expect(instance.check('post.read')).toBe(false);
     });
 
-    it("fires factory-level check hooks like setupMiddleware does", async () => {
+    it('fires factory-level check hooks like setupMiddleware does', async () => {
       const permix = createPermix<PermissionsDefinition>();
       const onCheck = vi.fn();
-      permix.hook("check", onCheck);
+      permix.hook('check', onCheck);
 
       const handler = permix.createSetupHandler({
         post: { create: true, read: true },
@@ -203,39 +203,39 @@ describe("tanstack-start createPermix", () => {
 
       let received: Record<string | symbol, unknown> = {};
       await handler({
-        request: new Request("http://localhost"),
+        request: new Request('http://localhost'),
         next: async (arg) => {
           received = arg.context;
           return arg;
         },
       });
 
-      permix.getOrThrow(received).check("post.create");
+      permix.getOrThrow(received).check('post.create');
 
       expect(onCheck).toHaveBeenCalledWith({
-        path: "post.create",
+        path: 'post.create',
         data: undefined,
       });
     });
   });
 
-  describe("get / getOrThrow", () => {
-    it("returns the instance from context", () => {
+  describe('get / getOrThrow', () => {
+    it('returns the instance from context', () => {
       const permix = createPermix<PermissionsDefinition>();
       const context = { [permix.key]: createInstance() };
 
-      expect(permix.get(context)!.check("post.create")).toBe(true);
-      expect(permix.getOrThrow(context).check("post.create")).toBe(true);
+      expect(permix.get(context)!.check('post.create')).toBe(true);
+      expect(permix.getOrThrow(context).check('post.create')).toBe(true);
     });
 
-    it("get returns null when the instance is missing", () => {
+    it('get returns null when the instance is missing', () => {
       const permix = createPermix<PermissionsDefinition>();
 
       expect(permix.get({})).toBeNull();
       expect(permix.get(null)).toBeNull();
     });
 
-    it("getOrThrow throws PermixNotFoundError when the instance is missing", () => {
+    it('getOrThrow throws PermixNotFoundError when the instance is missing', () => {
       const permix = createPermix<PermissionsDefinition>();
 
       expect(() => permix.getOrThrow({})).toThrow(PermixNotFoundError);
@@ -243,8 +243,8 @@ describe("tanstack-start createPermix", () => {
     });
   });
 
-  describe("dehydrate", () => {
-    it("serializes the request-scoped state", () => {
+  describe('dehydrate', () => {
+    it('serializes the request-scoped state', () => {
       const permix = createPermix<PermissionsDefinition>();
       const context = {
         [permix.key]: createInstance({ create: true, read: false }),
@@ -255,18 +255,18 @@ describe("tanstack-start createPermix", () => {
       });
     });
 
-    it("throws when no instance was set up", () => {
+    it('throws when no instance was set up', () => {
       const permix = createPermix<PermissionsDefinition>();
 
       expect(() => permix.dehydrate({})).toThrow(PermixNotFoundError);
     });
   });
 
-  describe("checkMiddleware", () => {
-    it("calls next when the check passes", async () => {
+  describe('checkMiddleware', () => {
+    it('calls next when the check passes', async () => {
       const permix = createPermix<PermissionsDefinition>();
 
-      const middleware = permix.checkMiddleware("post.create");
+      const middleware = permix.checkMiddleware('post.create');
       const run = runServer(middleware, {
         context: { [permix.key]: createInstance({ create: true }) },
       });
@@ -275,10 +275,10 @@ describe("tanstack-start createPermix", () => {
       expect(run.next).toHaveBeenCalledOnce();
     });
 
-    it("throws by default when the check fails", async () => {
+    it('throws by default when the check fails', async () => {
       const permix = createPermix<PermissionsDefinition>();
 
-      const middleware = permix.checkMiddleware("post.create");
+      const middleware = permix.checkMiddleware('post.create');
 
       await expect(
         runServer(middleware, {
@@ -287,13 +287,13 @@ describe("tanstack-start createPermix", () => {
       ).rejects.toThrow(PermixError);
     });
 
-    it("calls a custom onForbidden handler", async () => {
+    it('calls a custom onForbidden handler', async () => {
       const onForbidden = vi.fn(({ next }: { next: (...args: any[]) => any }) =>
         next()
       );
       const permix = createPermix<PermissionsDefinition>({ onForbidden });
 
-      const middleware = permix.checkMiddleware("post.create");
+      const middleware = permix.checkMiddleware('post.create');
       const run = runServer(middleware, {
         context: { [permix.key]: createInstance({ create: false }) },
       });
@@ -301,16 +301,16 @@ describe("tanstack-start createPermix", () => {
 
       expect(onForbidden).toHaveBeenCalledWith({
         next: run.next,
-        path: "post.create",
+        path: 'post.create',
         data: undefined,
       });
       expect(run.next).toHaveBeenCalledOnce();
     });
 
-    it("throws PermixNotFoundError when setup did not run", async () => {
+    it('throws PermixNotFoundError when setup did not run', async () => {
       const permix = createPermix<PermissionsDefinition>();
 
-      const middleware = permix.checkMiddleware("post.create");
+      const middleware = permix.checkMiddleware('post.create');
 
       await expect(
         runServer(middleware, { context: {} }).result
@@ -318,8 +318,8 @@ describe("tanstack-start createPermix", () => {
     });
   });
 
-  describe("template", () => {
-    it("creates reusable templates", () => {
+  describe('template', () => {
+    it('creates reusable templates', () => {
       const permix = createPermix<PermissionsDefinition>();
 
       const adminTemplate = permix.template({
@@ -331,7 +331,7 @@ describe("tanstack-start createPermix", () => {
       });
     });
 
-    it("supports parameterized templates", () => {
+    it('supports parameterized templates', () => {
       const permix = createPermix<PostWithData>();
 
       const template = permix.template((userId: string) => ({
@@ -341,13 +341,13 @@ describe("tanstack-start createPermix", () => {
         },
       }));
 
-      const rules = template("user-1");
+      const rules = template('user-1');
       const editFn = rules.post.edit as (
         post: { authorId: string } | undefined
       ) => boolean;
 
-      expect(editFn({ authorId: "user-1" })).toBe(true);
-      expect(editFn({ authorId: "user-2" })).toBe(false);
+      expect(editFn({ authorId: 'user-1' })).toBe(true);
+      expect(editFn({ authorId: 'user-2' })).toBe(false);
     });
   });
 });

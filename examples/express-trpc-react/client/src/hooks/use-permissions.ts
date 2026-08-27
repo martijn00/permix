@@ -1,6 +1,6 @@
-import { usePermix } from "permix/react";
+import { usePermix } from 'permix/react';
 
-import { permix } from "../permix";
+import { permix } from '../permix';
 
 export function usePermissions() {
   return usePermix(permix);

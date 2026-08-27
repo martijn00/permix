@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import { usePermissions } from "./hooks/use-permissions";
-import { PostPermission } from "./lib/permissions";
-import { Check, permix, setupPermissions } from "./lib/permix";
+import { usePermissions } from './hooks/use-permissions';
+import { PostPermission } from './lib/permissions';
+import { Check, permix, setupPermissions } from './lib/permix';
 
 export default function App() {
   const { check } = usePermissions();
@@ -17,7 +17,7 @@ export default function App() {
       return;
     }
 
-    console.log("Creating a post");
+    console.log('Creating a post');
   }
 
   return (

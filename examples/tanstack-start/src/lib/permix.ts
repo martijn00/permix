@@ -1,8 +1,8 @@
-import type { Permix, Rules, ValidateDefinition } from "permix";
-import { createPermix as createCorePermix } from "permix";
-import { createPermix } from "permix/tanstack-start";
+import type { Permix, Rules, ValidateDefinition } from 'permix';
+import { createPermix as createCorePermix } from 'permix';
+import { createPermix } from 'permix/tanstack-start';
 
-import type { Session } from "@/lib/auth";
+import type { Session } from '@/lib/auth';
 
 export interface Post {
   id: string;
@@ -11,10 +11,10 @@ export interface Post {
 
 export type PermissionsDefinition = ValidateDefinition<{
   post: [
-    { name: "create"; type: Post },
-    { name: "read"; type: Post },
-    { name: "update"; type: Post },
-    { name: "delete"; type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ];
 }>;
 
@@ -46,7 +46,7 @@ export function createClientRules(
       create: !!session,
       read: true,
       update: (post) => post?.authorId === session?.userId,
-      delete: session?.role === "admin",
+      delete: session?.role === 'admin',
     },
   };
 }

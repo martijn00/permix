@@ -35,12 +35,12 @@ npm install permix effect
 Create your Permix Effect instance using `createPermix`:
 
 ```ts
-import { Effect } from "effect";
-import { createPermix } from "permix/effect";
+import { Effect } from 'effect';
+import { createPermix } from 'permix/effect';
 
 const permix = createPermix<{
-  post: ["create", "read", "update"];
-  user: ["delete"];
+  post: ['create', 'read', 'update'];
+  user: ['delete'];
 }>();
 ```
 
@@ -66,24 +66,24 @@ const PermixLive = permix.layer({
 Use `permix.layerSetup(effect)` when rules depend on other services (e.g. the current user). Requirements flow through automatically:
 
 ```ts
-import { Context } from "effect";
+import { Context } from 'effect';
 
 interface User {
   id: string;
-  role: "admin" | "member";
+  role: 'admin' | 'member';
 }
-class CurrentUser extends Context.Tag("CurrentUser")<CurrentUser, User>() {}
+class CurrentUser extends Context.Tag('CurrentUser')<CurrentUser, User>() {}
 
 const PermixLive = permix.layerSetup(
   Effect.gen(function* () {
     const user = yield* CurrentUser;
     return {
       post: {
-        create: user.role === "admin",
+        create: user.role === 'admin',
         read: true,
-        update: user.role === "admin",
+        update: user.role === 'admin',
       },
-      user: { delete: user.role === "admin" },
+      user: { delete: user.role === 'admin' },
     };
   })
 );
@@ -99,10 +99,10 @@ const PermixLive = permix.layerSetup(
 
 ```ts
 const program = Effect.gen(function* () {
-  if (yield* permix.check("post.create")) {
-    return "created";
+  if (yield* permix.check('post.create')) {
+    return 'created';
   }
-  return yield* Effect.fail(new Error("Forbidden"));
+  return yield* Effect.fail(new Error('Forbidden'));
 });
 
 Effect.runPromise(program.pipe(Effect.provide(PermixLive)));
@@ -163,7 +163,7 @@ const program = Effect.gen(function* () {
   });
 
   yield* permix.isReady(); // true
-  return yield* permix.check("post.create");
+  return yield* permix.check('post.create');
 });
 
 Effect.runPromise(program.pipe(Effect.provide(permix.layer())));
@@ -176,7 +176,7 @@ Restore previously serialized permissions (e.g. from SSR or storage) with `hydra
 ```ts
 const program = Effect.gen(function* () {
   yield* permix.hydrate(serializedState);
-  return yield* permix.check("post.read");
+  return yield* permix.check('post.read');
 });
 ```
 
@@ -192,8 +192,8 @@ Register hooks that fire when permissions are set up. `hook` yields a function t
 
 ```ts
 const program = Effect.gen(function* () {
-  const remove = yield* permix.hook("setup", () => {
-    console.log("Permissions updated");
+  const remove = yield* permix.hook('setup', () => {
+    console.log('Permissions updated');
   });
 
   // ...later
@@ -214,21 +214,21 @@ const rules = Effect.gen(function* () {
 ## Full Example
 
 ```ts
-import { Context, Effect, Layer } from "effect";
-import { createPermix } from "permix/effect";
+import { Context, Effect, Layer } from 'effect';
+import { createPermix } from 'permix/effect';
 
 // 1. Define permissions
 const permix = createPermix<{
-  post: ["create", "read", "update"];
-  user: ["delete"];
+  post: ['create', 'read', 'update'];
+  user: ['delete'];
 }>();
 
 // 2. Define a service for the current user
 interface User {
   id: string;
-  role: "admin" | "member";
+  role: 'admin' | 'member';
 }
-class CurrentUser extends Context.Tag("CurrentUser")<CurrentUser, User>() {}
+class CurrentUser extends Context.Tag('CurrentUser')<CurrentUser, User>() {}
 
 // 3. Build a Layer that derives rules from CurrentUser
 const PermixLive = permix.layerSetup(
@@ -236,24 +236,24 @@ const PermixLive = permix.layerSetup(
     const user = yield* CurrentUser;
     return {
       post: {
-        create: user.role === "admin",
+        create: user.role === 'admin',
         read: true,
-        update: user.role === "admin",
+        update: user.role === 'admin',
       },
-      user: { delete: user.role === "admin" },
+      user: { delete: user.role === 'admin' },
     };
   })
 );
 
 // 4. Use in a program
 const program = Effect.gen(function* () {
-  const canCreate = yield* permix.check("post.create");
-  const canRead = yield* permix.check("post.read");
+  const canCreate = yield* permix.check('post.create');
+  const canRead = yield* permix.check('post.read');
   return { canCreate, canRead };
 });
 
 // 5. Provide the layers and run
-const CurrentUserLive = Layer.succeed(CurrentUser, { id: "1", role: "admin" });
+const CurrentUserLive = Layer.succeed(CurrentUser, { id: '1', role: 'admin' });
 
 Effect.runPromise(
   program.pipe(Effect.provide(PermixLive), Effect.provide(CurrentUserLive))

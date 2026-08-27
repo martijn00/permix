@@ -1,16 +1,16 @@
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer } from 'effect';
 
-import type { PermixNotReadyError, PermixRuleNotDefinedError } from "../core";
-import { createPermix as createPermixCore, createTemplate } from "../core";
-import type { CheckArgs } from "../core/check";
-import type { Definition } from "../core/definitions";
+import type { PermixNotReadyError, PermixRuleNotDefinedError } from '../core';
+import { createPermix as createPermixCore, createTemplate } from '../core';
+import type { CheckArgs } from '../core/check';
+import type { Definition } from '../core/definitions';
 import type {
   DehydratedState,
   Permix as PermixCore,
   PermixHooks,
   Rules,
   RulesPaths,
-} from "../core/permix";
+} from '../core/permix';
 
 export interface PermixOptions {
   /**

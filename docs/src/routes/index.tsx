@@ -1,15 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
-import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { createFileRoute } from '@tanstack/react-router';
+import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { HomeLayout } from 'fumadocs-ui/layouts/home';
 
-import { baseOptions } from "@/lib/layout.shared";
+import { baseOptions } from '@/lib/layout.shared';
 
-import InitCode from "./-code/init.mdx";
-import SetupCode from "./-code/setup.mdx";
-import UsageCode from "./-code/usage.mdx";
+import InitCode from './-code/init.mdx';
+import SetupCode from './-code/setup.mdx';
+import UsageCode from './-code/usage.mdx';
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: Home,
 });
 
@@ -29,7 +29,7 @@ function Home() {
             </p>
           </div>
           <div>
-            <Tabs items={["Init", "Setup", "Usage"]}>
+            <Tabs items={['Init', 'Setup', 'Usage']}>
               <Tab>
                 <CodeBlock>
                   <Pre>
@@ -57,22 +57,22 @@ function Home() {
         <div className="relative z-10 container mx-auto grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
           {[
             {
-              emoji: "🔒",
-              title: "Type-safe",
+              emoji: '🔒',
+              title: 'Type-safe',
               description:
-                "Permix is built with TypeScript in mind, providing full type safety and autocompletion for your permissions system.",
+                'Permix is built with TypeScript in mind, providing full type safety and autocompletion for your permissions system.',
             },
             {
-              emoji: "🌐",
-              title: "Framework Agnostic",
+              emoji: '🌐',
+              title: 'Framework Agnostic',
               description:
-                "Use Permix with any JavaScript framework or runtime - it works everywhere from React to Node.js.",
+                'Use Permix with any JavaScript framework or runtime - it works everywhere from React to Node.js.',
             },
             {
-              emoji: "🛠️",
-              title: "Simple DX",
+              emoji: '🛠️',
+              title: 'Simple DX',
               description:
-                "Permix provides an intuitive API that makes managing permissions straightforward and easy to understand.",
+                'Permix provides an intuitive API that makes managing permissions straightforward and easy to understand.',
             },
           ].map((item) => (
             <div

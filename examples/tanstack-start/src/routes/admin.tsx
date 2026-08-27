@@ -1,9 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute('/admin')({
   beforeLoad: ({ context }) => {
-    if (!context.permix.check("post.delete")) {
-      throw redirect({ to: "/" });
+    if (!context.permix.check('post.delete')) {
+      throw redirect({ to: '/' });
     }
   },
   component: AdminPage,
@@ -22,11 +22,11 @@ function AdminPage() {
       <article className="rounded-xl border border-zinc-200 bg-white p-6">
         <h1 className="text-2xl font-semibold tracking-tight">Admin area</h1>
         <p className="mt-4 text-sm text-zinc-600">
-          This route is guarded by{" "}
+          This route is guarded by{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             context.permix.check(&apos;post.delete&apos;)
-          </code>{" "}
-          inside{" "}
+          </code>{' '}
+          inside{' '}
           <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
             beforeLoad
           </code>

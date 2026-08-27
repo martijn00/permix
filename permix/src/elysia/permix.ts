@@ -1,17 +1,17 @@
-import type { Context } from "elysia";
+import type { Context } from 'elysia';
 
-import type { Permix as PermixCore } from "../core";
+import type { Permix as PermixCore } from '../core';
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from "../core";
-import type { CheckArgs, CheckContext } from "../core/check";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
-import type { MaybePromise } from "../utils";
+} from '../core';
+import type { CheckArgs, CheckContext } from '../core/check';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+import type { MaybePromise } from '../utils';
 
 export interface MiddlewareContext {
   context: Context;
@@ -34,8 +34,8 @@ function buildPermix<D extends Definition>(
   const onForbidden =
     options.onForbidden ??
     (({ context }) => {
-      context.set.status = "Forbidden";
-      return { error: "Forbidden" };
+      context.set.status = 'Forbidden';
+      return { error: 'Forbidden' };
     });
 
   const hooks = createHooks<PermixHooks<D>>();
@@ -62,12 +62,12 @@ function buildPermix<D extends Definition>(
   ) {
     return async (context: Context) => {
       const rules =
-        typeof callbackOrRules === "function"
+        typeof callbackOrRules === 'function'
           ? await callbackOrRules({ context })
           : callbackOrRules;
       const instance = createPermixCore<D>(rules);
-      instance.hook("check", (ctx) => {
-        hooks.callHook("check", ctx);
+      instance.hook('check', (ctx) => {
+        hooks.callHook('check', ctx);
       });
       (context.store as any)[resolveKey()] = instance;
     };
@@ -140,7 +140,7 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol("permix");
+  let key: string | symbol = Symbol('permix');
   const permix = buildPermix<D>(() => key, options);
 
   return Object.assign(permix, {

@@ -1,7 +1,7 @@
-import { getContext, setContext } from "svelte";
+import { getContext, setContext } from 'svelte';
 
-import type { Definition, Permix, Rules } from "../core";
-import { createCheck } from "../core";
+import type { Definition, Permix, Rules } from '../core';
+import { createCheck } from '../core';
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>;
@@ -9,7 +9,7 @@ export interface PermixContext<T extends Definition> {
   rules: Rules<T> | null;
 }
 
-const PERMIX_CONTEXT_KEY = Symbol("svelte-permix");
+const PERMIX_CONTEXT_KEY = Symbol('svelte-permix');
 
 /**
  * Provides Permix context to the Svelte component tree.
@@ -28,10 +28,10 @@ export function providePermix<T extends Definition>(permix: Permix<T>): void {
   setContext(PERMIX_CONTEXT_KEY, context);
 
   $effect(() => {
-    const setup = permix.hook("setup", () => {
+    const setup = permix.hook('setup', () => {
       context.rules = permix.getRules();
     });
-    const ready = permix.hook("ready", () => {
+    const ready = permix.hook('ready', () => {
       context.isReady = permix.isReady();
     });
 
@@ -47,7 +47,7 @@ export function usePermixContext<T extends Definition>(): PermixContext<T> {
 
   if (!context) {
     throw new Error(
-      "[Permix]: Looks like you forgot to wrap your app with <PermixProvider>"
+      '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
     );
   }
 
@@ -60,11 +60,11 @@ export function usePermixContext<T extends Definition>(): PermixContext<T> {
  * @link https://permix.letstri.dev/docs/integrations/svelte
  */
 export function usePermix<T extends Definition>(
-  permix: Pick<Permix<T>, "getRules" | "check">
+  permix: Pick<Permix<T>, 'getRules' | 'check'>
 ) {
   const context = usePermixContext<T>();
 
-  const check: Permix<T>["check"] = (...args) =>
+  const check: Permix<T>['check'] = (...args) =>
     createCheck<T>(() => context.rules ?? permix.getRules())(...args);
 
   return {

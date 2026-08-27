@@ -1,4 +1,4 @@
-import { onMount } from "svelte";
+import { onMount } from 'svelte';
 
 export interface User {
   id: string;
@@ -11,8 +11,8 @@ export function useUser() {
   onMount(() => {
     new Promise<void>((resolve) => setTimeout(resolve, 1000)).then(() => {
       user = {
-        id: Math.random() < 0.5 ? "1" : "2",
-        name: "John Doe",
+        id: Math.random() < 0.5 ? '1' : '2',
+        name: 'John Doe',
       };
     });
   });

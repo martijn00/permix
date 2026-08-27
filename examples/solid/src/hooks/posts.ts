@@ -1,4 +1,4 @@
-import { createMemo } from "solid-js";
+import { createMemo } from 'solid-js';
 
 export interface Post {
   id: string;
@@ -6,8 +6,8 @@ export interface Post {
 }
 
 const posts = [
-  { id: "1", authorId: "1" },
-  { id: "2", authorId: "2" },
+  { id: '1', authorId: '1' },
+  { id: '2', authorId: '2' },
 ];
 
 export function usePosts() {

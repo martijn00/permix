@@ -3,57 +3,57 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-} from "@tanstack/react-router";
-import { RootProvider } from "fumadocs-ui/provider/tanstack";
-import type { ReactNode } from "react";
+} from '@tanstack/react-router';
+import { RootProvider } from 'fumadocs-ui/provider/tanstack';
+import type { ReactNode } from 'react';
 
-import { AnalyticsProvider } from "@/components/analytics";
-import { appName, siteUrl } from "@/lib/shared";
+import { AnalyticsProvider } from '@/components/analytics';
+import { appName, siteUrl } from '@/lib/shared';
 
-import appCss from "@/styles/app.css?url";
+import appCss from '@/styles/app.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        charSet: "utf-8",
+        charSet: 'utf-8',
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
       },
       {
         title: `${appName} - Type-safe permissions management for JavaScript`,
       },
       {
-        name: "description",
+        name: 'description',
         content:
-          "A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side JavaScript applications.",
+          'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side JavaScript applications.',
       },
       {
-        name: "keywords",
+        name: 'keywords',
         content:
-          "permissions, authorization, acl, access-control, typescript, react, vue, type-safe, rbac, security, permissions-management, frontend, javascript",
+          'permissions, authorization, acl, access-control, typescript, react, vue, type-safe, rbac, security, permissions-management, frontend, javascript',
       },
       {
-        property: "og:title",
+        property: 'og:title',
         content: `${appName} - Type-safe permissions management for TypeScript`,
       },
       {
-        property: "og:description",
+        property: 'og:description',
         content:
-          "A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side TypeScript applications.",
+          'A lightweight, framework-agnostic, type-safe permissions management library for client-side and server-side TypeScript applications.',
       },
       {
-        property: "og:url",
+        property: 'og:url',
         content: siteUrl,
       },
       {
-        property: "og:site_name",
+        property: 'og:site_name',
         content: appName,
       },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [{ rel: 'stylesheet', href: appCss }],
   }),
   component: RootComponent,
 });

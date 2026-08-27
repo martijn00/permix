@@ -1,13 +1,13 @@
-import type { CheckArgs, CheckContext } from "./check";
-import { createCheck, createCheckContext } from "./check";
-import type { Action, ActionName, Definition } from "./definitions";
-import { PermixNotReadyError } from "./errors";
-import { createHooks } from "./hooks";
-import type { DehydratedState, Rules } from "./rules";
-import { createRules, dehydrateRules, hydrateRules } from "./rules";
-import { createTemplate } from "./template";
+import type { CheckArgs, CheckContext } from './check';
+import { createCheck, createCheckContext } from './check';
+import type { Action, ActionName, Definition } from './definitions';
+import { PermixNotReadyError } from './errors';
+import { createHooks } from './hooks';
+import type { DehydratedState, Rules } from './rules';
+import { createRules, dehydrateRules, hydrateRules } from './rules';
+import { createTemplate } from './template';
 
-export type { DehydratedState, Rules } from "./rules";
+export type { DehydratedState, Rules } from './rules';
 
 type ActionArgs<A extends Action> = A extends { type: infer T; required: true }
   ? [T]
@@ -37,7 +37,7 @@ type Depth = [
 
 export type RulesPaths<
   D,
-  Prefix extends string = "",
+  Prefix extends string = '',
   N extends unknown[] = Depth,
 > = N extends [unknown, ...infer Rest]
   ? D extends readonly Action[]
@@ -49,11 +49,11 @@ export type RulesPaths<
       }[keyof D & string]
   : never;
 
-export type SpecialSymbol = "~any" | "~all";
+export type SpecialSymbol = '~any' | '~all';
 
 export type SpecialPath<
   D,
-  Prefix extends string = "",
+  Prefix extends string = '',
   N extends unknown[] = Depth,
 > = N extends [unknown, ...infer Rest]
   ?
@@ -334,16 +334,16 @@ export function createPermix<D extends Definition>(
   return {
     setup(r) {
       rules = createRules<D>(r);
-      hooks.callHook("setup");
+      hooks.callHook('setup');
       if (!ready) {
         ready = true;
         resolveReady();
-        hooks.callHook("ready");
+        hooks.callHook('ready');
       }
     },
     check(...args: CheckArgs<D>): boolean {
       const context = createCheckContext<D>(...args);
-      hooks.callHook("check", context);
+      hooks.callHook('check', context);
       return checkFn(...args);
     },
     dehydrate() {
@@ -354,7 +354,7 @@ export function createPermix<D extends Definition>(
     },
     hydrate(state) {
       rules = hydrateRules(state);
-      hooks.callHook("setup");
+      hooks.callHook('setup');
     },
     template(rules) {
       return createTemplate(rules);

@@ -1,9 +1,9 @@
-import { useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useRouterState } from '@tanstack/react-router';
+import { useEffect } from 'react';
 
 function scrollActiveSidebarItem() {
   const viewport = document.querySelector(
-    "#nd-sidebar [data-radix-scroll-area-viewport]"
+    '#nd-sidebar [data-radix-scroll-area-viewport]'
   );
   const active = document.querySelector('#nd-sidebar [data-active="true"]');
 
@@ -18,7 +18,7 @@ function scrollActiveSidebarItem() {
     activeRect.top < viewportRect.top ||
     activeRect.bottom > viewportRect.bottom
   ) {
-    active.scrollIntoView({ block: "nearest" });
+    active.scrollIntoView({ block: 'nearest' });
   }
 }
 

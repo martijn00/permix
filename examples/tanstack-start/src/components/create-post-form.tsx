@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { createPost } from "@/server/posts";
+import { createPost } from '@/server/posts';
 
 export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
   const [result, setResult] = useState<string | null>(null);
@@ -14,7 +14,7 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
       const data = await createPost();
       setResult(data.message);
     } catch (error) {
-      setResult(error instanceof Error ? error.message : "Request failed");
+      setResult(error instanceof Error ? error.message : 'Request failed');
     } finally {
       setPending(false);
     }
@@ -24,12 +24,12 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
     <section className="rounded-xl border border-zinc-200 bg-white p-5">
       <h2 className="text-lg font-medium">Server function check</h2>
       <p className="mt-2 text-sm text-zinc-600">
-        createPost uses{" "}
+        createPost uses{' '}
         <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-xs">
           permix.checkMiddleware(&apos;post.create&apos;)
-        </code>{" "}
-        on the server. Server says create is{" "}
-        <strong>{canCreate ? "allowed" : "denied"}</strong> for this request.
+        </code>{' '}
+        on the server. Server says create is{' '}
+        <strong>{canCreate ? 'allowed' : 'denied'}</strong> for this request.
       </p>
       <button
         type="button"

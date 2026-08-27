@@ -1,9 +1,9 @@
-import type { PropType, SetupContext, SlotsType, VNode } from "vue";
-import { defineComponent, onUnmounted, watch } from "vue";
+import type { PropType, SetupContext, SlotsType, VNode } from 'vue';
+import { defineComponent, onUnmounted, watch } from 'vue';
 
-import type { CheckArgs, Definition, DehydratedState, Permix } from "../core";
-import { usePermix } from "./composables";
-import { providePermixContext, usePermixContext } from "./context";
+import type { CheckArgs, Definition, DehydratedState, Permix } from '../core';
+import { usePermix } from './composables';
+import { providePermixContext, usePermixContext } from './context';
 
 /**
  * Provides Permix context to the Vue component tree.
@@ -11,7 +11,7 @@ import { providePermixContext, usePermixContext } from "./context";
  * @link https://permix.letstri.dev/docs/integrations/vue
  */
 export const PermixProvider = defineComponent({
-  name: "PermixProvider",
+  name: 'PermixProvider',
   props: {
     permix: {
       type: Object as PropType<Permix<any>>,
@@ -54,7 +54,7 @@ export interface PermixComponents<D extends Definition> {
  * @link https://permix.letstri.dev/docs/integrations/vue
  */
 export const PermixHydrate = defineComponent({
-  name: "PermixHydrate",
+  name: 'PermixHydrate',
   props: {
     state: {
       type: Object as PropType<DehydratedState<any>>,
@@ -76,7 +76,7 @@ export const PermixHydrate = defineComponent({
 });
 
 export function createComponents<D extends Definition>(
-  permix: Pick<Permix<D>, "getRules" | "check">
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
   function Check(props: CheckProps<D>, context: CheckContext) {
     const { check } = usePermix(permix);

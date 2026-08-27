@@ -1,15 +1,15 @@
-import { render, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, waitFor } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
-import { createPermix, PermixRuleNotDefinedError } from "../core";
-import { createComponents, PermixHydrate, PermixProvider } from "./components";
-import { usePermix } from "./hooks";
-import "@testing-library/jest-dom/vitest";
+import { createPermix, PermixRuleNotDefinedError } from '../core';
+import { createComponents, PermixHydrate, PermixProvider } from './components';
+import { usePermix } from './hooks';
+import '@testing-library/jest-dom/vitest';
 
-describe("components", () => {
-  it("should check hydration", async () => {
+describe('components', () => {
+  it('should check hydration', async () => {
     const permixServer = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     permixServer.setup({
@@ -22,12 +22,12 @@ describe("components", () => {
     const dehydrated = permixServer.dehydrate();
 
     const permixClient = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     const TestComponent = () => {
       const { check } = usePermix(permixClient);
-      return <div>{check("post.create").toString()}</div>;
+      return <div>{check('post.create').toString()}</div>;
     };
 
     const { container } = render(
@@ -38,12 +38,12 @@ describe("components", () => {
       </PermixProvider>
     );
 
-    expect(container.firstChild).toHaveTextContent("true");
+    expect(container.firstChild).toHaveTextContent('true');
   });
 
-  it("should work with Check component", () => {
+  it('should work with Check component', () => {
     const permix = createPermix<{
-      post: ["create"];
+      post: ['create'];
     }>();
 
     permix.setup({
@@ -52,7 +52,7 @@ describe("components", () => {
       },
     });
 
-    const text = "Post can be created";
+    const text = 'Post can be created';
 
     const { Check } = createComponents(permix);
 
@@ -71,24 +71,24 @@ describe("components", () => {
     expect(getByText(text)).toBeInTheDocument();
   });
 
-  it("should work with Check component and data", () => {
+  it('should work with Check component and data', () => {
     const permix = createPermix<{
-      post: [{ name: "edit"; type: { authorId: string } }];
+      post: [{ name: 'edit'; type: { authorId: string } }];
     }>();
 
     permix.setup({
       post: {
-        edit: (post) => post?.authorId === "1",
+        edit: (post) => post?.authorId === '1',
       },
     });
 
-    const canText = "Post can be created";
-    const cannotText = "Post cannot be created";
+    const canText = 'Post can be created';
+    const cannotText = 'Post cannot be created';
 
     const { Check } = createComponents(permix);
 
     const TestPost1 = () => (
-      <Check path="post.edit" data={{ authorId: "1" }}>
+      <Check path="post.edit" data={{ authorId: '1' }}>
         <div data-testid="post-can-be-created">{canText}</div>
       </Check>
     );
@@ -104,7 +104,7 @@ describe("components", () => {
     const TestPost2 = () => (
       <Check
         path="post.edit"
-        data={{ authorId: "2" }}
+        data={{ authorId: '2' }}
         otherwise={<div data-testid="otherwise">{cannotText}</div>}
       >
         <div data-testid="post-can-be-created">{canText}</div>
@@ -121,9 +121,9 @@ describe("components", () => {
     expect(container2.innerHTML).toContain(cannotText);
   });
 
-  it("should work with Check component and DOM rerender", async () => {
+  it('should work with Check component and DOM rerender', async () => {
     const permix = createPermix<{
-      post: ["read"];
+      post: ['read'];
     }>();
 
     permix.setup({
@@ -132,7 +132,7 @@ describe("components", () => {
       },
     });
 
-    const text = "Post can be read";
+    const text = 'Post can be read';
 
     const { Check } = createComponents(permix);
 
@@ -161,9 +161,9 @@ describe("components", () => {
     });
   });
 
-  it("should work with reverse prop", async () => {
+  it('should work with reverse prop', async () => {
     const permix = createPermix<{
-      post: ["create"];
+      post: ['create'];
     }>();
 
     permix.setup({
@@ -172,8 +172,8 @@ describe("components", () => {
       },
     });
 
-    const defaultText = "Default slot";
-    const otherwiseText = "Otherwise slot";
+    const defaultText = 'Default slot';
+    const otherwiseText = 'Otherwise slot';
 
     const { Check } = createComponents(permix);
 
@@ -204,9 +204,9 @@ describe("components", () => {
     });
   });
 
-  it("should validate ts props", () => {
+  it('should validate ts props', () => {
     const permix = createPermix<{
-      post: ["create"];
+      post: ['create'];
     }>();
 
     permix.setup({

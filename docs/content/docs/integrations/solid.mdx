@@ -21,8 +21,8 @@ Permix provides official Solid integration through the `PermixProvider` componen
 First, wrap your application with the `PermixProvider`:
 
 ```tsx title="App.tsx"
-import { PermixProvider } from "permix/solid";
-import { permix } from "./lib/permix";
+import { PermixProvider } from 'permix/solid';
+import { permix } from './lib/permix';
 
 function App() {
   return (
@@ -47,8 +47,8 @@ function App() {
 For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom utility:
 
 ```tsx title="hooks/use-permissions.ts"
-import { usePermix } from "permix/solid";
-import { permix } from "../lib/permix";
+import { usePermix } from 'permix/solid';
+import { permix } from '../lib/permix';
 
 export function usePermissions() {
   return usePermix(permix);
@@ -64,7 +64,7 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/solid` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from "permix/solid";
+import { createComponents } from 'permix/solid';
 
 // ...
 
@@ -97,15 +97,15 @@ export default function Page() {
 Use the `usePermix` hook and checking components in your components:
 
 ```tsx title="page.tsx"
-import { usePermix } from "permix/solid";
-import { permix } from "./lib/permix";
-import { Check } from "./lib/permix-components";
+import { usePermix } from 'permix/solid';
+import { permix } from './lib/permix';
+import { Check } from './lib/permix-components';
 
 export default function Page() {
   const post = usePost();
   const { check, isReady } = usePermix(permix);
 
-  const canEdit = () => check("post.edit", post);
+  const canEdit = () => check('post.edit', post);
 
   return (
     <>
@@ -137,11 +137,11 @@ export default function Page() {
 For SSR, use `PermixHydrate` with the dehydrated server state, then call `permix.setup()` on the client to restore function-based rules:
 
 ```tsx title="App.tsx"
-import { onMount } from "solid-js";
-import type { DehydratedState } from "permix";
-import { PermixHydrate, PermixProvider } from "permix/solid";
-import { permix } from "./lib/permix";
-import { getClientRules } from "./lib/permissions";
+import { onMount } from 'solid-js';
+import type { DehydratedState } from 'permix';
+import { PermixHydrate, PermixProvider } from 'permix/solid';
+import { permix } from './lib/permix';
+import { getClientRules } from './lib/permissions';
 
 export function App(props: {
   dehydratedState: DehydratedState<any>;

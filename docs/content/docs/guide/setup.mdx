@@ -21,8 +21,8 @@ After creating Permix instance, you need to define permissions with `setup` meth
 
 ```ts
 const permix = createPermix<{
-  post: ["create"];
-  comment: ["create", "update"];
+  post: ['create'];
+  comment: ['create', 'update'];
 }>();
 
 permix.setup({
@@ -47,11 +47,11 @@ permix.setup({
 You can set up initial rules directly when creating a Permix instance by passing them as the first parameter to `createPermix`.
 
 ```ts twoslash
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
-  post: ["create", "read"];
-  comment: ["create", "read", "update"];
+  post: ['create', 'read'];
+  comment: ['create', 'read', 'update'];
 }>({
   post: {
     create: true,
@@ -65,7 +65,7 @@ const permix = createPermix<{
 });
 
 // The instance is immediately ready to use
-permix.check("post.create"); // true
+permix.check('post.create'); // true
 
 permix.isReady(); // true
 ```
@@ -149,12 +149,12 @@ If you cannot define entity types in the Permix instance, callback data is `unkn
 </Callout>
 
 ```ts twoslash
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
-const currentUser = { id: "user-1" };
+const currentUser = { id: 'user-1' };
 
 const permix = createPermix<{
-  comment: ["update"];
+  comment: ['update'];
 }>();
 
 // @noErrors
@@ -175,11 +175,11 @@ You can use async functions to fetch permissions from external sources and then 
 </Callout>
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
-  post: ["create", "read", "update", "delete"];
-  comment: ["create", "read", "update", "delete"];
+  post: ['create', 'read', 'update', 'delete'];
+  comment: ['create', 'read', 'update', 'delete'];
 }>();
 
 // Fetch permissions from API
@@ -188,22 +188,22 @@ async function loadUserPermissions(userId: string) {
 
   permix.setup({
     post: {
-      create: permissions.includes("post:create"),
-      read: permissions.includes("post:read"),
-      update: permissions.includes("post:update"),
-      delete: permissions.includes("post:delete"),
+      create: permissions.includes('post:create'),
+      read: permissions.includes('post:read'),
+      update: permissions.includes('post:update'),
+      delete: permissions.includes('post:delete'),
     },
     comment: {
-      create: permissions.includes("comment:create"),
-      read: permissions.includes("comment:read"),
-      update: permissions.includes("comment:update"),
-      delete: permissions.includes("comment:delete"),
+      create: permissions.includes('comment:create'),
+      read: permissions.includes('comment:read'),
+      update: permissions.includes('comment:update'),
+      delete: permissions.includes('comment:delete'),
     },
   });
 }
 
 // Usage
-await loadUserPermissions("user-123");
+await loadUserPermissions('user-123');
 ```
 
 ## Typed rules factory
@@ -211,10 +211,10 @@ await loadUserPermissions("user-123");
 Use `createRules` when rules live in a separate module but must stay aligned with your schema:
 
 ```ts twoslash title="/lib/rules.ts"
-import { createPermix, createRules } from "permix";
+import { createPermix, createRules } from 'permix';
 
 type PermissionsDefinition = {
-  post: ["create", "read"];
+  post: ['create', 'read'];
 };
 
 export const postRules = createRules<PermissionsDefinition>({

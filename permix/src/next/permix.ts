@@ -1,10 +1,10 @@
-import { cache } from "react";
+import { cache } from 'react';
 
-import type { Permix as PermixCore } from "../core";
-import { createPermix as createPermixCore, createTemplate } from "../core";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
-import type { DehydratedState } from "../core/rules";
+import type { Permix as PermixCore } from '../core';
+import { createPermix as createPermixCore, createTemplate } from '../core';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+import type { DehydratedState } from '../core/rules';
 
 /**
  * Create a per-request Permix instance for Next.js App Router.
@@ -55,7 +55,7 @@ export function createPermix<D extends Definition>() {
     getPermix().setup(rules);
   }
 
-  const check: PermixCore<D>["check"] = (...args) => getPermix().check(...args);
+  const check: PermixCore<D>['check'] = (...args) => getPermix().check(...args);
 
   function dehydrate(): DehydratedState<D> {
     return getPermix().dehydrate();

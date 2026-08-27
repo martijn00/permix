@@ -1,11 +1,11 @@
-import { createPermix } from "permix";
-import { createComponents } from "permix/solid";
+import { createPermix } from 'permix';
+import { createComponents } from 'permix/solid';
 
-import type { Post } from "../hooks/posts";
-import type { User } from "../hooks/user";
+import type { Post } from '../hooks/posts';
+import type { User } from '../hooks/user';
 
 export const permix = createPermix<{
-  post: ["read", { name: "edit"; type: Post }];
+  post: ['read', { name: 'edit'; type: Post }];
 }>();
 
 export function setupPermix(user: User) {

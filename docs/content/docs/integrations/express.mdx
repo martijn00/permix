@@ -21,8 +21,8 @@ Permix provides middleware for Express that allows you to easily check permissio
 Here's a basic example of how to use the Permix middleware with Express:
 
 ```ts
-import express from "express";
-import { createPermix } from "permix/express";
+import express from 'express';
+import { createPermix } from 'permix/express';
 
 interface Post {
   id: string;
@@ -37,9 +37,9 @@ const app = express();
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: "create"; type: Post },
-    { name: "read"; type: Post },
-    { name: "update"; type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
   ];
 }>();
 
@@ -72,26 +72,26 @@ app.use(
 Use the `checkMiddleware` function in your Express routes to check permissions:
 
 ```ts
-app.post("/posts", permix.checkMiddleware("post.create"), (req, res) => {
+app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
   res.json({ success: true });
 });
 
 // Check multiple actions
 app.put(
-  "/posts/:id",
-  permix.checkMiddleware((c) => c("post.read") && c("post.update")),
+  '/posts/:id',
+  permix.checkMiddleware((c) => c('post.read') && c('post.update')),
   (req, res) => {
     res.json({ success: true });
   }
 );
 
 // Check all actions
-app.delete("/posts/:id", permix.checkMiddleware("post.~all"), (req, res) => {
+app.delete('/posts/:id', permix.checkMiddleware('post.~all'), (req, res) => {
   res.json({ success: true });
 });
 
 // Check any action
-app.get("/posts", permix.checkMiddleware("post.~any"), (req, res) => {
+app.get('/posts', permix.checkMiddleware('post.~any'), (req, res) => {
   res.json({ posts: getAllPosts() });
 });
 ```
@@ -105,15 +105,15 @@ app.get("/posts", permix.checkMiddleware("post.~any"), (req, res) => {
 You can access the Permix instance directly in your route handlers using the `get` function:
 
 ```ts
-app.get("/posts", (req, res) => {
+app.get('/posts', (req, res) => {
   const { check } = permix.get(req);
 
   // Check permissions manually
-  if (check("post.read")) {
+  if (check('post.read')) {
     // User has permission to read posts
     res.json({ posts: getAllPosts() });
   } else {
-    res.status(403).json({ error: "You do not have permission to read posts" });
+    res.status(403).json({ error: 'You do not have permission to read posts' });
   }
 });
 ```
@@ -142,7 +142,7 @@ const adminTemplate = permix.template({
 app.use(
   permix.setupMiddleware(({ req }) => {
     // You can still customize the template based on request data
-    if (req.user?.role === "admin") {
+    if (req.user?.role === 'admin') {
       return adminTemplate();
     }
 
@@ -171,7 +171,7 @@ By default, the middleware returns a 403 Forbidden response. You can customize t
 const permix = createPermix<Definition>({
   onForbidden: ({ res }) => {
     res.status(403).json({
-      error: "Custom forbidden message",
+      error: 'Custom forbidden message',
     });
   },
 });
@@ -184,7 +184,7 @@ You can also provide a handler that returns different responses based on the che
 ```ts
 const permix = createPermix<Definition>({
   onForbidden: ({ res, path }) => {
-    if (path === "post.create") {
+    if (path === 'post.create') {
       res.status(403).json({
         error: `You don't have permission for ${path}`,
       });
@@ -192,7 +192,7 @@ const permix = createPermix<Definition>({
     }
 
     res.status(403).json({
-      error: "You do not have permission to perform this action",
+      error: 'You do not have permission to perform this action',
     });
   },
 });
@@ -233,16 +233,16 @@ app.use(
 You can check permissions based on the specific data being accessed:
 
 ```ts
-app.put("/posts/:id", async (req, res, next) => {
+app.put('/posts/:id', async (req, res, next) => {
   const post = await getPostById(req.params.id);
 
   const { check } = permix.get(req);
 
   // Check if user can update this specific post
-  if (check("post.update", post)) {
+  if (check('post.update', post)) {
     next();
   } else {
-    res.status(403).json({ error: "You cannot update this post" });
+    res.status(403).json({ error: 'You cannot update this post' });
   }
 });
 ```
@@ -252,7 +252,7 @@ app.put("/posts/:id", async (req, res, next) => {
 You can register hooks at the factory level to listen for events across all requests:
 
 ```ts
-permix.hook("check", ({ path, data }) => {
+permix.hook('check', ({ path, data }) => {
   console.log(`Permission checked: ${path}`, data);
 });
 ```

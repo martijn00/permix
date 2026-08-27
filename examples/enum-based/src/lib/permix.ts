@@ -1,8 +1,8 @@
-import { createPermix } from "permix";
-import { createComponents } from "permix/react";
+import { createPermix } from 'permix';
+import { createComponents } from 'permix/react';
 
-import { PostPermission, UserPermission } from "./permissions";
-import { getUser } from "./user";
+import { PostPermission, UserPermission } from './permissions';
+import { getUser } from './user';
 
 // Define permix instance
 export const permix = createPermix<{

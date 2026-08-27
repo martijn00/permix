@@ -1,22 +1,22 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
-import { defineComponent, onBeforeMount, onMounted, ref } from "vue";
+import { mount } from '@vue/test-utils';
+import { describe, expect, it } from 'vitest';
+import { defineComponent, onBeforeMount, onMounted, ref } from 'vue';
 
-import { createPermix } from "../core";
-import { usePermix } from "./composables";
-import { mountWithPermix } from "./test-utils";
+import { createPermix } from '../core';
+import { usePermix } from './composables';
+import { mountWithPermix } from './test-utils';
 
-describe("composables", () => {
-  it("should throw error when PermixProvider is not used", () => {
+describe('composables', () => {
+  it('should throw error when PermixProvider is not used', () => {
     const permix = createPermix<{
-      post: ["read"];
+      post: ['read'];
     }>();
 
     const TestWrapper = defineComponent({
-      template: "<div></div>",
+      template: '<div></div>',
       setup() {
         expect(() => usePermix(permix)).toThrow(
-          "[Permix]: Looks like you forgot to wrap your app with <PermixProvider>"
+          '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
         );
         return {};
       },
@@ -25,9 +25,9 @@ describe("composables", () => {
     mount(TestWrapper);
   });
 
-  it("should work with custom hook", () => {
+  it('should work with custom hook', () => {
     const permix = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     permix.setup({
@@ -52,18 +52,18 @@ describe("composables", () => {
 
     const wrapper = mountWithPermix(TestWrapper, permix);
 
-    expect(wrapper.get('[data-testid="create"]').text()).toBe("true");
-    expect(wrapper.get('[data-testid="read"]').text()).toBe("false");
+    expect(wrapper.get('[data-testid="create"]').text()).toBe('true');
+    expect(wrapper.get('[data-testid="read"]').text()).toBe('false');
   });
 
-  it("should work with DOM rerender", async () => {
+  it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: "create"; type: { id: string } }, "read"];
+      post: [{ name: 'create'; type: { id: string } }, 'read'];
     }>();
 
     permix.setup({
       post: {
-        create: (post) => post?.id === "1",
+        create: (post) => post?.id === '1',
         read: false,
       },
     });
@@ -72,7 +72,7 @@ describe("composables", () => {
       setup() {
         const { check } = usePermix(permix);
 
-        const post = ref({ id: "1" });
+        const post = ref({ id: '1' });
 
         return { check, post };
       },
@@ -86,25 +86,25 @@ describe("composables", () => {
 
     const wrapper = mountWithPermix(TestComponent, permix);
 
-    expect(wrapper.get('[data-testid="create"]').text()).toBe("true");
-    expect(wrapper.get('[data-testid="read"]').text()).toBe("false");
+    expect(wrapper.get('[data-testid="create"]').text()).toBe('true');
+    expect(wrapper.get('[data-testid="read"]').text()).toBe('false');
 
     permix.setup({
       post: {
-        create: (post) => post?.id === "2",
+        create: (post) => post?.id === '2',
         read: true,
       },
     });
 
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.get('[data-testid="create"]').text()).toBe("false");
-    expect(wrapper.get('[data-testid="read"]').text()).toBe("true");
+    expect(wrapper.get('[data-testid="create"]').text()).toBe('false');
+    expect(wrapper.get('[data-testid="read"]').text()).toBe('true');
   });
 
-  it("should check isReady", async () => {
+  it('should check isReady', async () => {
     const permix = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     const TestWrapper = defineComponent({
@@ -112,12 +112,12 @@ describe("composables", () => {
         const { isReady } = usePermix(permix);
         return { isReady };
       },
-      template: "<div>{{ isReady }}</div>",
+      template: '<div>{{ isReady }}</div>',
     });
 
     const wrapper = mountWithPermix(TestWrapper, permix);
 
-    expect(wrapper.get("div").text()).toBe("false");
+    expect(wrapper.get('div').text()).toBe('false');
 
     permix.setup({
       post: {
@@ -128,16 +128,16 @@ describe("composables", () => {
 
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.get("div").text()).toBe("true");
+    expect(wrapper.get('div').text()).toBe('true');
   });
 
-  it("should work with setup inside onBeforeMount", async () => {
+  it('should work with setup inside onBeforeMount', async () => {
     const permix = createPermix<{
-      post: ["create"];
+      post: ['create'];
     }>();
 
     const TestWrapper = defineComponent({
-      template: "<div>{{ isReady }}</div>",
+      template: '<div>{{ isReady }}</div>',
       setup() {
         const { isReady } = usePermix(permix);
 
@@ -155,16 +155,16 @@ describe("composables", () => {
 
     const wrapper = mountWithPermix(TestWrapper, permix);
 
-    expect(wrapper.text()).toBe("true");
+    expect(wrapper.text()).toBe('true');
   });
 
-  it("should work with setup inside onMounted", async () => {
+  it('should work with setup inside onMounted', async () => {
     const permix = createPermix<{
-      post: ["create"];
+      post: ['create'];
     }>();
 
     const TestWrapper = defineComponent({
-      template: "<div>{{ isReady }}</div>",
+      template: '<div>{{ isReady }}</div>',
       setup() {
         const { isReady } = usePermix(permix);
 
@@ -182,10 +182,10 @@ describe("composables", () => {
 
     const wrapper = mountWithPermix(TestWrapper, permix);
 
-    expect(wrapper.text()).toBe("false");
+    expect(wrapper.text()).toBe('false');
 
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.text()).toBe("true");
+    expect(wrapper.text()).toBe('true');
   });
 });

@@ -1,1 +1,1 @@
-export * from "./permix";
+export * from './permix';

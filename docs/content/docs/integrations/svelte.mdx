@@ -48,8 +48,8 @@ First, wrap your application with the `PermixProvider`:
 For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom utility:
 
 ```ts title="lib/use-permissions.ts"
-import { usePermix } from "permix/svelte";
-import { permix } from "./permix";
+import { usePermix } from 'permix/svelte';
+import { permix } from './permix';
 
 export function usePermissions() {
   return usePermix(permix);
@@ -65,7 +65,7 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/svelte` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from "permix/svelte";
+import { createComponents } from 'permix/svelte';
 
 // ...
 

@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import type { ValidateDefinition } from "../core";
-import { PermixNotFoundError } from "../core";
-import { createPermix } from "./permix";
+import type { ValidateDefinition } from '../core';
+import { PermixNotFoundError } from '../core';
+import { createPermix } from './permix';
 
 interface Post {
   id: string;
@@ -10,31 +10,31 @@ interface Post {
 }
 
 type PermissionsDefinition = ValidateDefinition<{
-  post: ["create", "read", "update"];
-  user: ["delete"];
+  post: ['create', 'read', 'update'];
+  user: ['delete'];
 }>;
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: "create"; type: Post }];
+  post: [{ name: 'create'; type: Post }];
 }>;
 
 function createMockRequest(): Request {
-  return new Request("https://example.com");
+  return new Request('https://example.com');
 }
 
-function createMockNext(response = new Response("ok")) {
+function createMockNext(response = new Response('ok')) {
   return vi.fn(() => response);
 }
 
 describe(createPermix, () => {
   const permix = createPermix<PermissionsDefinition>();
 
-  it("should throw ts error", () => {
+  it('should throw ts error', () => {
     // @ts-expect-error path does not exist
-    permix.checkMiddleware("post.delete");
+    permix.checkMiddleware('post.delete');
   });
 
-  it("should allow access when permission is granted", async () => {
+  it('should allow access when permission is granted', async () => {
     const req = createMockRequest();
     const next = createMockNext();
 
@@ -43,14 +43,14 @@ describe(createPermix, () => {
       user: { delete: false },
     })(req, next);
 
-    const result = await permix.checkMiddleware("post.create")(req, next);
+    const result = await permix.checkMiddleware('post.create')(req, next);
 
     expect(result?.status).toBe(200);
     expect(next).toHaveBeenCalledTimes(2);
     expect(next).toHaveBeenLastCalledWith();
   });
 
-  it("should deny access when permission is not granted", async () => {
+  it('should deny access when permission is not granted', async () => {
     const req = createMockRequest();
     const next = createMockNext();
 
@@ -59,20 +59,20 @@ describe(createPermix, () => {
       user: { delete: false },
     })(req, next);
 
-    const result = await permix.checkMiddleware("post.create")(req, next);
+    const result = await permix.checkMiddleware('post.create')(req, next);
 
     expect(result?.status).toBe(403);
     await expect(result?.text()).resolves.toBe(
-      JSON.stringify({ error: "Forbidden" })
+      JSON.stringify({ error: 'Forbidden' })
     );
   });
 
-  it("should work with custom error handler", async () => {
+  it('should work with custom error handler', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: () =>
-        new Response(JSON.stringify({ error: "Custom error" }), {
+        new Response(JSON.stringify({ error: 'Custom error' }), {
           status: 403,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         }),
     });
 
@@ -84,22 +84,22 @@ describe(createPermix, () => {
       user: { delete: false },
     })(req, next);
 
-    const result = await permix.checkMiddleware("post.create")(req, next);
+    const result = await permix.checkMiddleware('post.create')(req, next);
 
     expect(result?.status).toBe(403);
     await expect(result?.text()).resolves.toBe(
-      JSON.stringify({ error: "Custom error" })
+      JSON.stringify({ error: 'Custom error' })
     );
   });
 
-  it("should work with custom error and params", async () => {
+  it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ path }) =>
         new Response(
           JSON.stringify({ error: `You do not have permission for ${path}` }),
           {
             status: 403,
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
           }
         ),
     });
@@ -112,15 +112,15 @@ describe(createPermix, () => {
       user: { delete: false },
     })(req, next);
 
-    const result = await permix.checkMiddleware("post.create")(req, next);
+    const result = await permix.checkMiddleware('post.create')(req, next);
 
     expect(result?.status).toBe(403);
     await expect(result?.text()).resolves.toBe(
-      JSON.stringify({ error: "You do not have permission for post.create" })
+      JSON.stringify({ error: 'You do not have permission for post.create' })
     );
   });
 
-  it("should pass data through to a rule callback", async () => {
+  it('should pass data through to a rule callback', async () => {
     const permix = createPermix<PostWithData>();
 
     const req = createMockRequest();
@@ -128,19 +128,19 @@ describe(createPermix, () => {
 
     await permix.setupMiddleware({
       post: {
-        create: (post) => post?.authorId === "1",
+        create: (post) => post?.authorId === '1',
       },
     })(req, next);
 
-    const result = await permix.checkMiddleware("post.create", {
-      id: "a",
-      authorId: "1",
+    const result = await permix.checkMiddleware('post.create', {
+      id: 'a',
+      authorId: '1',
     })(req, next);
 
     expect(result?.status).toBe(200);
   });
 
-  it("should work with checker callback form", async () => {
+  it('should work with checker callback form', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const req = createMockRequest();
@@ -152,13 +152,13 @@ describe(createPermix, () => {
     })(req, next);
 
     const result = await permix.checkMiddleware(
-      (c) => c("post.create") && c("user.delete")
+      (c) => c('post.create') && c('user.delete')
     )(req, next);
 
     expect(result?.status).toBe(200);
   });
 
-  it("should work with template", async () => {
+  it('should work with template', async () => {
     const template = permix.template({
       post: { create: true, read: true, update: true },
       user: { delete: true },
@@ -169,12 +169,12 @@ describe(createPermix, () => {
 
     await permix.setupMiddleware(() => template())(req, next);
 
-    const result = await permix.checkMiddleware("post.create")(req, next);
+    const result = await permix.checkMiddleware('post.create')(req, next);
 
     expect(result?.status).toBe(200);
   });
 
-  it("should dehydrate permissions", async () => {
+  it('should dehydrate permissions', async () => {
     const template = permix.template({
       post: { create: true, read: false, update: true },
       user: { delete: false },
@@ -191,9 +191,9 @@ describe(createPermix, () => {
     });
   });
 
-  it("should let two factories with different keys coexist on the same request", async () => {
-    const admin = createPermix<PermissionsDefinition>().contextKey("admin");
-    const guest = createPermix<PermissionsDefinition>().contextKey("guest");
+  it('should let two factories with different keys coexist on the same request', async () => {
+    const admin = createPermix<PermissionsDefinition>().contextKey('admin');
+    const guest = createPermix<PermissionsDefinition>().contextKey('guest');
 
     const req = createMockRequest();
     const next = createMockNext();
@@ -208,7 +208,7 @@ describe(createPermix, () => {
     })(req, next);
 
     const adminNext = createMockNext();
-    const adminResult = await admin.checkMiddleware("post.create")(
+    const adminResult = await admin.checkMiddleware('post.create')(
       req,
       adminNext
     );
@@ -216,7 +216,7 @@ describe(createPermix, () => {
     expect(adminNext).toHaveBeenCalledWith();
 
     const guestNext = createMockNext();
-    const guestResult = await guest.checkMiddleware("post.create")(
+    const guestResult = await guest.checkMiddleware('post.create')(
       req,
       guestNext
     );
@@ -224,7 +224,7 @@ describe(createPermix, () => {
     expect(guestNext).not.toHaveBeenCalled();
   });
 
-  it("should default to a per-instance symbol so two factories without a key do not collide", async () => {
+  it('should default to a per-instance symbol so two factories without a key do not collide', async () => {
     const first = createPermix<PermissionsDefinition>();
     const second = createPermix<PermissionsDefinition>();
 
@@ -241,22 +241,22 @@ describe(createPermix, () => {
     })(req, next);
 
     const firstNext = createMockNext();
-    const firstResult = await first.checkMiddleware("post.create")(
+    const firstResult = await first.checkMiddleware('post.create')(
       req,
       firstNext
     );
     expect(firstResult?.status).toBe(200);
 
     const secondNext = createMockNext();
-    const secondResult = await second.checkMiddleware("post.create")(
+    const secondResult = await second.checkMiddleware('post.create')(
       req,
       secondNext
     );
     expect(secondResult?.status).toBe(403);
   });
 
-  it("should accept an explicit symbol key", async () => {
-    const key = Symbol("my-permix");
+  it('should accept an explicit symbol key', async () => {
+    const key = Symbol('my-permix');
     const permix = createPermix<PermissionsDefinition>().contextKey(key);
 
     const req = createMockRequest();
@@ -271,15 +271,15 @@ describe(createPermix, () => {
   });
 });
 
-describe("get / getOrThrow", () => {
+describe('get / getOrThrow', () => {
   const permix = createPermix<PermissionsDefinition>();
 
-  it("should return null when setupMiddleware has not run", () => {
+  it('should return null when setupMiddleware has not run', () => {
     const req = createMockRequest();
     expect(permix.get(req)).toBeNull();
   });
 
-  it("should return the instance when setupMiddleware has run", async () => {
+  it('should return the instance when setupMiddleware has run', async () => {
     const req = createMockRequest();
     const next = createMockNext();
 
@@ -289,31 +289,31 @@ describe("get / getOrThrow", () => {
     })(req, next);
 
     const p = permix.getOrThrow(req);
-    expect(p.check).toBeTypeOf("function");
+    expect(p.check).toBeTypeOf('function');
   });
 
-  it("getOrThrow should throw PermixNotFoundError when missing", () => {
+  it('getOrThrow should throw PermixNotFoundError when missing', () => {
     const req = createMockRequest();
     expect(() => permix.getOrThrow(req)).toThrow(PermixNotFoundError);
   });
 });
 
-describe("checkMiddleware without setupMiddleware", () => {
-  it("should throw PermixNotFoundError", async () => {
+describe('checkMiddleware without setupMiddleware', () => {
+  it('should throw PermixNotFoundError', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const req = createMockRequest();
     const next = createMockNext();
 
     await expect(
-      permix.checkMiddleware("post.create")(req, next)
+      permix.checkMiddleware('post.create')(req, next)
     ).rejects.toBeInstanceOf(PermixNotFoundError);
     expect(next).not.toHaveBeenCalled();
   });
 });
 
-describe("onForbidden receives next", () => {
-  it("should allow onForbidden to throw custom errors", async () => {
+describe('onForbidden receives next', () => {
+  it('should allow onForbidden to throw custom errors', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ path }) => {
         throw new Error(`Forbidden: ${path}`);
@@ -329,19 +329,19 @@ describe("onForbidden receives next", () => {
     })(req, next);
 
     await expect(
-      permix.checkMiddleware("post.create")(req, next)
+      permix.checkMiddleware('post.create')(req, next)
     ).rejects.toMatchObject({
-      message: "Forbidden: post.create",
+      message: 'Forbidden: post.create',
     });
   });
 });
 
-describe("srvx-style middleware composition", () => {
-  it("should compose setup and check middleware like srvx", async () => {
+describe('srvx-style middleware composition', () => {
+  it('should compose setup and check middleware like srvx', async () => {
     const permix = createPermix<PermissionsDefinition>();
 
     const fetch = (req: Request) =>
-      permix.checkMiddleware("post.create")(req, () =>
+      permix.checkMiddleware('post.create')(req, () =>
         Response.json({ ok: true })
       );
 
@@ -370,15 +370,15 @@ describe("srvx-style middleware composition", () => {
   });
 });
 
-describe("key exposure", () => {
-  it("should expose the key on the factory return", () => {
+describe('key exposure', () => {
+  it('should expose the key on the factory return', () => {
     const permix =
-      createPermix<PermissionsDefinition>().contextKey("custom-key");
-    expect(permix.key).toBe("custom-key");
+      createPermix<PermissionsDefinition>().contextKey('custom-key');
+    expect(permix.key).toBe('custom-key');
   });
 
-  it("should expose a symbol key when using default", () => {
+  it('should expose a symbol key when using default', () => {
     const permix = createPermix<PermissionsDefinition>();
-    expect(permix.key).toBeTypeOf("symbol");
+    expect(permix.key).toBeTypeOf('symbol');
   });
 });

@@ -1,11 +1,11 @@
-import { switchRole } from "@/app/actions";
-import type { DemoRole } from "@/lib/auth";
+import { switchRole } from '@/app/actions';
+import type { DemoRole } from '@/lib/auth';
 
 const roles: { value: DemoRole; label: string }[] = [
-  { value: "guest", label: "Guest" },
-  { value: "alice", label: "Alice" },
-  { value: "bob", label: "Bob" },
-  { value: "admin", label: "Admin" },
+  { value: 'guest', label: 'Guest' },
+  { value: 'alice', label: 'Alice' },
+  { value: 'bob', label: 'Bob' },
+  { value: 'admin', label: 'Admin' },
 ];
 
 export function RoleSwitcher({ currentRole }: { currentRole: DemoRole }) {

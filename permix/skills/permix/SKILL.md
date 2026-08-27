@@ -5,29 +5,29 @@ description: >-
 metadata:
   type: core
   library: permix
-  library_version: "4.1.2"
+  library_version: '4.1.2'
 requires:
   - permix-getting-started
 sources:
-  - "letstri/permix:docs/content/docs/guide/check.mdx"
-  - "letstri/permix:docs/content/docs/guide/rebac.mdx"
-  - "letstri/permix:docs/content/docs/guide/ready.mdx"
-  - "letstri/permix:docs/content/docs/guide/hydration.mdx"
-  - "letstri/permix:docs/content/docs/integrations/react.mdx"
-  - "letstri/permix:docs/content/docs/integrations/vue.mdx"
-  - "letstri/permix:docs/content/docs/integrations/solid.mdx"
-  - "letstri/permix:docs/content/docs/integrations/svelte.mdx"
-  - "letstri/permix:docs/content/docs/integrations/next.mdx"
-  - "letstri/permix:docs/content/docs/integrations/tanstack-start.mdx"
-  - "letstri/permix:docs/content/docs/integrations/express.mdx"
-  - "letstri/permix:docs/content/docs/integrations/hono.mdx"
-  - "letstri/permix:docs/content/docs/integrations/fastify.mdx"
-  - "letstri/permix:docs/content/docs/integrations/trpc.mdx"
-  - "letstri/permix:docs/content/docs/integrations/orpc.mdx"
-  - "letstri/permix:docs/content/docs/integrations/node.mdx"
-  - "letstri/permix:docs/content/docs/integrations/server.mdx"
-  - "letstri/permix:docs/content/docs/integrations/elysia.mdx"
-  - "letstri/permix:permix/src/core/check.ts"
+  - 'letstri/permix:docs/content/docs/guide/check.mdx'
+  - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
+  - 'letstri/permix:docs/content/docs/guide/ready.mdx'
+  - 'letstri/permix:docs/content/docs/guide/hydration.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/react.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/vue.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/solid.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/svelte.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/next.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/tanstack-start.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/express.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/hono.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/fastify.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/trpc.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/orpc.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/node.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/server.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/elysia.mdx'
+  - 'letstri/permix:permix/src/core/check.ts'
 ---
 
 # Permix — check, frontend, server

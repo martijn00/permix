@@ -1,13 +1,13 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { getDemoRole, getSession } from "@/lib/auth";
-import { permix } from "@/lib/permix";
-import { getPosts } from "@/lib/posts";
+import { getDemoRole, getSession } from '@/lib/auth';
+import { permix } from '@/lib/permix';
+import { getPosts } from '@/lib/posts';
 
-import { CreatePostForm } from "./components/create-post-form";
-import { PermissionBadge } from "./components/permission-badge";
-import { RoleSwitcher } from "./components/role-switcher";
-import { EditButton } from "./posts/[id]/edit-button";
+import { CreatePostForm } from './components/create-post-form';
+import { PermissionBadge } from './components/permission-badge';
+import { RoleSwitcher } from './components/role-switcher';
+import { EditButton } from './posts/[id]/edit-button';
 
 export default async function Home() {
   const [session, role, posts] = await Promise.all([
@@ -26,7 +26,7 @@ export default async function Home() {
           Per-request permissions demo
         </h1>
         <p className="max-w-2xl text-zinc-600 dark:text-zinc-400">
-          This example mirrors the{" "}
+          This example mirrors the{' '}
           <a
             href="https://permix.letstri.dev/docs/integrations/next"
             className="font-medium underline underline-offset-4"
@@ -43,7 +43,7 @@ export default async function Home() {
           <div>
             <h2 className="text-lg font-medium">Current session</h2>
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              {session ? session.label : "Signed out (guest)"}
+              {session ? session.label : 'Signed out (guest)'}
             </p>
           </div>
           <RoleSwitcher currentRole={role} />
@@ -55,11 +55,11 @@ export default async function Home() {
         <div className="mt-4 flex flex-wrap gap-2">
           <PermissionBadge
             label="post.create"
-            allowed={permix.check("post.create")}
+            allowed={permix.check('post.create')}
           />
           <PermissionBadge
             label="post.read (any post)"
-            allowed={permix.check("post.read", posts[0])}
+            allowed={permix.check('post.read', posts[0])}
           />
         </div>
       </section>
@@ -80,11 +80,11 @@ export default async function Home() {
                 <div className="flex flex-wrap gap-2">
                   <PermissionBadge
                     label="server: post.update"
-                    allowed={permix.check("post.update", post)}
+                    allowed={permix.check('post.update', post)}
                   />
                   <PermissionBadge
                     label="server: post.delete"
-                    allowed={permix.check("post.delete", post)}
+                    allowed={permix.check('post.delete', post)}
                   />
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default async function Home() {
         ))}
       </section>
 
-      <CreatePostForm canCreate={permix.check("post.create")} />
+      <CreatePostForm canCreate={permix.check('post.create')} />
     </main>
   );
 }

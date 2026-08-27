@@ -1,7 +1,7 @@
-import type { Rules, ValidateDefinition } from "permix";
+import type { Rules, ValidateDefinition } from 'permix';
 
 export type PermissionsDefinition = ValidateDefinition<{
-  user: ["read", "create"];
+  user: ['read', 'create'];
 }>;
 
 const adminPermissions: Rules<PermissionsDefinition> = {
@@ -18,7 +18,7 @@ const userPermissions: Rules<PermissionsDefinition> = {
   },
 };
 
-export function getRules(role: "admin" | "user") {
+export function getRules(role: 'admin' | 'user') {
   const rolesMap = {
     admin: adminPermissions,
     user: userPermissions,

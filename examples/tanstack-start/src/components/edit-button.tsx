@@ -1,10 +1,10 @@
-import type { Post } from "@/lib/permix";
-import { usePermix } from "@/lib/use-permix";
+import type { Post } from '@/lib/permix';
+import { usePermix } from '@/lib/use-permix';
 
 export function EditButton({ post }: { post: Post }) {
   const { check } = usePermix();
 
-  if (!check("post.update", post)) {
+  if (!check('post.update', post)) {
     return null;
   }
 

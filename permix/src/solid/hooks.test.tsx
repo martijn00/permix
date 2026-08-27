@@ -1,14 +1,14 @@
-import { render, renderHook, waitFor } from "@solidjs/testing-library";
-import { describe, expect, it } from "vitest";
+import { render, renderHook, waitFor } from '@solidjs/testing-library';
+import { describe, expect, it } from 'vitest';
 
-import { createPermix } from "../core";
-import { PermixProvider, usePermix } from "./index";
-import "@testing-library/jest-dom/vitest";
+import { createPermix } from '../core';
+import { PermixProvider, usePermix } from './index';
+import '@testing-library/jest-dom/vitest';
 
-describe("permix solid", () => {
-  it("should work with custom hook", () => {
+describe('permix solid', () => {
+  it('should work with custom hook', () => {
     const permix = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     permix.setup({
@@ -26,18 +26,18 @@ describe("permix solid", () => {
       ),
     });
 
-    expect(result.check("post.create")).toBe(true);
-    expect(result.check("post.read")).toBe(false);
+    expect(result.check('post.create')).toBe(true);
+    expect(result.check('post.read')).toBe(false);
   });
 
-  it("should work with DOM rerender", async () => {
+  it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: "create"; type: { id: string } }, "read"];
+      post: [{ name: 'create'; type: { id: string } }, 'read'];
     }>();
 
     permix.setup({
       post: {
-        create: (post) => post?.id === "1",
+        create: (post) => post?.id === '1',
         read: false,
       },
     });
@@ -45,14 +45,14 @@ describe("permix solid", () => {
     const TestComponent = () => {
       const { check } = usePermix(permix);
 
-      const post = { id: "1" };
+      const post = { id: '1' };
 
       return (
         <div>
           <span data-testid="create">
-            {check("post.create", post).toString()}
+            {check('post.create', post).toString()}
           </span>
-          <span data-testid="read">{check("post.read").toString()}</span>
+          <span data-testid="read">{check('post.read').toString()}</span>
         </div>
       );
     };
@@ -63,25 +63,25 @@ describe("permix solid", () => {
       ),
     });
 
-    expect(getByTestId("create")).toHaveTextContent("true");
-    expect(getByTestId("read")).toHaveTextContent("false");
+    expect(getByTestId('create')).toHaveTextContent('true');
+    expect(getByTestId('read')).toHaveTextContent('false');
 
     permix.setup({
       post: {
-        create: (post) => post?.id === "2",
+        create: (post) => post?.id === '2',
         read: true,
       },
     });
 
     await waitFor(() => {
-      expect(getByTestId("create")).toHaveTextContent("false");
-      expect(getByTestId("read")).toHaveTextContent("true");
+      expect(getByTestId('create')).toHaveTextContent('false');
+      expect(getByTestId('read')).toHaveTextContent('true');
     });
   });
 
-  it("should check isReady", async () => {
+  it('should check isReady', async () => {
     const permix = createPermix<{
-      post: ["create", "read"];
+      post: ['create', 'read'];
     }>();
 
     const TestComponent = () => {
@@ -95,7 +95,7 @@ describe("permix solid", () => {
       ),
     });
 
-    expect(container.firstChild).toHaveTextContent("false");
+    expect(container.firstChild).toHaveTextContent('false');
 
     permix.setup({
       post: {
@@ -105,18 +105,18 @@ describe("permix solid", () => {
     });
 
     await waitFor(() => {
-      expect(container.firstChild).toHaveTextContent("true");
+      expect(container.firstChild).toHaveTextContent('true');
     });
   });
 
-  it("should throw error when PermixProvider is missing", () => {
+  it('should throw error when PermixProvider is missing', () => {
     const permix = createPermix<{
-      post: [{ name: "create"; type: { id: string } }, "read"];
+      post: [{ name: 'create'; type: { id: string } }, 'read'];
     }>();
 
     const TestComponent = () => {
       const { check } = usePermix(permix);
-      return <div>{check("post.create").toString()}</div>;
+      return <div>{check('post.create').toString()}</div>;
     };
 
     expect(() => render(() => <TestComponent />)).toThrow();

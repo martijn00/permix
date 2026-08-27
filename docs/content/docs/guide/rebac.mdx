@@ -36,7 +36,7 @@ This is ReBAC: the permission depends on a **relation** (author ↔ document) ra
 The simplest relation — the user who created a resource can modify it.
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 interface Doc {
   id: string;
@@ -45,13 +45,13 @@ interface Doc {
 
 const permix = createPermix<{
   doc: [
-    "read",
-    { name: "update"; type: Doc; required: true },
-    { name: "delete"; type: Doc; required: true },
+    'read',
+    { name: 'update'; type: Doc; required: true },
+    { name: 'delete'; type: Doc; required: true },
   ];
 }>();
 
-const currentUser = { id: "user-1" };
+const currentUser = { id: 'user-1' };
 
 permix.setup({
   doc: {
@@ -61,11 +61,11 @@ permix.setup({
   },
 });
 
-const myDoc = { id: "doc-1", authorId: "user-1" };
-const otherDoc = { id: "doc-2", authorId: "user-2" };
+const myDoc = { id: 'doc-1', authorId: 'user-1' };
+const otherDoc = { id: 'doc-2', authorId: 'user-2' };
 
-permix.check("doc.update", myDoc); // true
-permix.check("doc.update", otherDoc); // false
+permix.check('doc.update', myDoc); // true
+permix.check('doc.update', otherDoc); // false
 ```
 
 ## Team membership
@@ -73,7 +73,7 @@ permix.check("doc.update", otherDoc); // false
 Users belong to teams; a team member can read any document owned by their team.
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 interface Doc {
   id: string;
@@ -88,8 +88,8 @@ interface User {
 
 const permix = createPermix<{
   doc: [
-    { name: "read"; type: Doc; required: true },
-    { name: "update"; type: Doc; required: true },
+    { name: 'read'; type: Doc; required: true },
+    { name: 'update'; type: Doc; required: true },
   ];
 }>();
 
@@ -102,15 +102,15 @@ function setupForUser(me: User) {
   });
 }
 
-const alice: User = { id: "alice", teamIds: ["team-a"] };
+const alice: User = { id: 'alice', teamIds: ['team-a'] };
 setupForUser(alice);
 
-const teamDoc = { id: "doc-1", authorId: "bob", teamId: "team-a" };
-const otherTeamDoc = { id: "doc-2", authorId: "charlie", teamId: "team-b" };
+const teamDoc = { id: 'doc-1', authorId: 'bob', teamId: 'team-a' };
+const otherTeamDoc = { id: 'doc-2', authorId: 'charlie', teamId: 'team-b' };
 
-permix.check("doc.read", teamDoc); // true — same team
-permix.check("doc.read", otherTeamDoc); // false — different team
-permix.check("doc.update", teamDoc); // false — alice is not the author
+permix.check('doc.read', teamDoc); // true — same team
+permix.check('doc.read', otherTeamDoc); // false — different team
+permix.check('doc.update', teamDoc); // false — alice is not the author
 ```
 
 You can extract this into a reusable [template](/docs/guide/template):
@@ -133,7 +133,7 @@ permix.setup(memberPermissions(alice));
 A sharing model where documents can be shared with individual users at different levels: `read`, `write`, or `admin`. Combine ownership and sharing in a single rule set.
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 interface Doc {
   id: string;
@@ -141,7 +141,7 @@ interface Doc {
   teamId: string;
 }
 
-type ShareLevel = "read" | "write" | "admin";
+type ShareLevel = 'read' | 'write' | 'admin';
 
 // In a real app this would come from your database
 const shares = new Map<string, Map<string, ShareLevel>>();
@@ -160,9 +160,9 @@ function hasShare(
 
 const permix = createPermix<{
   doc: [
-    { name: "read"; type: Doc; required: true },
-    { name: "update"; type: Doc; required: true },
-    { name: "admin"; type: Doc; required: true },
+    { name: 'read'; type: Doc; required: true },
+    { name: 'update'; type: Doc; required: true },
+    { name: 'admin'; type: Doc; required: true },
   ];
 }>();
 
@@ -178,9 +178,9 @@ function setupForUser(me: User) {
   permix.setup({
     doc: {
       read: (doc) =>
-        isOwner(doc) || isTeammate(doc) || hasShare(doc.id, me.id, "read"),
-      update: (doc) => isOwner(doc) || hasShare(doc.id, me.id, "write"),
-      admin: (doc) => isOwner(doc) || hasShare(doc.id, me.id, "admin"),
+        isOwner(doc) || isTeammate(doc) || hasShare(doc.id, me.id, 'read'),
+      update: (doc) => isOwner(doc) || hasShare(doc.id, me.id, 'write'),
+      admin: (doc) => isOwner(doc) || hasShare(doc.id, me.id, 'admin'),
     },
   });
 }
@@ -189,10 +189,10 @@ function setupForUser(me: User) {
 You can combine checks using the callback form:
 
 ```ts
-const doc: Doc = { id: "doc-1", authorId: "alice", teamId: "team-a" };
+const doc: Doc = { id: 'doc-1', authorId: 'alice', teamId: 'team-a' };
 
 // "Can the user either read OR administrate this doc?"
-permix.check((c) => c("doc.read", doc) || c("doc.admin", doc));
+permix.check((c) => c('doc.read', doc) || c('doc.admin', doc));
 ```
 
 ## When to reach for something else

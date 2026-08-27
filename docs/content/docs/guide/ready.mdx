@@ -20,10 +20,10 @@ Sometimes you need to know when permissions are ready to use. For example, you m
 Permix provides an `isReady()` method to check if permissions have been properly initialized:
 
 ```ts twoslash
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
-  post: ["create", "read"];
+  post: ['create', 'read'];
 }>();
 
 console.log(permix.isReady()); // false
@@ -44,16 +44,16 @@ console.log(permix.isReady()); // true
 If you need to wait for permissions to be ready in an async context, you can use the `isReadyAsync()` method. This returns a promise that resolves when permissions are ready:
 
 ```ts
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
-  post: ["create"];
+  post: ['create'];
 }>();
 
 async function init() {
   await permix.isReadyAsync();
   // Permissions are now ready to use
-  const canCreate = permix.check("post.create");
+  const canCreate = permix.check('post.create');
 }
 ```
 
@@ -68,10 +68,10 @@ This is particularly useful in SSR applications when using function-based permis
 
 ```ts
 // Server instance
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const serverPermix = createPermix<{
-  post: [{ name: "read"; type: { isPublic: boolean } }];
+  post: [{ name: 'read'; type: { isPublic: boolean } }];
 }>();
 
 serverPermix.setup({
@@ -85,14 +85,14 @@ const state = serverPermix.dehydrate();
 
 // Client instance (separate from the server)
 const clientPermix = createPermix<{
-  post: [{ name: "read"; type: { isPublic: boolean } }];
+  post: [{ name: 'read'; type: { isPublic: boolean } }];
 }>();
 
 clientPermix.hydrate(state);
 
 console.log(clientPermix.isReady()); // false
 // Boolean rules from hydration work immediately:
-console.log(clientPermix.check("post.read")); // false
+console.log(clientPermix.check('post.read')); // false
 
 // Restore function-based rules and mark the instance ready
 clientPermix.setup({
@@ -102,7 +102,7 @@ clientPermix.setup({
 });
 
 console.log(clientPermix.isReady()); // true
-console.log(clientPermix.check("post.read", { isPublic: true })); // true
+console.log(clientPermix.check('post.read', { isPublic: true })); // true
 ```
 
 <Callout>

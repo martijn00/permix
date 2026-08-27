@@ -33,19 +33,19 @@ Define your Drizzle schema as usual, then create a Permix instance from it.
 ### Drizzle v1
 
 ```ts twoslash title="/lib/drizzle-v1.ts"
-import { defineRelations } from "drizzle-orm";
-import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
-import { createPermix } from "permix/drizzle";
+import { defineRelations } from 'drizzle-orm';
+import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { createPermix } from 'permix/drizzle';
 
-const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
 });
 
-const posts = pgTable("posts", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  authorId: integer("author_id")
+const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  authorId: integer('author_id')
     .notNull()
     .references(() => users.id),
 });
@@ -63,26 +63,26 @@ permix.setup({
   posts: { create: true, read: true, update: true, delete: false },
 });
 
-permix.check("users.read"); // true
-permix.check("posts.delete"); // false
+permix.check('users.read'); // true
+permix.check('posts.delete'); // false
 ```
 
 ### Drizzle v0
 
 ```ts twoslash title="/lib/drizzle-legacy.ts"
-import { relations } from "drizzle-orm/_relations";
-import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
-import { createPermix } from "permix/drizzle/legacy";
+import { relations } from 'drizzle-orm/_relations';
+import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { createPermix } from 'permix/drizzle/legacy';
 
-const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
 });
 
-const posts = pgTable("posts", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  authorId: integer("author_id")
+const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  authorId: integer('author_id')
     .notNull()
     .references(() => users.id),
 });
@@ -100,8 +100,8 @@ permix.setup({
   posts: { create: true, read: true, update: true, delete: false },
 });
 
-permix.check("users.read"); // true
-permix.check("posts.delete"); // false
+permix.check('users.read'); // true
+permix.check('posts.delete'); // false
 ```
 
 The returned instance is a regular Permix object, so every API you already know — `check`, `setup`, `template`, `dehydrate`, `hydrate`, `hook`, `isReady`, etc. — is available unchanged.
@@ -116,7 +116,7 @@ If CRUD isn't quite what you want, pass an explicit `actions` tuple. Use `as con
 
 ```ts
 const permix = createPermix(schema, {
-  actions: ["view", "edit", "archive"] as const,
+  actions: ['view', 'edit', 'archive'] as const,
 });
 
 permix.setup({
@@ -124,8 +124,8 @@ permix.setup({
   posts: { view: true, edit: true, archive: false },
 });
 
-permix.check("posts.edit"); // true
-permix.check("users.archive"); // false
+permix.check('posts.edit'); // true
+permix.check('users.archive'); // false
 ```
 
 </Step>

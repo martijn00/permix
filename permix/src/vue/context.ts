@@ -1,7 +1,7 @@
-import type { InjectionKey, Ref } from "vue";
-import { inject, provide, ref } from "vue";
+import type { InjectionKey, Ref } from 'vue';
+import { inject, provide, ref } from 'vue';
 
-import type { Definition, Permix, Rules } from "../core";
+import type { Definition, Permix, Rules } from '../core';
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>;
@@ -9,14 +9,14 @@ export interface PermixContext<T extends Definition> {
   rules: Rules<T> | null;
 }
 
-const PERMIX_CONTEXT_KEY = Symbol("vue-permix") as InjectionKey<
+const PERMIX_CONTEXT_KEY = Symbol('vue-permix') as InjectionKey<
   Ref<PermixContext<any>>
 >;
 
 export function providePermixContext(permix: Permix<any>) {
   if (!permix) {
     throw new Error(
-      "[Permix]: Looks like you forgot to provide the permix instance to PermixProvider"
+      '[Permix]: Looks like you forgot to provide the permix instance to PermixProvider'
     );
   }
 
@@ -28,11 +28,11 @@ export function providePermixContext(permix: Permix<any>) {
 
   provide(PERMIX_CONTEXT_KEY, context);
 
-  const setup = permix.hook("setup", () => {
+  const setup = permix.hook('setup', () => {
     context.value.rules = permix.getRules();
   });
 
-  const ready = permix.hook("ready", () => {
+  const ready = permix.hook('ready', () => {
     context.value.isReady = permix.isReady();
   });
 
@@ -47,7 +47,7 @@ export function usePermixContext<T extends Definition = any>() {
 
   if (!context) {
     throw new Error(
-      "[Permix]: Looks like you forgot to wrap your app with <PermixProvider>"
+      '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
     );
   }
 

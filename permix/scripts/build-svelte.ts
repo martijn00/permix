@@ -1,13 +1,13 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
 const currentDir = import.meta.dirname;
-const srcDir = path.join(currentDir, "..", "src");
-const svelteDist = path.join(currentDir, "..", "dist", "svelte");
+const srcDir = path.join(currentDir, '..', 'src');
+const svelteDist = path.join(currentDir, '..', 'dist', 'svelte');
 
 if (!fs.existsSync(svelteDist)) {
   throw new Error(
-    "[Permix]: dist/svelte not found. Run `svelte-package` before this script."
+    '[Permix]: dist/svelte not found. Run `svelte-package` before this script.'
   );
 }
 
@@ -25,7 +25,7 @@ function removeStraySourceTypes(dir: string) {
       continue;
     }
 
-    if (entry.name.endsWith(".d.ts")) {
+    if (entry.name.endsWith('.d.ts')) {
       fs.rmSync(fullPath, { force: true });
     }
   }
@@ -39,7 +39,7 @@ function cleanup(dir: string) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name === "__fixtures__") {
+      if (entry.name === '__fixtures__') {
         fs.rmSync(fullPath, { recursive: true, force: true });
         continue;
       }
@@ -70,10 +70,10 @@ function rewriteCoreImports(dir: string) {
       continue;
     }
 
-    const content = fs.readFileSync(fullPath, "utf-8");
+    const content = fs.readFileSync(fullPath, 'utf-8');
     const rewritten = content.replaceAll(
       /(['"])\.\.\/core\1/g,
-      "$1../core/index.mjs$1"
+      '$1../core/index.mjs$1'
     );
 
     if (rewritten !== content) {

@@ -9,8 +9,8 @@ Docs: https://permix.letstri.dev/docs/integrations/react
 ### Provider
 
 ```tsx
-import { PermixProvider } from "permix/react";
-import { permix } from "./lib/permix";
+import { PermixProvider } from 'permix/react';
+import { permix } from './lib/permix';
 
 export function App() {
   return (
@@ -33,8 +33,8 @@ permix.setup(roleRulesFor(user));
 
 ```ts
 // hooks/use-permissions.ts
-import { usePermix } from "permix/react";
-import { permix } from "../lib/permix";
+import { usePermix } from 'permix/react';
+import { permix } from '../lib/permix';
 
 export function usePermissions() {
   return usePermix(permix);
@@ -47,7 +47,7 @@ function EditButton({ post }) {
 
   if (!isReady) return null;
 
-  if (!check("post.update", post)) return null;
+  if (!check('post.update', post)) return null;
 
   return <button>Edit</button>;
 }
@@ -58,7 +58,7 @@ Pass the **same** `permix` instance to `PermixProvider` and `usePermix`.
 ### Declarative `Check` component
 
 ```ts
-import { createComponents } from "permix/react";
+import { createComponents } from 'permix/react';
 
 export const { Check } = createComponents(permix);
 ```
@@ -85,8 +85,8 @@ Docs: https://permix.letstri.dev/docs/integrations/vue
 
 ```vue
 <script setup lang="ts">
-import { PermixProvider } from "permix/vue";
-import { permix } from "./lib/permix";
+import { PermixProvider } from 'permix/vue';
+import { permix } from './lib/permix';
 </script>
 
 <template>
@@ -169,7 +169,7 @@ Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
 ### React
 
 ```tsx
-import { DehydratedState, PermixHydrate, PermixProvider } from "permix/react";
+import { DehydratedState, PermixHydrate, PermixProvider } from 'permix/react';
 
 function App({
   dehydratedState,

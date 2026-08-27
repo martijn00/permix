@@ -1,12 +1,12 @@
-import { createPermix } from "permix";
-import { createComponents } from "permix/react";
+import { createPermix } from 'permix';
+import { createComponents } from 'permix/react';
 
-import { getUser } from "./user";
+import { getUser } from './user';
 
 // Define permix instance with feature flags
 export const permix = createPermix<{
-  darkMode: ["enabled"];
-  betaFeatures: ["newUI", "experimentalAPI"];
+  darkMode: ['enabled'];
+  betaFeatures: ['newUI', 'experimentalAPI'];
 }>();
 
 // Not necessary, but you can use components to check permissions

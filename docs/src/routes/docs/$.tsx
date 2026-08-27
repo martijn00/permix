@@ -1,8 +1,8 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import browserCollections from "collections/browser";
-import { useFumadocsLoader } from "fumadocs-core/source/client";
-import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { createFileRoute, notFound } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import browserCollections from 'collections/browser';
+import { useFumadocsLoader } from 'fumadocs-core/source/client';
+import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import {
   DocsBody,
   DocsDescription,
@@ -10,17 +10,17 @@ import {
   DocsTitle,
   MarkdownCopyButton,
   ViewOptionsPopover,
-} from "fumadocs-ui/layouts/docs/page";
-import { Suspense } from "react";
+} from 'fumadocs-ui/layouts/docs/page';
+import { Suspense } from 'react';
 
-import { useMDXComponents } from "@/components/mdx";
-import { SidebarScrollFix } from "@/components/sidebar-scroll";
-import { baseOptions } from "@/lib/layout.shared";
-import { gitConfig } from "@/lib/shared";
-import { slugsToMarkdownPath, source } from "@/lib/source";
+import { useMDXComponents } from '@/components/mdx';
+import { SidebarScrollFix } from '@/components/sidebar-scroll';
+import { baseOptions } from '@/lib/layout.shared';
+import { gitConfig } from '@/lib/shared';
+import { slugsToMarkdownPath, source } from '@/lib/source';
 
 const serverLoader = createServerFn({
-  method: "GET",
+  method: 'GET',
 })
   .inputValidator((slugs: string[]) => slugs)
   .handler(async ({ data: slugs }) => {
@@ -54,8 +54,8 @@ const clientLoader = browserCollections.docs.createClientLoader({
     return (
       <DocsPage
         toc={toc}
-        tableOfContent={{ style: "clerk" }}
-        full={"full" in frontmatter ? frontmatter.full : undefined}
+        tableOfContent={{ style: 'clerk' }}
+        full={'full' in frontmatter ? frontmatter.full : undefined}
       >
         <DocsTitle>{frontmatter.title}</DocsTitle>
         <DocsDescription className="mb-0">
@@ -76,10 +76,10 @@ const clientLoader = browserCollections.docs.createClientLoader({
   },
 });
 
-export const Route = createFileRoute("/docs/$")({
+export const Route = createFileRoute('/docs/$')({
   component: Page,
   loader: async ({ params }) => {
-    const slugs = params._splat?.split("/") ?? [];
+    const slugs = params._splat?.split('/') ?? [];
     const data = await serverLoader({ data: slugs });
     await clientLoader.preload(data.path);
     return data;

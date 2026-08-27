@@ -1,17 +1,17 @@
-import type { TRPCMiddlewareBuilder } from "@trpc/server";
-import { initTRPC, TRPCError } from "@trpc/server";
+import type { TRPCMiddlewareBuilder } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 
-import type { Permix as PermixCore } from "../core";
+import type { Permix as PermixCore } from '../core';
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from "../core";
-import type { CheckArgs, CheckContext } from "../core/check";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
+} from '../core';
+import type { CheckArgs, CheckContext } from '../core/check';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
 
 export interface PermixOptions<D extends Definition> {
   onForbidden?: (
@@ -38,8 +38,8 @@ function buildPermix<D extends Definition, const Key extends string>(
     options.onForbidden ??
     (() => {
       throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You do not have permission to perform this action",
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to perform this action',
       });
     });
 
@@ -49,8 +49,8 @@ function buildPermix<D extends Definition, const Key extends string>(
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
     const instance = createPermixCore<D>(rules);
-    instance.hook("check", (context) => {
-      hooks.callHook("check", context);
+    instance.hook('check', (context) => {
+      hooks.callHook('check', context);
     });
     return { [resolveKey() as Key]: instance } as { [P in Key]: PermixCore<D> };
   }
@@ -140,8 +140,8 @@ function buildPermix<D extends Definition, const Key extends string>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string = "permix";
-  const permix = buildPermix<D, "permix">(() => key, options);
+  let key: string = 'permix';
+  const permix = buildPermix<D, 'permix'>(() => key, options);
 
   return Object.assign(permix, {
     contextKey<const Key extends string>(newKey: Key) {

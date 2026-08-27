@@ -56,10 +56,10 @@ permix.setup(userPermissions(user));
 Templates maintain full type safety from your Permix instance definition:
 
 ```ts twoslash
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
 const permix = createPermix<{
-  post: ["create"];
+  post: ['create'];
 }>();
 
 // @errors: 2353
@@ -111,15 +111,15 @@ async function setupPermissions() {
 You can define permission templates outside of the Permix instance using the `Rules` type. This is useful when you want to organize your permission logic in separate files:
 
 ```ts twoslash title="/lib/permix-template-standalone.ts"
-import type { Rules } from "permix";
-import { createPermix } from "permix";
+import type { Rules } from 'permix';
+import { createPermix } from 'permix';
 
 type PermissionsDefinition = {
   post: [
-    { name: "create"; type: { id: string; authorId: string } },
-    { name: "read"; type: { id: string; authorId: string } },
-    { name: "update"; type: { id: string; authorId: string } },
-    { name: "delete"; type: { id: string; authorId: string } },
+    { name: 'create'; type: { id: string; authorId: string } },
+    { name: 'read'; type: { id: string; authorId: string } },
+    { name: 'update'; type: { id: string; authorId: string } },
+    { name: 'delete'; type: { id: string; authorId: string } },
   ];
 };
 
@@ -129,20 +129,20 @@ const permix = createPermix<PermissionsDefinition>();
 // Create a standalone template function
 function userPermissions(
   userId: string,
-  role: "admin" | "user"
+  role: 'admin' | 'user'
 ): Rules<PermissionsDefinition> {
   return {
     post: {
-      create: role === "admin",
+      create: role === 'admin',
       read: true,
-      update: role === "admin" ? true : (post) => post?.authorId === userId,
-      delete: role === "admin",
+      update: role === 'admin' ? true : (post) => post?.authorId === userId,
+      delete: role === 'admin',
     },
   };
 }
 
 // Later, use it with your Permix instance
-const permissions = userPermissions("1", "admin");
+const permissions = userPermissions('1', 'admin');
 
 permix.setup(permissions);
 ```

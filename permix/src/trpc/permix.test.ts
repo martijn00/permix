@@ -1,9 +1,9 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-import { describe, expect, it } from "vitest";
-import { z } from "zod";
+import { initTRPC, TRPCError } from '@trpc/server';
+import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 
-import type { ValidateDefinition } from "../core";
-import { createPermix } from "./permix";
+import type { ValidateDefinition } from '../core';
+import { createPermix } from './permix';
 
 interface Context {
   user: {
@@ -12,21 +12,21 @@ interface Context {
 }
 
 type Def = ValidateDefinition<{
-  post: ["create", "read", "update"];
-  user: ["delete"];
+  post: ['create', 'read', 'update'];
+  user: ['delete'];
 }>;
 
 describe(createPermix, () => {
   const t = initTRPC.context<Context>().create();
 
-  const permix = createPermix<Def>().contextKey("someCustomName");
+  const permix = createPermix<Def>().contextKey('someCustomName');
 
-  it("should throw ts error", () => {
+  it('should throw ts error', () => {
     // @ts-expect-error invalid permission path
-    permix.checkMiddleware("post.delete");
+    permix.checkMiddleware('post.delete');
   });
 
-  it("should check with ctx", async () => {
+  it('should check with ctx', async () => {
     const router = t.router({
       createPost: t.procedure
         .use(({ next }) =>
@@ -37,34 +37,34 @@ describe(createPermix, () => {
             }),
           })
         )
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(({ ctx }) => ({
-          success: ctx.someCustomName.check("post.create"),
+          success: ctx.someCustomName.check('post.create'),
         })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should throw if called without setup", async () => {
+  it('should throw if called without setup', async () => {
     const router = t.router({
       createPost: t.procedure
         // @ts-expect-error ctx.someCustomName does not exist
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     await expect(
       t
-        .createCallerFactory(router)({ user: { id: "1" } })
+        .createCallerFactory(router)({ user: { id: '1' } })
         .createPost()
     ).rejects.toThrow();
   });
 
-  it("should allow access when permission is defined", async () => {
+  it('should allow access when permission is defined', async () => {
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
         ctx: permix.setupContext({
@@ -76,30 +76,30 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(({ ctx }) => {
-          ctx.someCustomName.check("post.update");
+          ctx.someCustomName.check('post.update');
           return { success: true };
         }),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should allow access by context", async () => {
+  it('should allow access by context', async () => {
     const protectedProcedure = t.procedure.use(({ ctx, next }) =>
       next({
         ctx: permix.setupContext({
           post: {
-            create: ctx.user.id === "1",
-            read: ctx.user.id === "1",
-            update: ctx.user.id === "1",
+            create: ctx.user.id === '1',
+            read: ctx.user.id === '1',
+            update: ctx.user.id === '1',
           },
           user: {
-            delete: ctx.user.id === "1",
+            delete: ctx.user.id === '1',
           },
         }),
       })
@@ -107,23 +107,23 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
 
     await expect(
       t
-        .createCallerFactory(router)({ user: { id: "2" } })
+        .createCallerFactory(router)({ user: { id: '2' } })
         .createPost()
     ).rejects.toThrow();
   });
 
-  it("should deny access when permission is not granted", async () => {
+  it('should deny access when permission is not granted', async () => {
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
         ctx: permix.setupContext({
@@ -135,26 +135,26 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     await expect(
       t
-        .createCallerFactory(router)({ user: { id: "1" } })
+        .createCallerFactory(router)({ user: { id: '1' } })
         .createPost()
     ).rejects.toThrow();
   });
 
-  it("should work with custom onForbidden that throws", async () => {
+  it('should work with custom onForbidden that throws', async () => {
     const permix = createPermix<Def>({
       onForbidden: ({ path }) => {
         throw new TRPCError({
-          code: "FORBIDDEN",
+          code: 'FORBIDDEN',
           message: `No access to ${path}`,
         });
       },
-    }).contextKey("someCustomName");
+    }).contextKey('someCustomName');
 
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
@@ -167,21 +167,21 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     await expect(
       t
-        .createCallerFactory(router)({ user: { id: "1" } })
+        .createCallerFactory(router)({ user: { id: '1' } })
         .createPost()
-    ).rejects.toThrow("No access to post.create");
+    ).rejects.toThrow('No access to post.create');
   });
 
-  it("should work with onForbidden that allows through via next()", async () => {
+  it('should work with onForbidden that allows through via next()', async () => {
     const permix = createPermix<Def>({
       onForbidden: ({ next }) => next(),
-    }).contextKey("someCustomName");
+    }).contextKey('someCustomName');
 
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
@@ -194,17 +194,17 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should chain multiple permissions", async () => {
+  it('should chain multiple permissions', async () => {
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
         ctx: permix.setupContext({
@@ -216,17 +216,17 @@ describe(createPermix, () => {
 
     const router = t.router({
       createAndReadPost: protectedProcedure
-        .use(permix.checkMiddleware((c) => c("post.create") && c("post.read")))
+        .use(permix.checkMiddleware((c) => c('post.create') && c('post.read')))
         .query(() => ({ success: true })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createAndReadPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should save types for context and input", async () => {
+  it('should save types for context and input', async () => {
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
         ctx: permix.setupContext({
@@ -238,7 +238,7 @@ describe(createPermix, () => {
 
     const router = t.router({
       createAndReadPost: protectedProcedure
-        .use(permix.checkMiddleware("post.read"))
+        .use(permix.checkMiddleware('post.read'))
         .input(
           z.object({
             userId: z.string(),
@@ -253,8 +253,8 @@ describe(createPermix, () => {
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
-      .createAndReadPost({ userId: "1" });
+      .createCallerFactory(router)({ user: { id: '1' } })
+      .createAndReadPost({ userId: '1' });
 
     expect(result).toStrictEqual({
       userId: 1,
@@ -262,7 +262,7 @@ describe(createPermix, () => {
     });
   });
 
-  it("should work with template", async () => {
+  it('should work with template', async () => {
     const template = permix.template({
       post: { create: true, read: true, update: true },
       user: { delete: true },
@@ -274,19 +274,19 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
+        .use(permix.checkMiddleware('post.create'))
         .query(({ ctx }) => ({
-          success: ctx.someCustomName.check("post.create"),
+          success: ctx.someCustomName.check('post.create'),
         })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should dehydrate permissions", async () => {
+  it('should dehydrate permissions', async () => {
     const template = permix.template({
       post: { create: true, read: false, update: true },
       user: { delete: false },
@@ -299,7 +299,7 @@ describe(createPermix, () => {
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .dehydrate();
 
     expect(result).toStrictEqual({
@@ -308,7 +308,7 @@ describe(createPermix, () => {
     });
   });
 
-  it("should work with default key", async () => {
+  it('should work with default key', async () => {
     const permix = createPermix<Def>();
 
     const protectedProcedure = t.procedure.use(({ next }) =>
@@ -322,19 +322,19 @@ describe(createPermix, () => {
 
     const router = t.router({
       createPost: protectedProcedure
-        .use(permix.checkMiddleware("post.create"))
-        .query(({ ctx }) => ({ success: ctx.permix.check("post.create") })),
+        .use(permix.checkMiddleware('post.create'))
+        .query(({ ctx }) => ({ success: ctx.permix.check('post.create') })),
     });
 
     const result = await t
-      .createCallerFactory(router)({ user: { id: "1" } })
+      .createCallerFactory(router)({ user: { id: '1' } })
       .createPost();
     expect(result).toStrictEqual({ success: true });
   });
 
-  it("should throw at runtime when using checkMiddleware from a different permix instance", async () => {
-    const admin = createPermix<Def>().contextKey("admin");
-    const guest = createPermix<Def>().contextKey("guest");
+  it('should throw at runtime when using checkMiddleware from a different permix instance', async () => {
+    const admin = createPermix<Def>().contextKey('admin');
+    const guest = createPermix<Def>().contextKey('guest');
 
     const protectedProcedure = t.procedure.use(({ next }) =>
       next({
@@ -348,13 +348,13 @@ describe(createPermix, () => {
     const router = t.router({
       createPost: protectedProcedure
         // @ts-expect-error ctx.guest does not exist
-        .use(guest.checkMiddleware("post.create"))
+        .use(guest.checkMiddleware('post.create'))
         .query(() => ({ success: true })),
     });
 
     await expect(
       t
-        .createCallerFactory(router)({ user: { id: "1" } })
+        .createCallerFactory(router)({ user: { id: '1' } })
         .createPost()
     ).rejects.toThrow();
   });

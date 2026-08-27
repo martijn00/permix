@@ -1,10 +1,10 @@
 import type {
   FunctionMiddlewareServerNextFn,
   FunctionServerResultWithContext,
-} from "@tanstack/react-start";
-import { createMiddleware } from "@tanstack/react-start";
+} from '@tanstack/react-start';
+import { createMiddleware } from '@tanstack/react-start';
 
-import type { Permix as PermixCore } from "../core";
+import type { Permix as PermixCore } from '../core';
 import {
   createCheckContext,
   createHooks,
@@ -12,12 +12,12 @@ import {
   createTemplate,
   PermixForbiddenError,
   PermixNotFoundError,
-} from "../core";
-import type { CheckArgs, CheckContext } from "../core/check";
-import type { Definition } from "../core/definitions";
-import type { PermixHooks, Rules, RulesPaths } from "../core/permix";
-import type { DehydratedState } from "../core/rules";
-import type { MaybePromise } from "../utils";
+} from '../core';
+import type { CheckArgs, CheckContext } from '../core/check';
+import type { Definition } from '../core/definitions';
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+import type { DehydratedState } from '../core/rules';
+import type { MaybePromise } from '../utils';
 
 export interface SetupContext {
   request: Request;
@@ -126,13 +126,13 @@ function buildPermix<D extends Definition>(
   ) {
     return async ({ next, request }: SetupHandlerContext): Promise<any> => {
       const rules =
-        typeof callbackOrRules === "function"
+        typeof callbackOrRules === 'function'
           ? await callbackOrRules({ request })
           : callbackOrRules;
 
       const instance = createPermixCore<D>(rules);
-      instance.hook("check", (context) => {
-        hooks.callHook("check", context);
+      instance.hook('check', (context) => {
+        hooks.callHook('check', context);
       });
       return next({ context: { [resolveKey()]: instance } });
     };
@@ -170,7 +170,7 @@ function buildPermix<D extends Definition>(
   const checkMiddleware: (
     ...args: CheckArgs<D>
   ) => ReturnType<typeof createMiddleware> = (...args) =>
-    createMiddleware({ type: "function" }).server(async ({ next, context }) => {
+    createMiddleware({ type: 'function' }).server(async ({ next, context }) => {
       const permix = getOrThrow(context);
 
       if (permix.check(...args)) {
@@ -269,7 +269,7 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string = "__permix";
+  let key: string = '__permix';
   const permix = buildPermix<D>(() => key, options);
 
   const instance = Object.assign(permix, {

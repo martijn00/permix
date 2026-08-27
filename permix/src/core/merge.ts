@@ -1,5 +1,5 @@
-import type { Action } from "./definitions";
-import type { Permix } from "./permix";
+import type { Action } from './definitions';
+import type { Permix } from './permix';
 
 type AsDefinition<T> = T extends Permix<infer D> ? D : T;
 

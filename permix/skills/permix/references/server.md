@@ -9,13 +9,13 @@ Docs: https://permix.letstri.dev/docs/integrations/express
 Import from the framework subpath, not bare `permix`:
 
 ```ts
-import { createPermix } from "permix/express";
+import { createPermix } from 'permix/express';
 
 const permix = createPermix<{
   post: [
-    { name: "create"; type: Post },
-    { name: "read"; type: Post },
-    { name: "update"; type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
   ];
 }>();
 ```
@@ -42,17 +42,17 @@ app.use(
 ### Guard routes
 
 ```ts
-app.post("/posts", permix.checkMiddleware("post.create"), createPostHandler);
+app.post('/posts', permix.checkMiddleware('post.create'), createPostHandler);
 
 app.put(
-  "/posts/:id",
-  permix.checkMiddleware((c) => c("post.read") && c("post.update")),
+  '/posts/:id',
+  permix.checkMiddleware((c) => c('post.read') && c('post.update')),
   updatePostHandler
 );
 
 app.delete(
-  "/posts/:id",
-  permix.checkMiddleware("post.~all"), // example: require all post rules
+  '/posts/:id',
+  permix.checkMiddleware('post.~all'), // example: require all post rules
   adminHandler
 );
 ```
@@ -62,9 +62,9 @@ Denied requests default to `403` with `{ error: 'Forbidden' }`. Customize with `
 ### Access instance in handlers
 
 ```ts
-app.get("/posts/:id", (req, res) => {
+app.get('/posts/:id', (req, res) => {
   const p = permix.getOrThrow(req);
-  if (p.check("post.read", post)) {
+  if (p.check('post.read', post)) {
     /* ... */
   }
 });

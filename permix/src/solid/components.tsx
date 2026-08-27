@@ -1,11 +1,11 @@
-import type { JSX } from "solid-js";
+import type { JSX } from 'solid-js';
 import {
   createEffect,
   createMemo,
   createRenderEffect,
   onCleanup,
-} from "solid-js";
-import { createStore } from "solid-js/store";
+} from 'solid-js';
+import { createStore } from 'solid-js/store';
 
 import type {
   CheckArgs,
@@ -14,9 +14,9 @@ import type {
   DehydratedState,
   Permix,
   RulesPaths,
-} from "../core";
-import type { PermixContext } from "./hooks";
-import { Context, usePermix, usePermixContext } from "./hooks";
+} from '../core';
+import type { PermixContext } from './hooks';
+import { Context, usePermix, usePermixContext } from './hooks';
 
 /**
  * Provides Permix context to the Solid component tree.
@@ -34,11 +34,11 @@ export function PermixProvider<D extends Definition>(props: {
   });
 
   createEffect(() => {
-    const setup = props.permix.hook("setup", () => {
-      setContext("rules", props.permix.getRules());
+    const setup = props.permix.hook('setup', () => {
+      setContext('rules', props.permix.getRules());
     });
-    const ready = props.permix.hook("ready", () => {
-      setContext("isReady", props.permix.isReady());
+    const ready = props.permix.hook('ready', () => {
+      setContext('isReady', props.permix.isReady());
     });
 
     onCleanup(() => {
@@ -76,7 +76,7 @@ export interface PermixComponents<D extends Definition> {
 }
 
 export function createComponents<D extends Definition>(
-  permix: Pick<Permix<D>, "getRules" | "check">
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
   function Check<P extends RulesPaths<D>>(
     props: CheckProps<D, P>

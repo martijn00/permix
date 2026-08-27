@@ -1,5 +1,5 @@
-import { useTheme } from "fumadocs-ui/provider/base";
-import { use, useEffect, useId, useState } from "react";
+import { useTheme } from 'fumadocs-ui/provider/base';
+import { use, useEffect, useId, useState } from 'react';
 
 export function Mermaid({ chart }: { chart: string }) {
   const [mounted, setMounted] = useState(false);
@@ -36,20 +36,20 @@ function MermaidContent({ chart }: { chart: string }) {
   const id = useId();
   const { resolvedTheme } = useTheme();
   const { default: mermaid } = use(
-    cachePromise("mermaid", () => import("mermaid"))
+    cachePromise('mermaid', () => import('mermaid'))
   );
 
   mermaid.initialize({
     startOnLoad: false,
-    securityLevel: "loose",
-    fontFamily: "inherit",
-    themeCSS: "margin: 1.5rem auto 0;",
-    theme: resolvedTheme === "dark" ? "dark" : "default",
+    securityLevel: 'loose',
+    fontFamily: 'inherit',
+    themeCSS: 'margin: 1.5rem auto 0;',
+    theme: resolvedTheme === 'dark' ? 'dark' : 'default',
   });
 
   const { svg, bindFunctions } = use(
     cachePromise(`${chart}-${resolvedTheme}`, () =>
-      mermaid.render(id, chart.replaceAll("\\n", "\n"))
+      mermaid.render(id, chart.replaceAll('\\n', '\n'))
     )
   );
 

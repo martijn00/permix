@@ -1,13 +1,13 @@
-import { createPermix } from "permix";
+import { createPermix } from 'permix';
 
-import type { Doc, ShareLevel, User } from "./data.js";
-import { shares } from "./data.js";
+import type { Doc, ShareLevel, User } from './data.js';
+import { shares } from './data.js';
 
 export const permix = createPermix<{
   doc: [
-    { name: "read"; type: Doc; required: true },
-    { name: "update"; type: Doc; required: true },
-    { name: "admin"; type: Doc; required: true },
+    { name: 'read'; type: Doc; required: true },
+    { name: 'update'; type: Doc; required: true },
+    { name: 'admin'; type: Doc; required: true },
   ];
 }>();
 
@@ -32,9 +32,9 @@ export function setupForUser(me: User) {
   permix.setup({
     doc: {
       read: (doc) =>
-        isOwner(doc) || isTeammate(doc) || hasShare(doc.id, me.id, "read"),
-      update: (doc) => isOwner(doc) || hasShare(doc.id, me.id, "write"),
-      admin: (doc) => isOwner(doc) || hasShare(doc.id, me.id, "admin"),
+        isOwner(doc) || isTeammate(doc) || hasShare(doc.id, me.id, 'read'),
+      update: (doc) => isOwner(doc) || hasShare(doc.id, me.id, 'write'),
+      admin: (doc) => isOwner(doc) || hasShare(doc.id, me.id, 'admin'),
     },
   });
 }
