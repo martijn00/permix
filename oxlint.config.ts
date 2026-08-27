@@ -10,8 +10,6 @@ import vue from "ultracite/oxlint/vue";
 
 import { ignorePatterns } from "./ignores.ts";
 
-// The React preset also enables react-hooks and jsx-a11y rules, which fire on
-// Vue/Solid/Svelte sources because their `use*`/JSX-like code looks like React.
 const nonReactGlobs = [
   "permix/src/vue/**",
   "permix/src/solid/**",
@@ -21,8 +19,6 @@ const nonReactGlobs = [
   "examples/svelte/**",
 ];
 
-// Overrides coming from `extends` are applied after the ones declared here, so
-// the Vitest preset is composed manually to keep these relaxations in effect.
 const vitestOverrides = (vitest.overrides ?? []).map((override) => ({
   ...override,
   rules: {
@@ -33,11 +29,8 @@ const vitestOverrides = (vitest.overrides ?? []).map((override) => ({
     "vitest/prefer-to-be": "off",
     "vitest/require-mock-type-parameters": "off",
     "vitest/require-to-throw-message": "off",
-    // The suite asserts on booleans, so keep the strict `toBe(true/false)`.
     "vitest/prefer-to-be-falsy": "off",
     "vitest/prefer-to-be-truthy": "off",
-    // `vi.mock("mod")` with `vi.importActual<typeof import("mod")>()` types
-    // correctly, while `vi.mock(import("mod"))` does not.
     "vitest/prefer-import-in-mock": "off",
     "typescript/consistent-type-imports": "off",
   },
@@ -54,9 +47,7 @@ export default defineConfig({
       rootDir: ["examples/next"],
     },
   },
-  // Project-level relaxations on top of the Ultracite presets.
   rules: {
-    // Stylistic preferences that conflict with the existing codebase.
     "func-style": "off",
     "guard-for-in": "off",
     "max-classes-per-file": "off",
@@ -83,14 +74,11 @@ export default defineConfig({
     "unicorn/filename-case": "off",
     "unicorn/no-array-method-this-argument": "off",
     "unicorn/no-array-reduce": "off",
-    // Autofixes to `() => {}` / dropped arguments change behaviour and tests.
     "unicorn/no-useless-undefined": "off",
-    // oxfmt drops the parentheses this rule asks for, so the two conflict.
     "unicorn/no-nested-ternary": "off",
     "unicorn/no-object-as-default-parameter": "off",
     "unicorn/prefer-response-static-json": "off",
     "unicorn/prefer-ternary": "off",
-    // Generic-heavy public API relies on assertions and `any` in places.
     "typescript/ban-types": "off",
     "typescript/consistent-indexed-object-style": "off",
     "typescript/no-deprecated": "off",
@@ -119,7 +107,6 @@ export default defineConfig({
     "typescript/strict-boolean-expressions": "off",
     "typescript/strict-void-return": "off",
     "typescript/unbound-method": "off",
-    // Example and docs apps favour readability over the strictest React rules.
     "react/exhaustive-effect-dependencies": "off",
     "react/function-component-definition": "off",
     "react/jsx-no-useless-fragment": "off",
