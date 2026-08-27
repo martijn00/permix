@@ -1,18 +1,18 @@
 {
   "name": "docs",
-  "type": "module",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "sideEffects": false,
   "scripts": {
-    "prebuild": "cd ../permix && pnpm run build",
     "build": "vite build",
-    "predeploy": "cd ../permix && pnpm run build",
-    "dev": "vite dev",
-    "start": "node .output/server/index.mjs",
-    "preview": "vite preview",
     "check-types": "fumadocs-mdx && tsc --noEmit",
-    "postinstall": "fumadocs-mdx"
+    "dev": "vite dev",
+    "postinstall": "fumadocs-mdx",
+    "prebuild": "cd ../permix && pnpm run build",
+    "predeploy": "cd ../permix && pnpm run build",
+    "preview": "vite preview",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@remixicon/react": "^4.9.0",

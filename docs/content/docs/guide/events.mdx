@@ -31,8 +31,8 @@ permix.hookOnce('setup', () => {
 permix.setup({
   post: {
     create: true,
-    read: true
-  }
+    read: true,
+  },
 })
 ```
 
@@ -50,7 +50,7 @@ The `check` event fires before every permission evaluation and provides the path
 
 ```ts
 const permix = createPermix<{
-  post: ['create', { name: 'edit', type: { authorId: string }, required: true }]
+  post: ['create', { name: 'edit'; type: { authorId: string }; required: true }]
 }>()
 
 permix.hook('check', ({ path, data }) => {
@@ -74,6 +74,6 @@ permix.check('post.edit', { authorId: '1' })
 When using the callback form of `check()`, `path` will be `null`:
 
 ```ts
-permix.check(c => c('post.create') && c('post.edit', { authorId: '1' }))
+permix.check((c) => c('post.create') && c('post.edit', { authorId: '1' }))
 // logs: Checking permission: null undefined
 ```

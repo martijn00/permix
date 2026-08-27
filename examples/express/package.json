@@ -1,10 +1,10 @@
 {
   "name": "express",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "tsx main.ts",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "start": "tsx main.ts"
   },
   "dependencies": {
     "express": "^5.2.1",

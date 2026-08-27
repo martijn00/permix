@@ -1,10 +1,17 @@
 import type { Handler, NextFunction, Request, Response } from 'express'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface MiddlewareContext {
   req: Request
@@ -22,11 +29,13 @@ export interface PermixOptions<D extends Definition> {
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const onForbidden = options.onForbidden ?? (({ res }) => {
-    res.status(403).json({ error: 'Forbidden' })
-  })
+  const onForbidden =
+    options.onForbidden ??
+    (({ res }) => {
+      res.status(403).json({ error: 'Forbidden' })
+    })
 
   const hooks = createHooks<PermixHooks<D>>()
 
@@ -44,14 +53,15 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>
   ): Handler {
     return async (req, res, next) => {
-      const rules = typeof callbackOrRules === 'function'
-        ? await callbackOrRules({ req, res, next })
-        : callbackOrRules
+      const rules =
+        typeof callbackOrRules === 'function'
+          ? await callbackOrRules({ req, res, next })
+          : callbackOrRules
       const instance = createPermixCore<D>(rules)
-      instance.hook('check', context => hooks.callHook('check', context))
+      instance.hook('check', (context) => hooks.callHook('check', context))
       ;(req as any)[resolveKey()] = instance
       return next()
     }

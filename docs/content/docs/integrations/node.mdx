@@ -8,7 +8,8 @@ description: Learn how to use Permix with Node.js HTTP servers
 Permix provides middleware for Node.js HTTP servers that allows you to easily check permissions in your request handlers. The middleware can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with Node.js integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Node.js integration, make sure you've completed the initial setup
+  steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -33,10 +34,10 @@ interface Post {
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>()
 
@@ -59,22 +60,19 @@ const server = http.createServer(async (req, res) => {
         create: true,
         read: true,
         update: isAdmin,
-        delete: isAdmin
-      }
+        delete: isAdmin,
+      },
     }
   })(req, res, next)
 
   // Route handling
   if (path === '/posts' && method === 'POST') {
     await permix.checkMiddleware('post.create')(req, res, next)
-  }
-  else if (path.startsWith('/posts/') && method === 'PUT') {
-    await permix.checkMiddleware(c => c('post.read') && c('post.update'))(req, res, next)
-  }
-  else if (path.startsWith('/posts/') && method === 'DELETE') {
+  } else if (path.startsWith('/posts/') && method === 'PUT') {
+    await permix.checkMiddleware((c) => c('post.read') && c('post.update'))(req, res, next)
+  } else if (path.startsWith('/posts/') && method === 'DELETE') {
     await permix.checkMiddleware('post.delete')(req, res, next)
-  }
-  else {
+  } else {
     res.statusCode = 404
     res.end(JSON.stringify({ error: 'Not found' }))
   }
@@ -86,7 +84,8 @@ server.listen(3000, () => {
 ```
 
 <Callout>
-The middleware preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+  The middleware preserves full type safety from your Permix definition, ensuring your permission
+  checks are type-safe.
 </Callout>
 
 </Step>
@@ -102,7 +101,7 @@ Use the `checkMiddleware` function to check permissions for specific routes:
 await permix.checkMiddleware('post.create')(req, res, next)
 
 // Check multiple actions
-await permix.checkMiddleware(c => c('post.read') && c('post.update'))(req, res, next)
+await permix.checkMiddleware((c) => c('post.read') && c('post.update'))(req, res, next)
 
 // Check all actions
 await permix.checkMiddleware('post.~all')(req, res, next)
@@ -146,8 +145,8 @@ const adminTemplate = permix.template({
     create: true,
     read: true,
     update: true,
-    delete: true
-  }
+    delete: true,
+  },
 })
 
 // Create a template for regular user permissions
@@ -156,8 +155,8 @@ const userTemplate = permix.template({
     create: true,
     read: true,
     update: false,
-    delete: false
-  }
+    delete: false,
+  },
 })
 
 // Use templates in your middleware
@@ -188,7 +187,7 @@ const permix = createPermix<Definition>({
     res.statusCode = 403
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify({ error: 'Custom forbidden message' }))
-  }
+  },
 })
 ```
 
@@ -203,20 +202,25 @@ const permix = createPermix<Definition>({
     res.setHeader('Content-Type', 'application/json')
 
     if (path === 'post.create') {
-      res.end(JSON.stringify({
-        error: `You don't have permission for ${path}`
-      }))
+      res.end(
+        JSON.stringify({
+          error: `You don't have permission for ${path}`,
+        })
+      )
       return
     }
 
-    res.end(JSON.stringify({
-      error: 'You do not have permission to perform this action'
-    }))
-  }
+    res.end(
+      JSON.stringify({
+        error: 'You do not have permission to perform this action',
+      })
+    )
+  },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `req`: Node.js IncomingMessage object
 - `res`: Node.js ServerResponse object
 - `path`: The permission path that was checked (or `null` for callback checks)
@@ -241,8 +245,8 @@ permix.setupMiddleware(async ({ req }) => {
       create: userPermissions.canCreatePosts,
       read: userPermissions.canReadPosts,
       update: userPermissions.canUpdatePosts,
-      delete: userPermissions.canDeletePosts
-    }
+      delete: userPermissions.canDeletePosts,
+    },
   }
 })(req, res, next)
 ```

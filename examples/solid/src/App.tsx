@@ -1,8 +1,10 @@
 import { createEffect } from 'solid-js'
+
 import { usePermissions } from './hooks/permissions'
 import { usePosts } from './hooks/posts'
 import { useUser } from './hooks/user'
 import { Check, setupPermix } from './lib/permix'
+
 import './App.css'
 
 function App() {
@@ -19,21 +21,13 @@ function App() {
 
   return (
     <>
-      Is Permix ready?
-      {' '}
-      {isReady() ? 'Yes' : 'No'}
+      Is Permix ready? {isReady() ? 'Yes' : 'No'}
       <hr />
-      My user is
-      {' '}
-      {user()?.id ?? '...'}
+      My user is {user()?.id ?? '...'}
       <hr />
-      {posts().map(post => (
+      {posts().map((post) => (
         <div>
-          <h2>
-            Post
-            {' '}
-            {post.id}
-          </h2>
+          <h2>Post {post.id}</h2>
           Can I edit the post where authorId is
           {post.authorId}
           ?
@@ -41,7 +35,7 @@ function App() {
           {check('post.edit', post) ? 'Yes' : 'No'}
           <br />
           <Check
-            path="post.edit"
+            path='post.edit'
             data={post}
             otherwise="I don't have permission to edit a post inside the Check component"
           >

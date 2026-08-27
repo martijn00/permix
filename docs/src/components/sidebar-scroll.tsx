@@ -2,9 +2,7 @@ import { useRouterState } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 function scrollActiveSidebarItem() {
-  const viewport = document.querySelector(
-    '#nd-sidebar [data-radix-scroll-area-viewport]',
-  )
+  const viewport = document.querySelector('#nd-sidebar [data-radix-scroll-area-viewport]')
   const active = document.querySelector('#nd-sidebar [data-active="true"]')
 
   if (!viewport || !active) {
@@ -20,7 +18,7 @@ function scrollActiveSidebarItem() {
 }
 
 export function SidebarScrollFix() {
-  const pathname = useRouterState({ select: s => s.location.pathname })
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   useEffect(() => {
     scrollActiveSidebarItem()

@@ -45,11 +45,9 @@ export function usePermissions() {
 function EditButton({ post }) {
   const { check, isReady } = usePermissions()
 
-  if (!isReady)
-    return null
+  if (!isReady) return null
 
-  if (!check('post.update', post))
-    return null
+  if (!check('post.update', post)) return null
 
   return <button>Edit</button>
 }
@@ -66,13 +64,13 @@ export const { Check } = createComponents(permix)
 ```
 
 ```tsx
-<Check path="post.create" otherwise={<span>Denied</span>}>
+<Check path='post.create' otherwise={<span>Denied</span>}>
   <CreateForm />
 </Check>
 ```
 
 ```tsx
-<Check path="post.update" data={post} reverse>
+<Check path='post.update' data={post} reverse>
   Hidden when allowed; shown when denied
 </Check>
 ```
@@ -208,10 +206,10 @@ Client: hydrate(state) → setup(fullRules) → isReady() → check() / usePermi
 
 ### Pitfalls
 
-| Issue | Cause |
-|-------|--------|
-| UI stuck not ready | `hydrate` without follow-up `setup` |
-| Wrong dynamic checks | Relying on dehydrated booleans only |
+| Issue                  | Cause                                                  |
+| ---------------------- | ------------------------------------------------------ |
+| UI stuck not ready     | `hydrate` without follow-up `setup`                    |
+| Wrong dynamic checks   | Relying on dehydrated booleans only                    |
 | Mismatch server/client | Different schemas or missing actions in client `setup` |
 
 For static-only permissions (all booleans), dehydrate + hydrate + `setup` with the same booleans is enough; still call `setup` to mark ready.

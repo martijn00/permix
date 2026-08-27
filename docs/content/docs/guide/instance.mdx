@@ -32,15 +32,13 @@ import { createPermix } from 'permix'
 
 const permix = createPermix<{
   post: ['create', 'edit']
-//  ^^^^^^
+  //  ^^^^^^
 }>()
 ```
 
 #### `type`
 
-<Callout>
-Not required, but recommended.
-</Callout>
+<Callout>Not required, but recommended.</Callout>
 
 To type-check entity data in rule callbacks and `check`, add a `type` field on the action spec. Without it, callback data is `unknown`.
 
@@ -54,24 +52,21 @@ interface Post {
 }
 
 const permix = createPermix<{
-  post: [
-    { name: 'create', type: Post },
-    { name: 'edit', type: Post },
-  ]
+  post: [{ name: 'create'; type: Post }, { name: 'edit'; type: Post }]
 }>()
 
 permix.setup({
   post: {
     create: true,
-    edit: post => post?.author === 'John Doe'
-//        ^?
-  }
+    edit: (post) => post?.author === 'John Doe',
+    //        ^?
+  },
 })
 
 const somePost: Post = {
   id: '1',
   author: 'John Doe',
-  content: 'Hello World'
+  content: 'Hello World',
 }
 
 const canEdit = permix.check('post.edit') // false
@@ -80,9 +75,7 @@ const canEditWithPost = permix.check('post.edit', somePost) // true
 
 #### `required`
 
-<Callout>
-Not required, defaults to `false`.
-</Callout>
+<Callout>Not required, defaults to `false`.</Callout>
 
 By default, when an action declares a `type`, the data argument in `check` is optional. Set `required: true` to require data for that action.
 
@@ -96,24 +89,21 @@ interface Post {
 }
 
 const permix = createPermix<{
-  post: [
-    { name: 'create', type: Post, required: true },
-    { name: 'edit', type: Post },
-  ]
+  post: [{ name: 'create'; type: Post; required: true }, { name: 'edit'; type: Post }]
 }>()
 
 permix.setup({
   post: {
     create: () => true,
-    edit: post => post?.author === 'John Doe'
-//        ^?
-  }
+    edit: (post) => post?.author === 'John Doe',
+    //        ^?
+  },
 })
 
 const somePost: Post = {
   id: '1',
   author: 'John Doe',
-  content: 'Hello World'
+  content: 'Hello World',
 }
 
 // @errors: 2345
@@ -153,8 +143,8 @@ async function getRules(): Promise<Rules<PermissionsDefinition>> {
   return {
     post: {
       create: true,
-      edit: false
-    }
+      edit: false,
+    },
   }
 }
 
@@ -255,8 +245,8 @@ const permix = createPermix<{
 }>({
   post: {
     create: true,
-    edit: false
-  }
+    edit: false,
+  },
 })
 
 // Permissions are immediately available
@@ -276,13 +266,14 @@ const permix = createPermix<{
 permix.setup({
   post: {
     create: true,
-    edit: false
-  }
+    edit: false,
+  },
 })
 ```
 
 Initial rules are useful when you have permissions that are known at initialization time and don't need to be loaded asynchronously.
 
-<Callout type="warn">
-You still should pass generic type to `createPermix` even if you provide initial rules. Otherwise, Permix will not be able to validate your permissions.
+<Callout type='warn'>
+  You still should pass generic type to `createPermix` even if you provide initial rules. Otherwise,
+  Permix will not be able to validate your permissions.
 </Callout>

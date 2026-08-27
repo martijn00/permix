@@ -1,5 +1,6 @@
-import type { ValidateDefinition } from '../core'
 import { describe, expect, it, vi } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { PermixNotFoundError } from '../core'
 import { createPermix } from './permix'
 
@@ -14,7 +15,7 @@ type PermissionsDefinition = ValidateDefinition<{
 }>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create', type: Post }]
+  post: [{ name: 'create'; type: Post }]
 }>
 
 function createMockRequest(): Request {
@@ -107,7 +108,9 @@ describe('createPermix', () => {
     const result = await permix.checkMiddleware('post.create')(req, next)
 
     expect(result?.status).toBe(403)
-    expect(await result?.text()).toBe(JSON.stringify({ error: 'You do not have permission for post.create' }))
+    expect(await result?.text()).toBe(
+      JSON.stringify({ error: 'You do not have permission for post.create' })
+    )
   })
 
   it('should pass data through to a rule callback', async () => {
@@ -118,11 +121,14 @@ describe('createPermix', () => {
 
     await permix.setupMiddleware({
       post: {
-        create: post => post?.authorId === '1',
+        create: (post) => post?.authorId === '1',
       },
     })(req, next)
 
-    const result = await permix.checkMiddleware('post.create', { id: 'a', authorId: '1' })(req, next)
+    const result = await permix.checkMiddleware('post.create', { id: 'a', authorId: '1' })(
+      req,
+      next
+    )
 
     expect(result?.status).toBe(200)
   })
@@ -138,7 +144,10 @@ describe('createPermix', () => {
       user: { delete: true },
     })(req, next)
 
-    const result = await permix.checkMiddleware(c => c('post.create') && c('user.delete'))(req, next)
+    const result = await permix.checkMiddleware((c) => c('post.create') && c('user.delete'))(
+      req,
+      next
+    )
 
     expect(result?.status).toBe(200)
   })
@@ -278,7 +287,9 @@ describe('checkMiddleware without setupMiddleware', () => {
     const req = createMockRequest()
     const next = createMockNext()
 
-    await expect(permix.checkMiddleware('post.create')(req, next)).rejects.toBeInstanceOf(PermixNotFoundError)
+    await expect(permix.checkMiddleware('post.create')(req, next)).rejects.toBeInstanceOf(
+      PermixNotFoundError
+    )
     expect(next).not.toHaveBeenCalled()
   })
 })
@@ -324,11 +335,11 @@ describe('srvx-style middleware composition', () => {
       const dispatch = async (): Promise<Response> => {
         const handler = middleware[index++]
         if (handler) {
-          return handler(req, dispatch)
+          return await handler(req, dispatch)
         }
-        return fetch(req)
+        return await fetch(req)
       }
-      return dispatch()
+      return await dispatch()
     }
 
     const res = await run(createMockRequest())

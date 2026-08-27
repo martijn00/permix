@@ -1,8 +1,16 @@
 import type { JSX } from 'solid-js'
-import type { CheckArgs, DataAtPath, Definition, DehydratedState, Permix, RulesPaths } from '../core'
-import type { PermixContext } from './hooks'
 import { createEffect, createMemo, createRenderEffect, onCleanup } from 'solid-js'
 import { createStore } from 'solid-js/store'
+
+import type {
+  CheckArgs,
+  DataAtPath,
+  Definition,
+  DehydratedState,
+  Permix,
+  RulesPaths,
+} from '../core'
+import type { PermixContext } from './hooks'
 import { Context, usePermix, usePermixContext } from './hooks'
 
 /**
@@ -30,14 +38,10 @@ export function PermixProvider<D extends Definition>(props: {
     })
   })
 
-  return (
-    <Context.Provider value={context}>
-      {props.children}
-    </Context.Provider>
-  )
+  return <Context.Provider value={context}>{props.children}</Context.Provider>
 }
 
-export function PermixHydrate(props: { children: JSX.Element, state: DehydratedState<any> }) {
+export function PermixHydrate(props: { children: JSX.Element; state: DehydratedState<any> }) {
   const context = usePermixContext()
 
   createRenderEffect(() => {
@@ -59,16 +63,24 @@ export interface PermixComponents<D extends Definition> {
   Check: <P extends RulesPaths<D>>(props: CheckProps<D, P>) => JSX.Element
 }
 
-export function createComponents<D extends Definition>(permix: Pick<Permix<D>, 'getRules' | 'check'>): PermixComponents<D> {
+export function createComponents<D extends Definition>(
+  permix: Pick<Permix<D>, 'getRules' | 'check'>
+): PermixComponents<D> {
   function Check<P extends RulesPaths<D>>(props: CheckProps<D, P>): JSX.Element {
     const context = usePermix(permix)
-    const hasPermission = createMemo(() => context.check(...([props.path, props.data] as unknown as CheckArgs<D>)))
+    const hasPermission = createMemo(() =>
+      context.check(...([props.path, props.data] as unknown as CheckArgs<D>))
+    )
 
     return (
       <>
         {props.reverse
-          ? hasPermission() ? (props.otherwise || null) : props.children
-          : hasPermission() ? props.children : (props.otherwise || null)}
+          ? hasPermission()
+            ? props.otherwise || null
+            : props.children
+          : hasPermission()
+            ? props.children
+            : props.otherwise || null}
       </>
     )
   }

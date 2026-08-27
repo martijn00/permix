@@ -1,7 +1,8 @@
-import type { RouterContext } from '@/lib/permix'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+
+import type { RouterContext } from '@/lib/permix'
 import { Providers } from '@/providers'
 import { getRootLoaderData } from '@/server/permix'
 
@@ -51,11 +52,11 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-full bg-zinc-50 text-zinc-900 antialiased">
+      <body className='min-h-full bg-zinc-50 text-zinc-900 antialiased'>
         {children}
         <TanStackDevtools
           config={{

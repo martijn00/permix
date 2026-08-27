@@ -1,4 +1,5 @@
 import { createMiddleware, createStart } from '@tanstack/react-start'
+
 import { getSessionFromRequest } from '@/lib/auth'
 import { adminTemplate, guestTemplate, permix } from '@/lib/permix'
 
@@ -22,11 +23,11 @@ const permixMiddleware = createMiddleware().server(
       post: {
         create: true,
         read: true,
-        update: post => post?.authorId === session.userId,
+        update: (post) => post?.authorId === session.userId,
         delete: false,
       },
     }
-  }),
+  })
 )
 
 export const startInstance = createStart(() => ({

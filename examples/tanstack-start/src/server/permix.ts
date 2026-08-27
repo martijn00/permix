@@ -1,6 +1,7 @@
-import type { DemoRole, Session } from '@/lib/auth'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
+
+import type { DemoRole, Session } from '@/lib/auth'
 import { getSessionForRole } from '@/lib/auth'
 import { permix } from '@/lib/permix'
 

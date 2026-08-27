@@ -9,6 +9,7 @@ icon: RiArrowUpCircleLine
 Permix **v4** is a major release. It replaces the entity-config permission model with **action lists and dot paths**, rewrites the core `check()` engine, and adds first-class integrations (Next.js, TanStack Start, Svelte, Drizzle, Effect, fetch middleware, and more).
 
 This guide summarizes the breaking changes and how to update your app. For the full release context, see [PR #35](https://github.com/letstri/permix/pull/35).
+
 ## Install
 
 ```package-install
@@ -19,22 +20,22 @@ v4 is developed with **TypeScript 6**. Your app does not need to match the monor
 
 ## Quick reference
 
-| v3 | v4 |
-| --- | --- |
-| `createPermix<{ post: { action: 'read'; dataType: Post } }>()` | `createPermix<{ post: ['read', { name: 'edit', type: Post }] }>()` |
-| `dataRequired: true` on entity | `required: true` on the action spec |
-| `permix.check('post', 'read')` | `permix.check('post.read')` |
-| `permix.check('post', 'edit', post)` | `permix.check('post.edit', post)` |
-| `permix.check('post', 'all')` | `permix.check('post.~all')` |
-| `permix.check('post', 'any')` | `permix.check('post.~any')` |
-| `permix.check('post', ['read', 'update'])` | `permix.check(c => c('post.read') && c('post.update'))` |
-| `<Check entity="post" action="edit" />` | `<Check path="post.edit" />` |
-| `checkMiddleware('post', 'create')` | `checkMiddleware('post.create')` |
-| `check()` before `setup()`: logs + returns `false` | `check()` before rules exist: throws `PermixNotReadyError` |
-| `hydrate()` + `isReady()` | Still `false` until `setup()`; hydrated booleans are `check()`-able in both versions |
-| Invalid / missing path: logs + `false` | `PermixRuleNotDefinedError` thrown |
-| `checkAsync()` on core instance | Removed — use `isReadyAsync()` then `check()` |
-| tRPC/oRPC `forbiddenError` option | `onForbidden` on `createPermix({ ... })` |
+| v3                                                             | v4                                                                                   |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `createPermix<{ post: { action: 'read'; dataType: Post } }>()` | `createPermix<{ post: ['read', { name: 'edit', type: Post }] }>()`                   |
+| `dataRequired: true` on entity                                 | `required: true` on the action spec                                                  |
+| `permix.check('post', 'read')`                                 | `permix.check('post.read')`                                                          |
+| `permix.check('post', 'edit', post)`                           | `permix.check('post.edit', post)`                                                    |
+| `permix.check('post', 'all')`                                  | `permix.check('post.~all')`                                                          |
+| `permix.check('post', 'any')`                                  | `permix.check('post.~any')`                                                          |
+| `permix.check('post', ['read', 'update'])`                     | `permix.check(c => c('post.read') && c('post.update'))`                              |
+| `<Check entity="post" action="edit" />`                        | `<Check path="post.edit" />`                                                         |
+| `checkMiddleware('post', 'create')`                            | `checkMiddleware('post.create')`                                                     |
+| `check()` before `setup()`: logs + returns `false`             | `check()` before rules exist: throws `PermixNotReadyError`                           |
+| `hydrate()` + `isReady()`                                      | Still `false` until `setup()`; hydrated booleans are `check()`-able in both versions |
+| Invalid / missing path: logs + `false`                         | `PermixRuleNotDefinedError` thrown                                                   |
+| `checkAsync()` on core instance                                | Removed — use `isReadyAsync()` then `check()`                                        |
+| tRPC/oRPC `forbiddenError` option                              | `onForbidden` on `createPermix({ ... })`                                             |
 
 `setup()`, `template()`, `dehydrate()`, `hook()`, and `isReady()` / `isReadyAsync()` still exist on the core instance; their **types** and some **semantics** changed.
 
@@ -67,11 +68,7 @@ export const permix = createPermix<{
 
 // v4 — typed entity data per action
 export const permix = createPermix<{
-  post: [
-    'read',
-    { name: 'edit', type: Post },
-    { name: 'delete', type: Post, required: true },
-  ]
+  post: ['read', { name: 'edit'; type: Post }, { name: 'delete'; type: Post; required: true }]
 }>()
 ```
 
@@ -152,8 +149,8 @@ Details: [Check guide](/docs/guide/check).
 ### Callback composition (new)
 
 ```ts
-permix.check(c => c('post.read') && c('post.update'))
-permix.check(c => c('post.delete') || c('admin.override'))
+permix.check((c) => c('post.read') && c('post.update'))
+permix.check((c) => c('post.delete') || c('admin.override'))
 ```
 
 ### `checkAsync()` removed
@@ -220,12 +217,12 @@ After `hydrate()`, the provider updates rules via the `setup` hook, so **seriali
 
 Serialization is the same: **functions become `false` in JSON**. Ready-state behavior:
 
-| | v3 | v4 |
-| --- | --- | --- |
-| `isReady()` after `hydrate()` only | `false` (until `setup()` on the client) | `false` (until `setup()`) |
-| `check()` after `hydrate()` only | Works for hydrated booleans | Works for hydrated booleans |
-| `check()` before any rules | `false` + console error | `PermixNotReadyError` |
-| `dehydrate()` before rules | Throws generic `Error` | `PermixNotReadyError` |
+|                                    | v3                                      | v4                          |
+| ---------------------------------- | --------------------------------------- | --------------------------- |
+| `isReady()` after `hydrate()` only | `false` (until `setup()` on the client) | `false` (until `setup()`)   |
+| `check()` after `hydrate()` only   | Works for hydrated booleans             | Works for hydrated booleans |
+| `check()` before any rules         | `false` + console error                 | `PermixNotReadyError`       |
+| `dehydrate()` before rules         | Throws generic `Error`                  | `PermixNotReadyError`       |
 
 ```ts
 permix.hydrate(serverState)
@@ -247,11 +244,11 @@ See [Hydration](/docs/guide/hydration) and [Ready state](/docs/guide/ready). For
 
 v4 throws typed errors instead of logging to the console and returning `false`:
 
-| Error | When |
-| --- | --- |
-| `PermixNotReadyError` | `check()` or `dehydrate()` when no rules exist yet |
-| `PermixRuleNotDefinedError` | Path not in schema or rule missing (`error.path`) |
-| `PermixNotFoundError` | Server integration: Permix missing from request context |
+| Error                       | When                                                    |
+| --------------------------- | ------------------------------------------------------- |
+| `PermixNotReadyError`       | `check()` or `dehydrate()` when no rules exist yet      |
+| `PermixRuleNotDefinedError` | Path not in schema or rule missing (`error.path`)       |
+| `PermixNotFoundError`       | Server integration: Permix missing from request context |
 
 Custom `onForbidden` handlers receive `{ path, data?, ... }` instead of v3's `{ entity, actions, ... }`.
 
@@ -331,15 +328,15 @@ Map each Better Auth role to a rules object yourself — the same booleans you p
 
 These are additive — migrate the core API first, then adopt what you need:
 
-| Import | Use case |
-| --- | --- |
-| `permix/next` | Next.js App Router, request-scoped instance |
-| `permix/tanstack-start` | TanStack Start middleware and SSR |
-| `permix/server` | Framework-agnostic fetch middleware |
-| `permix/svelte` | Svelte 5 runes |
-| `permix/drizzle` | Rules from Drizzle v1 schema |
-| `permix/drizzle/legacy` | Drizzle v0 (`>=0.30 <1`) |
-| `permix/effect` | Effect `Layer` / `Context` |
+| Import                  | Use case                                    |
+| ----------------------- | ------------------------------------------- |
+| `permix/next`           | Next.js App Router, request-scoped instance |
+| `permix/tanstack-start` | TanStack Start middleware and SSR           |
+| `permix/server`         | Framework-agnostic fetch middleware         |
+| `permix/svelte`         | Svelte 5 runes                              |
+| `permix/drizzle`        | Rules from Drizzle v1 schema                |
+| `permix/drizzle/legacy` | Drizzle v0 (`>=0.30 <1`)                    |
+| `permix/effect`         | Effect `Layer` / `Context`                  |
 
 See the [examples directory](https://github.com/letstri/permix/tree/main/examples) (`next`, `tanstack-start`, `svelte`, `rebac`, and updated `react`, `vue`, …).
 

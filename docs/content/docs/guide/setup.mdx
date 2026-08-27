@@ -7,13 +7,12 @@ description: Learn how to setup permissions in your project
 
 After creating Permix instance, you need to define permissions with `setup` method. You can call `setup` in any time with any permissions and Permix will replace the previous permissions.
 
-<Callout type="warn">
-You always should describe all permissions in the `setup` method that was defined in the Permix generic type.
+<Callout type='warn'>
+  You always should describe all permissions in the `setup` method that was defined in the Permix
+  generic type.
 </Callout>
 
-<Callout>
-For role separation, you can use the [`template`](/docs/guide/template) method.
-</Callout>
+<Callout>For role separation, you can use the [`template`](/docs/guide/template) method.</Callout>
 
 ### Object definition
 
@@ -30,12 +29,14 @@ permix.setup({
   comment: {
     create: true,
     update: true,
-  }
+  },
 })
 ```
 
 <Callout>
-You can also use `enum` based permissions. See [Enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based) for more information.
+  You can also use `enum` based permissions. See
+  [Enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based) for more
+  information.
 </Callout>
 
 ## Initial
@@ -67,7 +68,8 @@ permix.isReady() // true
 ```
 
 <Callout>
-When using initial rules, the Permix instance is immediately ready to use without calling `setup` first.
+  When using initial rules, the Permix instance is immediately ready to use without calling `setup`
+  first.
 </Callout>
 
 ## Type-Based
@@ -139,8 +141,8 @@ permix.setup({
 
 If you cannot define entity types in the Permix instance, callback data is `unknown` by default, but you can still narrow it in the `setup` method.
 
-<Callout type="warn">
-This approach is not recommended as it reduces type safety and IDE support.
+<Callout type='warn'>
+  This approach is not recommended as it reduces type safety and IDE support.
 </Callout>
 
 ```ts twoslash
@@ -155,8 +157,8 @@ const permix = createPermix<{
 // @noErrors
 permix.setup({
   comment: {
-    update: (comment: { authorId: string }) => comment.authorId === currentUser.id
-  }
+    update: (comment: { authorId: string }) => comment.authorId === currentUser.id,
+  },
 })
 ```
 
@@ -164,9 +166,7 @@ permix.setup({
 
 You can use async functions to fetch permissions from external sources and then set them up.
 
-<Callout>
-See the [template](/docs/guide/template) for more examples and patterns.
-</Callout>
+<Callout>See the [template](/docs/guide/template) for more examples and patterns.</Callout>
 
 ```ts
 import { createPermix } from 'permix'
@@ -233,5 +233,6 @@ const rules = permix.getRules()
 ```
 
 <Callout>
-The `getRules` method returns the exact rules object that was set using `setup`, including any permission functions.
+  The `getRules` method returns the exact rules object that was set using `setup`, including any
+  permission functions.
 </Callout>

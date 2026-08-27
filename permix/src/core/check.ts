@@ -1,12 +1,12 @@
 import type { Definition } from './definitions'
+import { PermixNotReadyError, PermixRuleNotDefinedError } from './errors'
 import type { CheckerFn, DataAtPath, RulesPaths, SpecialPath, SpecialSymbol } from './permix'
 import type { Rules } from './rules'
-import { PermixNotReadyError, PermixRuleNotDefinedError } from './errors'
 
-export type CheckArgs<D extends Definition>
-  = | { [P in RulesPaths<D>]: [path: P, ...data: DataAtPath<D, P>] }[RulesPaths<D>]
-    | [special: SpecialPath<D>]
-    | [callback: (c: CheckerFn<D>) => boolean]
+export type CheckArgs<D extends Definition> =
+  | { [P in RulesPaths<D>]: [path: P, ...data: DataAtPath<D, P>] }[RulesPaths<D>]
+  | [special: SpecialPath<D>]
+  | [callback: (c: CheckerFn<D>) => boolean]
 
 type Rule = Rules<any> | boolean | ((data?: unknown) => boolean)
 
@@ -29,8 +29,7 @@ function pathFromArgs(args: unknown[]): string {
 export function callRuleWithoutData(rule: () => unknown): boolean {
   try {
     return Boolean(rule())
-  }
-  catch {
+  } catch {
     return false
   }
 }
@@ -56,45 +55,39 @@ function walk(rules: Rules<any>, args: unknown[]): boolean {
 
       const out: boolean[] = []
       const visit = (rule: Rule) => {
-        if (typeof rule === 'boolean')
-          return void out.push(rule)
-        if (typeof rule === 'function')
-          return void out.push(callRuleWithoutData(rule))
-        for (const key in rule)
-          visit(rule[key])
+        if (typeof rule === 'boolean') return void out.push(rule)
+        if (typeof rule === 'function') return void out.push(callRuleWithoutData(rule))
+        for (const key in rule) visit(rule[key])
       }
       visit(subtree)
       return last === '~all' ? out.every(Boolean) : out.some(Boolean)
     }
 
-    if (first.includes('.'))
-      args = [...parts, ...args.slice(1)]
+    if (first.includes('.')) args = [...parts, ...args.slice(1)]
   }
 
   let rule: Rule = rules
   let i = 0
-  for (; i < args.length && typeof rule === 'object'; i++)
-    rule = rule[String(args[i])]
+  for (; i < args.length && typeof rule === 'object'; i++) rule = rule[String(args[i])]
 
   if (typeof rule === 'boolean') {
-    const remainingPath = args.slice(i).some(a => typeof a === 'string')
-    if (remainingPath)
-      throw new PermixRuleNotDefinedError(pathFromArgs(args))
+    const remainingPath = args.slice(i).some((a) => typeof a === 'string')
+    if (remainingPath) throw new PermixRuleNotDefinedError(pathFromArgs(args))
     return rule
   }
-  if (typeof rule === 'function')
-    return Boolean(rule(args[i]))
+  if (typeof rule === 'function') return Boolean(rule(args[i]))
 
   const path = args.slice(0, i + 1).join('.')
   throw new PermixRuleNotDefinedError(path)
 }
 
-export function createCheck<D extends Definition>(rules: Rules<D> | null | (() => Rules<D> | null)) {
+export function createCheck<D extends Definition>(
+  rules: Rules<D> | null | (() => Rules<D> | null)
+) {
   return (...args: CheckArgs<D>): boolean => {
     const r = typeof rules === 'function' ? rules() : rules
 
-    if (!r)
-      throw new PermixNotReadyError()
+    if (!r) throw new PermixNotReadyError()
 
     if (typeof args[0] === 'function')
       return Boolean(args[0]((path, ...data) => walk(r, [path, ...data])))
@@ -111,12 +104,10 @@ export interface CheckContext<D extends Definition> {
 export function createCheckContext<D extends Definition>(...params: CheckArgs<D>): CheckContext<D> {
   const first = params[0]
 
-  if (typeof first === 'function')
-    return { path: null }
+  if (typeof first === 'function') return { path: null }
 
   const last = first.split('.').pop()
-  if (isSpecialSymbol(last))
-    return { path: first }
+  if (isSpecialSymbol(last)) return { path: first }
 
   return { path: first, data: params[1] }
 }

@@ -1,22 +1,13 @@
 import { createPermix } from 'permix'
 import { createComponents } from 'permix/react'
+
 import { PostPermission, UserPermission } from './permissions'
 import { getUser } from './user'
 
 // Define permix instance
 export const permix = createPermix<{
-  post: [
-    PostPermission.Create,
-    PostPermission.Read,
-    PostPermission.Update,
-    PostPermission.Delete,
-  ]
-  user: [
-    UserPermission.Create,
-    UserPermission.Read,
-    UserPermission.Update,
-    UserPermission.Delete,
-  ]
+  post: [PostPermission.Create, PostPermission.Read, PostPermission.Update, PostPermission.Delete]
+  user: [UserPermission.Create, UserPermission.Read, UserPermission.Update, UserPermission.Delete]
 }>()
 
 // Not necessary, but you can use components to check permissions

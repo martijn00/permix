@@ -1,5 +1,5 @@
-import type { ValidateDefinition } from 'permix'
 import express from 'express'
+import type { ValidateDefinition } from 'permix'
 import { createPermix } from 'permix/express'
 
 const app = express()
@@ -14,12 +14,14 @@ const permix = createPermix<PermissionsDefinition>({
   },
 })
 
-app.use(permix.setupMiddleware(() => ({
-  user: {
-    read: true,
-    write: false,
-  },
-})))
+app.use(
+  permix.setupMiddleware(() => ({
+    user: {
+      read: true,
+      write: false,
+    },
+  }))
+)
 
 const router = express.Router()
 

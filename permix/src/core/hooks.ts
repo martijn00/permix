@@ -17,11 +17,9 @@ export function createHooks<T extends { [K in keyof T]: HookFn } = Record<string
 
     return () => {
       const list = hooks.get(name)
-      if (!list)
-        return
+      if (!list) return
       const index = list.indexOf(fn)
-      if (index !== -1)
-        list.splice(index, 1)
+      if (index !== -1) list.splice(index, 1)
     }
   }
 
@@ -36,17 +34,16 @@ export function createHooks<T extends { [K in keyof T]: HookFn } = Record<string
 
   const removeHook = <K extends keyof T>(name: K, fn: T[K]): void => {
     const list = hooks.get(name)
-    if (!list)
-      return
+    if (!list) return
     const index = list.indexOf(fn)
-    if (index !== -1)
-      list.splice(index, 1)
+    if (index !== -1) list.splice(index, 1)
   }
 
   const callHook = <K extends keyof T>(name: K, ...args: Parameters<T[K]>): void => {
     const list = hooks.get(name)
-    if (!list)
-      return
+    if (!list) return
+    // Copy so a hook can unsubscribe while this call is still iterating.
+    // eslint-disable-next-line unicorn/no-useless-spread
     for (const fn of [...list]) {
       fn(...args)
     }

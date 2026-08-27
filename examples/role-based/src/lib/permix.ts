@@ -1,5 +1,6 @@
 import { createPermix } from 'permix'
 import { createComponents } from 'permix/react'
+
 import { getUser } from './user'
 
 // Define permix instance

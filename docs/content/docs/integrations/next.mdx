@@ -10,11 +10,15 @@ Permix provides a dedicated integration for the Next.js **App Router** through `
 The client side reuses the existing React integration (`permix/react`): the server `dehydrate()`s its state and the client hydrates it into its own singleton via `PermixProvider` + `PermixHydrate`.
 
 <Callout>
-Before getting started with the Next.js integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide. Familiarity with the [Hydration guide](/docs/guide/hydration) helps too.
+  Before getting started with the Next.js integration, make sure you've completed the initial setup
+  steps in the [Quick Start](/docs/quick-start) guide. Familiarity with the [Hydration
+  guide](/docs/guide/hydration) helps too.
 </Callout>
 
-<Callout type="warn">
-This integration is designed for the **App Router**. It relies on `react`'s request-scoped `cache()`, which is available in server components, route handlers, and server actions within a single request.
+<Callout type='warn'>
+  This integration is designed for the **App Router**. It relies on `react`'s request-scoped
+  `cache()`, which is available in server components, route handlers, and server actions within a
+  single request.
 </Callout>
 
 <Steps>
@@ -35,10 +39,10 @@ interface Post {
 
 export const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>()
 ```
@@ -57,24 +61,20 @@ Call `setup()` early in the request lifecycle. A common place is the root layout
 import { permix } from '@/lib/permix'
 import { getSession } from '@/lib/auth'
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
 
   permix.setup({
     post: {
       create: !!session,
       read: true,
-      update: post => post?.authorId === session?.userId,
+      update: (post) => post?.authorId === session?.userId,
       delete: session?.role === 'admin',
     },
   })
 
   return (
-    <html lang="en">
+    <html lang='en'>
       <body>{children}</body>
     </html>
   )
@@ -82,7 +82,9 @@ export default async function RootLayout({
 ```
 
 <Callout>
-Because `setup()` is scoped to the current request, calling it again from a nested server component or route handler in the **same** request simply replaces the rules for that request. Other requests are unaffected.
+  Because `setup()` is scoped to the current request, calling it again from a nested server
+  component or route handler in the **same** request simply replaces the rules for that request.
+  Other requests are unaffected.
 </Callout>
 
 </Step>
@@ -98,11 +100,7 @@ import { notFound } from 'next/navigation'
 import { permix } from '@/lib/permix'
 import { getPost } from '@/lib/posts'
 
-export default async function PostPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const post = await getPost(id)
 
@@ -147,10 +145,10 @@ import type { DehydratedState } from 'permix'
 // One singleton per browser tab. The same type definition as on the server.
 const permix = createPermix<{
   post: [
-    { name: 'create', type: { id: string, authorId: string } },
-    { name: 'read', type: { id: string, authorId: string } },
-    { name: 'update', type: { id: string, authorId: string } },
-    { name: 'delete', type: { id: string, authorId: string } },
+    { name: 'create'; type: { id: string; authorId: string } },
+    { name: 'read'; type: { id: string; authorId: string } },
+    { name: 'update'; type: { id: string; authorId: string } },
+    { name: 'delete'; type: { id: string; authorId: string } },
   ]
 }>()
 
@@ -178,19 +176,13 @@ import { permix } from '@/lib/permix'
 import { getSession } from '@/lib/auth'
 import { Providers } from './providers'
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
 
-  permix.setup({
-    /* ...rules derived from session... */
-  })
+  permix.setup({/* ...rules derived from session... */})
 
   return (
-    <html lang="en">
+    <html lang='en'>
       <body>
         <Providers state={permix.dehydrate()}>{children}</Providers>
       </body>
@@ -199,8 +191,12 @@ export default async function RootLayout({
 }
 ```
 
-<Callout type="warn">
-`hydrate()` restores the boolean state but does not flip `isReady` on its own — function-based rules are lost during serialization. If you need `isReady` on the client (e.g. to gate UI on `usePermix(...).isReady`), call `permix.setup(...)` on the client too with the same shape (using booleans and any function rules you want active client-side). See the [Hydration guide](/docs/guide/hydration) for details.
+<Callout type='warn'>
+  `hydrate()` restores the boolean state but does not flip `isReady` on its own — function-based
+  rules are lost during serialization. If you need `isReady` on the client (e.g. to gate UI on
+  `usePermix(...).isReady`), call `permix.setup(...)` on the client too with the same shape (using
+  booleans and any function rules you want active client-side). See the [Hydration
+  guide](/docs/guide/hydration) for details.
 </Callout>
 
 </Step>
@@ -217,7 +213,7 @@ From any client component, import the singleton from `app/providers.tsx` and the
 import { usePermix } from 'permix/react'
 import { permix } from '@/app/providers'
 
-export function EditButton({ post }: { post: { id: string, authorId: string } }) {
+export function EditButton({ post }: { post: { id: string; authorId: string } }) {
   const { check } = usePermix(permix)
 
   if (!check('post.update', post)) {
@@ -284,8 +280,10 @@ You can find a runnable example of the Next.js integration [here](https://github
 
 Across concurrent requests, each request gets its **own** instance. State never leaks between users.
 
-<Callout type="warn">
-Do **not** store the result of `permix.get()` (or any rule data) in module-level variables. That would defeat per-request isolation. Always go through `permix.check()` / `permix.get()` so the request-scoped cache is consulted.
+<Callout type='warn'>
+  Do **not** store the result of `permix.get()` (or any rule data) in module-level variables. That
+  would defeat per-request isolation. Always go through `permix.check()` / `permix.get()` so the
+  request-scoped cache is consulted.
 </Callout>
 
 ## API
@@ -294,14 +292,14 @@ Do **not** store the result of `permix.get()` (or any rule data) in module-level
 
 Returns an object with the following methods:
 
-| Method | Description |
-|---|---|
-| `setup(rules)` | Set the per-request permission rules. Resolve any async data (session, etc.) before calling. |
-| `check(...args)` | Check a permission against the current request's rules. Same signature as the core `check`. |
-| `get()` | Return the underlying [`Permix<D>`](/docs/guide/instance) instance for the current request. |
-| `getRules()` | Return the current rules object for the request-scoped instance, or `null`. |
-| `dehydrate()` | Serialize the current request's rules to JSON (for `<PermixHydrate>` on the client). |
-| `template(rules)` | Create a reusable rule set. Same as the core [`template`](/docs/guide/template). |
+| Method            | Description                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| `setup(rules)`    | Set the per-request permission rules. Resolve any async data (session, etc.) before calling. |
+| `check(...args)`  | Check a permission against the current request's rules. Same signature as the core `check`.  |
+| `get()`           | Return the underlying [`Permix<D>`](/docs/guide/instance) instance for the current request.  |
+| `getRules()`      | Return the current rules object for the request-scoped instance, or `null`.                  |
+| `dehydrate()`     | Serialize the current request's rules to JSON (for `<PermixHydrate>` on the client).         |
+| `template(rules)` | Create a reusable rule set. Same as the core [`template`](/docs/guide/template).             |
 
 ## TanStack Start and other frameworks
 

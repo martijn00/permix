@@ -1,53 +1,87 @@
 import type { CheckArgs, CheckContext } from './check'
-import type { Action, ActionName, Definition } from './definitions'
-import type { DehydratedState, Rules } from './rules'
 import { createCheck, createCheckContext } from './check'
+import type { Action, ActionName, Definition } from './definitions'
 import { PermixNotReadyError } from './errors'
 import { createHooks } from './hooks'
+import type { DehydratedState, Rules } from './rules'
 import { createRules, dehydrateRules, hydrateRules } from './rules'
 import { createTemplate } from './template'
 
 export type { DehydratedState, Rules } from './rules'
 
-type ActionArgs<A extends Action>
-  = A extends { type: infer T, required: true } ? [T]
-    : A extends { type: infer T } ? [T?]
-      : []
+type ActionArgs<A extends Action> = A extends { type: infer T; required: true }
+  ? [T]
+  : A extends { type: infer T }
+    ? [T?]
+    : []
 
-type ActionByName<A extends Action, N extends string>
-  = A extends unknown ? ActionName<A> extends N ? A : never : never
+type ActionByName<A extends Action, N extends string> = A extends unknown
+  ? ActionName<A> extends N
+    ? A
+    : never
+  : never
 
 // Caps recursion depth to avoid "Type instantiation is excessively deep" errors.
-type Depth = [unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]
+type Depth = [
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+]
 
-export type RulesPaths<D, Prefix extends string = '', N extends unknown[] = Depth>
-  = N extends [unknown, ...infer Rest]
-    ? D extends readonly Action[]
-      ? `${Prefix}${ActionName<D[number]>}`
-      : { [K in keyof D & string]: D[K] extends Definition ? RulesPaths<D[K], `${Prefix}${K}.`, Rest> : never }[keyof D & string]
-    : never
+export type RulesPaths<D, Prefix extends string = '', N extends unknown[] = Depth> = N extends [
+  unknown,
+  ...infer Rest,
+]
+  ? D extends readonly Action[]
+    ? `${Prefix}${ActionName<D[number]>}`
+    : {
+        [K in keyof D & string]: D[K] extends Definition
+          ? RulesPaths<D[K], `${Prefix}${K}.`, Rest>
+          : never
+      }[keyof D & string]
+  : never
 
 export type SpecialSymbol = '~any' | '~all'
 
-export type SpecialPath<D, Prefix extends string = '', N extends unknown[] = Depth>
-  = N extends [unknown, ...infer Rest]
-    // eslint-disable-next-line style/indent-binary-ops
-    ? `${Prefix}${SpecialSymbol}` | (D extends readonly Action[]
-      ? never
-      : { [K in keyof D & string]: D[K] extends Definition ? SpecialPath<D[K], `${Prefix}${K}.`, Rest> : never }[keyof D & string])
-    : never
+export type SpecialPath<D, Prefix extends string = '', N extends unknown[] = Depth> = N extends [
+  unknown,
+  ...infer Rest,
+]
+  ?
+      | `${Prefix}${SpecialSymbol}`
+      | (D extends readonly Action[]
+          ? never
+          : {
+              [K in keyof D & string]: D[K] extends Definition
+                ? SpecialPath<D[K], `${Prefix}${K}.`, Rest>
+                : never
+            }[keyof D & string])
+  : never
 
-export type DataAtPath<D, P extends string, N extends unknown[] = Depth>
-  = N extends [unknown, ...infer Rest]
-    ? D extends readonly Action[]
-      ? ActionArgs<ActionByName<D[number], P>>
-      : P extends `${infer K}.${infer Tail}`
-        ? K extends keyof D ? DataAtPath<D[K], Tail, Rest> : never
+export type DataAtPath<D, P extends string, N extends unknown[] = Depth> = N extends [
+  unknown,
+  ...infer Rest,
+]
+  ? D extends readonly Action[]
+    ? ActionArgs<ActionByName<D[number], P>>
+    : P extends `${infer K}.${infer Tail}`
+      ? K extends keyof D
+        ? DataAtPath<D[K], Tail, Rest>
         : never
-    : never
+      : never
+  : never
 
-export type CheckerFn<D extends Definition>
-  = <P extends RulesPaths<D>>(path: P, ...data: DataAtPath<D, P>) => boolean
+export type CheckerFn<D extends Definition> = <P extends RulesPaths<D>>(
+  path: P,
+  ...data: DataAtPath<D, P>
+) => boolean
 
 export interface PermixHooks<D extends Definition = Definition> {
   setup: () => void
@@ -151,7 +185,7 @@ export interface Permix<D extends Definition> {
    * ```
    */
   template: <T = void>(
-    rules: Rules<D> | ((param: T) => Rules<D>),
+    rules: Rules<D> | ((param: T) => Rules<D>)
   ) => (() => Rules<D>) | ((param: T) => Rules<D>)
 
   /**
@@ -302,8 +336,7 @@ export function createPermix<D extends Definition>(initialRules?: Rules<D>): Per
       return checkFn(...args)
     },
     dehydrate() {
-      if (!rules)
-        throw new PermixNotReadyError()
+      if (!rules) throw new PermixNotReadyError()
       return dehydrateRules(rules) as DehydratedState<D>
     },
     hydrate(state) {

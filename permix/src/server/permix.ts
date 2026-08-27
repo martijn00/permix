@@ -1,9 +1,15 @@
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export type NextFunction = () => MaybePromise<Response>
 
@@ -28,13 +34,15 @@ export interface PermixOptions<D extends Definition> {
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const onForbidden = options.onForbidden ?? (() =>
-    new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' },
-    }))
+  const onForbidden =
+    options.onForbidden ??
+    (() =>
+      new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      }))
 
   const hooks = createHooks<PermixHooks<D>>()
 
@@ -52,16 +60,17 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>
   ): Middleware {
     return async (req, next) => {
-      const rules = typeof callbackOrRules === 'function'
-        ? await callbackOrRules({ req, next })
-        : callbackOrRules
+      const rules =
+        typeof callbackOrRules === 'function'
+          ? await callbackOrRules({ req, next })
+          : callbackOrRules
       const instance = createPermixCore<D>(rules)
-      instance.hook('check', context => hooks.callHook('check', context))
+      instance.hook('check', (context) => hooks.callHook('check', context))
       ;(req as any)[resolveKey()] = instance
-      return next()
+      return await next()
     }
   }
 
@@ -79,7 +88,7 @@ function buildPermix<D extends Definition>(
         return await onForbidden({ req, next, ...createCheckContext(...args) })
       }
 
-      return next()
+      return await next()
     }
   }
 

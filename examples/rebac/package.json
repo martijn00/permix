@@ -1,10 +1,10 @@
 {
   "name": "rebac",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "dev": "tsx src/index.ts"
   },
   "dependencies": {
     "permix": "workspace:*"

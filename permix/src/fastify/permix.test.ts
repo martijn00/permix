@@ -1,6 +1,7 @@
-import type { ValidateDefinition } from '../core'
 import Fastify from 'fastify'
 import { describe, expect, it } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { PermixNotFoundError } from '../core'
 import { createPermix } from './permix'
 
@@ -15,7 +16,7 @@ type PermissionsDefinition = ValidateDefinition<{
 }>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create', type: Post }]
+  post: [{ name: 'create'; type: Post }]
 }>
 
 describe('createPermix', () => {
@@ -29,10 +30,12 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: false, update: false },
-      user: { delete: false },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
       reply.send({ success: true })
@@ -46,10 +49,12 @@ describe('createPermix', () => {
   it('should deny access when permission is not granted', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
     app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
       reply.send({ success: true })
@@ -69,10 +74,12 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
     app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
       reply.send({ success: true })
@@ -92,10 +99,12 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
     app.post('/posts', { preHandler: permix.checkMiddleware('post.create') }, (req, reply) => {
       reply.send({ success: true })
@@ -111,13 +120,19 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: post => post?.authorId === '1' },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: (post) => post?.authorId === '1' },
+      })
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }) }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }) },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
@@ -129,14 +144,20 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: true, update: false },
-      user: { delete: true },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: false },
+        user: { delete: true },
+      })
+    )
 
-    app.post('/posts', { preHandler: permix.checkMiddleware(c => c('post.create') && c('user.delete')) }, (req, reply) => {
-      reply.send({ success: true })
-    })
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware((c) => c('post.create') && c('user.delete')) },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
 
     const response = await app.inject({ method: 'POST', url: '/posts' })
     expect(response.statusCode).toBe(200)
@@ -189,14 +210,18 @@ describe('createPermix', () => {
 
     const app = Fastify()
 
-    await app.register(admin.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
-    await app.register(guest.setupMiddleware({
-      post: { create: false, read: true, update: false },
-      user: { delete: false },
-    }))
+    await app.register(
+      admin.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
+    await app.register(
+      guest.setupMiddleware({
+        post: { create: false, read: true, update: false },
+        user: { delete: false },
+      })
+    )
 
     app.post('/admin', { preHandler: admin.checkMiddleware('post.create') }, (req, reply) => {
       reply.send({ scope: 'admin' })
@@ -233,10 +258,12 @@ describe('get / getOrThrow', () => {
   it('should return the instance when setupMiddleware has run', async () => {
     const app = Fastify()
 
-    await app.register(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    await app.register(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
     app.get('/', (req, reply) => {
       reply.send({ hasCheck: typeof permix.getOrThrow(req).check === 'function' })

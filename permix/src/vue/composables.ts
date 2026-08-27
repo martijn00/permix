@@ -1,5 +1,6 @@
-import type { Definition, Permix, Rules } from '../core'
 import { computed } from 'vue'
+
+import type { Definition, Permix, Rules } from '../core'
 import { createCheck } from '../core'
 import { usePermixContext } from './context'
 

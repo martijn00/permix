@@ -46,8 +46,8 @@ interface Doc {
 const permix = createPermix<{
   doc: [
     'read',
-    { name: 'update', type: Doc, required: true },
-    { name: 'delete', type: Doc, required: true },
+    { name: 'update'; type: Doc; required: true },
+    { name: 'delete'; type: Doc; required: true },
   ]
 }>()
 
@@ -64,7 +64,7 @@ permix.setup({
 const myDoc = { id: 'doc-1', authorId: 'user-1' }
 const otherDoc = { id: 'doc-2', authorId: 'user-2' }
 
-permix.check('doc.update', myDoc)    // true
+permix.check('doc.update', myDoc) // true
 permix.check('doc.update', otherDoc) // false
 ```
 
@@ -87,10 +87,7 @@ interface User {
 }
 
 const permix = createPermix<{
-  doc: [
-    { name: 'read', type: Doc, required: true },
-    { name: 'update', type: Doc, required: true },
-  ]
+  doc: [{ name: 'read'; type: Doc; required: true }, { name: 'update'; type: Doc; required: true }]
 }>()
 
 function setupForUser(me: User) {
@@ -108,9 +105,9 @@ setupForUser(alice)
 const teamDoc = { id: 'doc-1', authorId: 'bob', teamId: 'team-a' }
 const otherTeamDoc = { id: 'doc-2', authorId: 'charlie', teamId: 'team-b' }
 
-permix.check('doc.read', teamDoc)      // true — same team
+permix.check('doc.read', teamDoc) // true — same team
 permix.check('doc.read', otherTeamDoc) // false — different team
-permix.check('doc.update', teamDoc)    // false — alice is not the author
+permix.check('doc.update', teamDoc) // false — alice is not the author
 ```
 
 You can extract this into a reusable [template](/docs/guide/template):
@@ -156,9 +153,9 @@ function hasShare(docId: string, userId: string, minLevel: ShareLevel): boolean 
 
 const permix = createPermix<{
   doc: [
-    { name: 'read', type: Doc, required: true },
-    { name: 'update', type: Doc, required: true },
-    { name: 'admin', type: Doc, required: true },
+    { name: 'read'; type: Doc; required: true },
+    { name: 'update'; type: Doc; required: true },
+    { name: 'admin'; type: Doc; required: true },
   ]
 }>()
 
@@ -193,5 +190,9 @@ permix.check((c) => c('doc.read', doc) || c('doc.admin', doc))
 ## When to reach for something else
 
 <Callout>
-The closure pattern works well when the relation data is **already in memory** at `setup()` or `check()` time. If your relations require async lookups from a database on every check, or you need a graph traversal engine (e.g. hierarchical folder permissions), the pattern above may become cumbersome. Follow [this issue](https://github.com/letstri/permix/issues/25) for updates on first-class ReBAC support in a future version.
+  The closure pattern works well when the relation data is **already in memory** at `setup()` or
+  `check()` time. If your relations require async lookups from a database on every check, or you
+  need a graph traversal engine (e.g. hierarchical folder permissions), the pattern above may become
+  cumbersome. Follow [this issue](https://github.com/letstri/permix/issues/25) for updates on
+  first-class ReBAC support in a future version.
 </Callout>

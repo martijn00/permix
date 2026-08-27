@@ -8,7 +8,8 @@ description: Learn how to use Permix with Vue applications
 Permix provides official Vue integration through the `PermixProvider` component and `usePermix` composable. This allows you to manage permissions reactively in your Vue app.
 
 <Callout>
-Before getting started with Vue integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Vue integration, make sure you've completed the initial setup steps in
+  the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -51,7 +52,8 @@ createApp({
 ```
 
 <Callout>
-Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` composable to maintain type safety.
+  Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix`
+  composable to maintain type safety.
 </Callout>
 
 </Step>
@@ -97,9 +99,7 @@ And then you can use the `Check` component in your templates:
   -->
   <Check path="entity.action" :data="data" reverse>
     Will show this if a user has permission
-    <template #otherwise>
-      Will show this if a user doesn't have permission
-    </template>
+    <template #otherwise> Will show this if a user doesn't have permission </template>
   </Check>
 </template>
 ```
@@ -133,9 +133,7 @@ const { check, isReady } = usePermix(permix)
     </template>
     <Check path="post.edit" :data="props.post">
       Can I edit this post?
-      <template #otherwise>
-        You don't have permission to edit this post
-      </template>
+      <template #otherwise> You don't have permission to edit this post </template>
     </Check>
   </div>
 </template>

@@ -25,19 +25,19 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Key files
 
-| File | Purpose |
-|------|---------|
-| `src/lib/permix.ts` | Permission definition, TanStack Start helper, router-context instance |
-| `src/start.ts` | Per-request setup via `createSetupHandler()` in an app-owned `.server()` boundary |
-| `src/router.tsx` | Puts the Permix instance on the router context |
-| `src/server/permix.ts` | `getRootLoaderData()` — dehydrate for the client |
-| `src/server/posts.ts` | Server functions with `getOrThrow(context)` checks and `checkMiddleware` |
-| `src/lib/use-permix.ts` | `usePermix()` reading the instance from the router context |
-| `src/providers.tsx` | React provider + client rule setup for function-based checks |
-| `src/routes/__root.tsx` | Root `beforeLoad` — hydrates the router-context instance |
-| `src/routes/index.tsx` | Home page with server-side permission badges |
-| `src/routes/admin.tsx` | Route guarded by `context.permix.check()` in `beforeLoad` |
-| `src/routes/posts.$id.tsx` | Route guarded by `post.read` on the server |
+| File                       | Purpose                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `src/lib/permix.ts`        | Permission definition, TanStack Start helper, router-context instance             |
+| `src/start.ts`             | Per-request setup via `createSetupHandler()` in an app-owned `.server()` boundary |
+| `src/router.tsx`           | Puts the Permix instance on the router context                                    |
+| `src/server/permix.ts`     | `getRootLoaderData()` — dehydrate for the client                                  |
+| `src/server/posts.ts`      | Server functions with `getOrThrow(context)` checks and `checkMiddleware`          |
+| `src/lib/use-permix.ts`    | `usePermix()` reading the instance from the router context                        |
+| `src/providers.tsx`        | React provider + client rule setup for function-based checks                      |
+| `src/routes/__root.tsx`    | Root `beforeLoad` — hydrates the router-context instance                          |
+| `src/routes/index.tsx`     | Home page with server-side permission badges                                      |
+| `src/routes/admin.tsx`     | Route guarded by `context.permix.check()` in `beforeLoad`                         |
+| `src/routes/posts.$id.tsx` | Route guarded by `post.read` on the server                                        |
 
 ## Docs
 

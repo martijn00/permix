@@ -1,11 +1,18 @@
 import type { Context, MiddlewareHandler } from 'hono'
+import { createMiddleware } from 'hono/factory'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import { createMiddleware } from 'hono/factory'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 export interface MiddlewareContext {
   c: Context
@@ -27,7 +34,7 @@ function keyToString(key: string | symbol): string {
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
   const onForbidden = options.onForbidden ?? (({ c }) => c.json({ error: 'Forbidden' }, 403))
 
@@ -47,14 +54,13 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>
   ): MiddlewareHandler {
     return createMiddleware(async (c, next) => {
-      const rules = typeof callbackOrRules === 'function'
-        ? await callbackOrRules({ c })
-        : callbackOrRules
+      const rules =
+        typeof callbackOrRules === 'function' ? await callbackOrRules({ c }) : callbackOrRules
       const instance = createPermixCore<D>(rules)
-      instance.hook('check', context => hooks.callHook('check', context))
+      instance.hook('check', (context) => hooks.callHook('check', context))
       c.set(keyToString(resolveKey()), instance)
       await next()
     })

@@ -12,18 +12,18 @@ When you change public API behavior, docs examples, or integration patterns, kee
 
 ## Repository layout
 
-| Path | Purpose |
-|------|---------|
-| `permix/` | Published npm package (`permix`); build inside this folder |
-| `permix/src/core/` | Core API (`createPermix`, `setup`, `check`, `template`, `merge`, events) |
-| `permix/src/<framework>/` | Adapters (`react`, `vue`, `express`, `trpc`, `next`, …) |
-| `docs/` | Documentation site (Fumadocs + TanStack Start) |
-| `docs/content/docs/` | MDX documentation pages |
-| `docs/src/routes/` | App routes; homepage code samples in `docs/src/routes/-code/` |
-| `examples/` | Runnable sample apps — reference when validating integrations |
-| `permix/skills/` | Agent skills shipped in the npm package (TanStack Intent) |
-| `skills/permix` | Symlink → `permix/skills/` for monorepo-root discovery and CI |
-| `_artifacts/` | Intent domain map, skill spec, and skill tree for CI staleness |
+| Path                      | Purpose                                                                  |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `permix/`                 | Published npm package (`permix`); build inside this folder               |
+| `permix/src/core/`        | Core API (`createPermix`, `setup`, `check`, `template`, `merge`, events) |
+| `permix/src/<framework>/` | Adapters (`react`, `vue`, `express`, `trpc`, `next`, …)                  |
+| `docs/`                   | Documentation site (Fumadocs + TanStack Start)                           |
+| `docs/content/docs/`      | MDX documentation pages                                                  |
+| `docs/src/routes/`        | App routes; homepage code samples in `docs/src/routes/-code/`            |
+| `examples/`               | Runnable sample apps — reference when validating integrations            |
+| `permix/skills/`          | Agent skills shipped in the npm package (TanStack Intent)                |
+| `skills/permix`           | Symlink → `permix/skills/` for monorepo-root discovery and CI            |
+| `_artifacts/`             | Intent domain map, skill spec, and skill tree for CI staleness           |
 
 Docs site: https://permix.letstri.dev — machine-readable exports: `/llms.txt` and `/llms-full.txt` on the docs app.
 
@@ -35,6 +35,8 @@ From repo root (pnpm workspace: `permix`, `docs`, `examples/*`):
 pnpm install
 pnpm test && pnpm run check-types
 pnpm run lint
+pnpm run format
+pnpm run format:check
 cd permix && pnpm run build
 cd docs && pnpm dev          # http://localhost:3000
 cd docs && pnpm types:check  # fumadocs-mdx + tsc for docs only

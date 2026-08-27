@@ -1,9 +1,10 @@
+import { cache } from 'react'
+
 import type { Permix as PermixCore } from '../core'
+import { createPermix as createPermixCore, createTemplate } from '../core'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { DehydratedState } from '../core/rules'
-import { cache } from 'react'
-import { createPermix as createPermixCore, createTemplate } from '../core'
 
 /**
  * Create a per-request Permix instance for Next.js App Router.

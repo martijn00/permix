@@ -8,7 +8,8 @@ description: Learn how to use Permix with Express
 Permix provides middleware for Express that allows you to easily check permissions in your routes. The middleware can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with Express integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with Express integration, make sure you've completed the initial setup
+  steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -36,27 +37,30 @@ const app = express()
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
   ]
 }>()
 
 // Set up the middleware with your permission rules
-app.use(permix.setupMiddleware(({ req }) => {
-  // You can access req.user or other properties to determine permissions
-  return {
-    post: {
-      create: true,
-      read: true,
-      update: false
+app.use(
+  permix.setupMiddleware(({ req }) => {
+    // You can access req.user or other properties to determine permissions
+    return {
+      post: {
+        create: true,
+        read: true,
+        update: false,
+      },
     }
-  }
-}))
+  })
+)
 ```
 
 <Callout>
-The middleware preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+  The middleware preserves full type safety from your Permix definition, ensuring your permission
+  checks are type-safe.
 </Callout>
 
 </Step>
@@ -73,9 +77,13 @@ app.post('/posts', permix.checkMiddleware('post.create'), (req, res) => {
 })
 
 // Check multiple actions
-app.put('/posts/:id', permix.checkMiddleware(c => c('post.read') && c('post.update')), (req, res) => {
-  res.json({ success: true })
-})
+app.put(
+  '/posts/:id',
+  permix.checkMiddleware((c) => c('post.read') && c('post.update')),
+  (req, res) => {
+    res.json({ success: true })
+  }
+)
 
 // Check all actions
 app.delete('/posts/:id', permix.checkMiddleware('post.~all'), (req, res) => {
@@ -126,25 +134,27 @@ const adminTemplate = permix.template({
   post: {
     create: true,
     read: true,
-    update: true
-  }
+    update: true,
+  },
 })
 
 // Use the template in your middleware
-app.use(permix.setupMiddleware(({ req }) => {
-  // You can still customize the template based on request data
-  if (req.user?.role === 'admin') {
-    return adminTemplate()
-  }
-
-  return {
-    post: {
-      create: false,
-      read: true,
-      update: false
+app.use(
+  permix.setupMiddleware(({ req }) => {
+    // You can still customize the template based on request data
+    if (req.user?.role === 'admin') {
+      return adminTemplate()
     }
-  }
-}))
+
+    return {
+      post: {
+        create: false,
+        read: true,
+        update: false,
+      },
+    }
+  })
+)
 ```
 
 </Step>
@@ -163,7 +173,7 @@ const permix = createPermix<Definition>({
     res.status(403).json({
       error: 'Custom forbidden message',
     })
-  }
+  },
 })
 ```
 
@@ -184,11 +194,12 @@ const permix = createPermix<Definition>({
     res.status(403).json({
       error: 'You do not have permission to perform this action',
     })
-  }
+  },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `req`: Express Request object
 - `res`: Express Response object
 - `path`: The permission path that was checked (or `null` for callback checks)
@@ -201,18 +212,20 @@ The `onForbidden` handler receives:
 You can use async functions in your permission setup:
 
 ```ts
-app.use(permix.setupMiddleware(async ({ req }) => {
-  // Fetch user permissions from database
-  const userPermissions = await getUserPermissions(req.user.id)
+app.use(
+  permix.setupMiddleware(async ({ req }) => {
+    // Fetch user permissions from database
+    const userPermissions = await getUserPermissions(req.user.id)
 
-  return {
-    post: {
-      create: userPermissions.canCreatePosts,
-      read: userPermissions.canReadPosts,
-      update: userPermissions.canUpdatePosts
+    return {
+      post: {
+        create: userPermissions.canCreatePosts,
+        read: userPermissions.canReadPosts,
+        update: userPermissions.canUpdatePosts,
+      },
     }
-  }
-}))
+  })
+)
 ```
 
 ### Dynamic Data-Based Permissions

@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, onBeforeMount, onMounted, ref } from 'vue'
+
 import { createPermix } from '../core'
 import { usePermix } from './composables'
 import { mountWithPermix } from './test-utils'
@@ -14,7 +15,9 @@ describe('composables', () => {
     const TestWrapper = defineComponent({
       template: '<div></div>',
       setup() {
-        expect(() => usePermix(permix)).toThrow('[Permix]: Looks like you forgot to wrap your app with <PermixProvider>')
+        expect(() => usePermix(permix)).toThrow(
+          '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
+        )
         return {}
       },
     })
@@ -55,12 +58,12 @@ describe('composables', () => {
 
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     permix.setup({
       post: {
-        create: post => post?.id === '1',
+        create: (post) => post?.id === '1',
         read: false,
       },
     })
@@ -88,7 +91,7 @@ describe('composables', () => {
 
     permix.setup({
       post: {
-        create: post => post?.id === '2',
+        create: (post) => post?.id === '2',
         read: true,
       },
     })

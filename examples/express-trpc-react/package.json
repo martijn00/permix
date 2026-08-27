@@ -1,12 +1,12 @@
 {
   "name": "express-trpc-react",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "tsx server/main.ts",
     "check-types": "tsc --noEmit",
+    "dev:client": "vite",
     "dev:server": "tsx watch server/main.ts",
-    "dev:client": "vite"
+    "start": "tsx server/main.ts"
   },
   "dependencies": {
     "@trpc/client": "^11.17.0",

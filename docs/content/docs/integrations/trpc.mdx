@@ -8,7 +8,8 @@ description: Learn how to use Permix with tRPC
 Permix provides a middleware for tRPC that allows you to easily check permissions in your procedures. The middleware can be created using the `createPermix` function.
 
 <Callout>
-Before getting started with tRPC integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with tRPC integration, make sure you've completed the initial setup steps
+  in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -55,15 +56,17 @@ const protectedProcedure = t.procedure.use(({ ctx, next }) => {
         create: true,
         read: true,
         update: isAdmin,
-        delete: isAdmin
-      }
-    })
+        delete: isAdmin,
+      },
+    }),
   })
 })
 ```
 
 <Callout>
-Call `.contextKey('name')` on the returned builder to set a custom context key — its literal type is inferred automatically. Omit it to use the default key `'permix'`. Pass `onForbidden` as an option to `createPermix` itself.
+  Call `.contextKey('name')` on the returned builder to set a custom context key — its literal type
+  is inferred automatically. Omit it to use the default key `'permix'`. Pass `onForbidden` as an
+  option to `createPermix` itself.
 </Callout>
 
 </Step>
@@ -84,7 +87,7 @@ const router = t.router({
     }),
 
   updatePost: protectedProcedure
-    .use(permix.checkMiddleware(c => c('post.read') && c('post.update')))
+    .use(permix.checkMiddleware((c) => c('post.read') && c('post.update')))
     .mutation(({ input }) => {
       // Update post logic here
       return { success: true }
@@ -109,22 +112,22 @@ Permix is automatically added to your tRPC context under the key you specified, 
 
 ```ts
 const router = t.router({
-  getPosts: protectedProcedure
-    .query(({ ctx }) => {
-      // Check permissions manually
-      if (ctx.permissions.check('post.read')) {
-        return getAllPosts()
-      }
+  getPosts: protectedProcedure.query(({ ctx }) => {
+    // Check permissions manually
+    if (ctx.permissions.check('post.read')) {
+      return getAllPosts()
+    }
 
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have permission to read posts'
-      })
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'You do not have permission to read posts',
     })
+  }),
 })
 ```
 
 The `ctx.permissions` object provides:
+
 - `check`: Synchronously check a permission
 - `dehydrate`: Serialize the current rules for client hydration
 - `template`: Create reusable permission templates
@@ -144,8 +147,8 @@ const adminTemplate = permix.template({
     create: true,
     read: true,
     update: true,
-    delete: true
-  }
+    delete: true,
+  },
 })
 
 // Create a template for regular user permissions
@@ -154,18 +157,14 @@ const userTemplate = permix.template({
     create: true,
     read: true,
     update: false,
-    delete: false
-  }
+    delete: false,
+  },
 })
 
 // Use templates in your middleware
 const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   return next({
-    ctx: permix.setupContext(
-      ctx.user.role === 'admin'
-        ? adminTemplate()
-        : userTemplate()
-    ),
+    ctx: permix.setupContext(ctx.user.role === 'admin' ? adminTemplate() : userTemplate()),
   })
 })
 ```
@@ -205,6 +204,7 @@ const permix = createPermix<Definition>({
 ```
 
 The `onForbidden` handler receives:
+
 - `path`: The permission path that was checked (e.g. `'post.create'`)
 - `data`: Optional data passed to the check
 - `ctx`: Your tRPC context object
@@ -226,9 +226,9 @@ const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
         create: userPermissions.canCreatePosts,
         read: userPermissions.canReadPosts,
         update: userPermissions.canUpdatePosts,
-        delete: userPermissions.canDeletePosts
-      }
-    })
+        delete: userPermissions.canDeletePosts,
+      },
+    }),
   })
 })
 ```

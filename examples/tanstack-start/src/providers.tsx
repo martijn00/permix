@@ -1,8 +1,9 @@
 import type { DehydratedState } from 'permix'
-import type { Session } from '@/lib/auth'
-import type { PermissionsDefinition, PermixInstance } from '@/lib/permix'
 import { PermixHydrate, PermixProvider } from 'permix/react'
 import { useLayoutEffect } from 'react'
+
+import type { Session } from '@/lib/auth'
+import type { PermissionsDefinition, PermixInstance } from '@/lib/permix'
 import { createClientRules } from '@/lib/permix'
 
 function ClientRulesSetup({

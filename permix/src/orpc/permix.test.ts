@@ -1,8 +1,9 @@
-import type { ValidateDefinition } from '../core'
 import { ORPCError, os } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
+
+import type { ValidateDefinition } from '../core'
 import { createPermix } from './permix'
 
 interface Context {
@@ -80,15 +81,14 @@ describe('createPermix', () => {
   })
 
   it('should allow access when permission is defined', async () => {
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: true, read: true, update: true },
-            user: { delete: true },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: true, read: true, update: true },
+          user: { delete: true },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
@@ -109,28 +109,25 @@ describe('createPermix', () => {
   })
 
   it('should allow access by context', async () => {
-    const protectedMiddleware = orpcPermix
-      .use(({ context, next }) => {
-        return next({
-          context: permix.setupContext({
-            post: {
-              create: context.user.id === '1',
-              read: context.user.id === '1',
-              update: context.user.id === '1',
-            },
-            user: {
-              delete: context.user.id === '1',
-            },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ context, next }) => {
+      return next({
+        context: permix.setupContext({
+          post: {
+            create: context.user.id === '1',
+            read: context.user.id === '1',
+            update: context.user.id === '1',
+          },
+          user: {
+            delete: context.user.id === '1',
+          },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
-      createPost: protectedMiddleware
-        .use(permix.checkMiddleware('post.create'))
-        .handler(() => {
-          return { success: true }
-        }),
+      createPost: protectedMiddleware.use(permix.checkMiddleware('post.create')).handler(() => {
+        return { success: true }
+      }),
     })
 
     const handler = new RPCHandler(router)
@@ -149,22 +146,19 @@ describe('createPermix', () => {
   })
 
   it('should deny access when permission is not granted', async () => {
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: false, read: false, update: false },
-            user: { delete: false },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: false, read: false, update: false },
+          user: { delete: false },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
-      createPost: protectedMiddleware
-        .use(permix.checkMiddleware('post.create'))
-        .handler(() => {
-          return { success: true }
-        }),
+      createPost: protectedMiddleware.use(permix.checkMiddleware('post.create')).handler(() => {
+        return { success: true }
+      }),
     })
 
     const handler = new RPCHandler(router)
@@ -184,22 +178,19 @@ describe('createPermix', () => {
       },
     })
 
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: false, read: false, update: false },
-            user: { delete: false },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: false, read: false, update: false },
+          user: { delete: false },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
-      createPost: protectedMiddleware
-        .use(permix.checkMiddleware('post.create'))
-        .handler(() => {
-          return { success: true }
-        }),
+      createPost: protectedMiddleware.use(permix.checkMiddleware('post.create')).handler(() => {
+        return { success: true }
+      }),
     })
 
     const handler = new RPCHandler(router)
@@ -223,22 +214,19 @@ describe('createPermix', () => {
       onForbidden: ({ next }) => next(),
     }).contextKey('someCustomName')
 
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: false, read: false, update: false },
-            user: { delete: false },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: false, read: false, update: false },
+          user: { delete: false },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
-      createPost: protectedMiddleware
-        .use(permix.checkMiddleware('post.create'))
-        .handler(() => {
-          return { success: true }
-        }),
+      createPost: protectedMiddleware.use(permix.checkMiddleware('post.create')).handler(() => {
+        return { success: true }
+      }),
     })
 
     const handler = new RPCHandler(router)
@@ -251,19 +239,18 @@ describe('createPermix', () => {
   })
 
   it('should chain multiple permissions', async () => {
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: true, read: true, update: true },
-            user: { delete: true },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: true, read: true, update: true },
+          user: { delete: true },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
       createAndReadPost: protectedMiddleware
-        .use(permix.checkMiddleware(c => c('post.create') && c('post.read')))
+        .use(permix.checkMiddleware((c) => c('post.create') && c('post.read')))
         .handler(() => {
           return { success: true }
         }),
@@ -279,22 +266,23 @@ describe('createPermix', () => {
   })
 
   it('should save types for context and input', async () => {
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: permix.setupContext({
-            post: { create: true, read: true, update: true },
-            user: { delete: true },
-          }),
-        })
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
+          post: { create: true, read: true, update: true },
+          user: { delete: true },
+        }),
       })
+    })
 
     const router = orpcPermix.router({
       createAndReadPost: protectedMiddleware
         .use(permix.checkMiddleware('post.read'))
-        .input(z.object({
-          userId: z.string(),
-        }))
+        .input(
+          z.object({
+            userId: z.string(),
+          })
+        )
         .handler(({ context, input }) => {
           return {
             // @ts-expect-error user.id is string
@@ -306,11 +294,14 @@ describe('createPermix', () => {
     })
 
     const handler = new RPCHandler(router)
-    const result = await handler.handle(createRequest('/createAndReadPost', {
-      json: { userId: '1' },
-    }), {
-      context: { user: { id: '1' } },
-    })
+    const result = await handler.handle(
+      createRequest('/createAndReadPost', {
+        json: { userId: '1' },
+      }),
+      {
+        context: { user: { id: '1' } },
+      }
+    )
 
     expect(await result.response?.json()).toEqual({
       json: {
@@ -362,13 +353,14 @@ describe('createPermix', () => {
   it('should work with default key', async () => {
     const permix = createPermix<Def>()
 
-    const protectedMiddleware = orpcPermix
-      .use(({ next }) => {
-        return next({ context: permix.setupContext({
+    const protectedMiddleware = orpcPermix.use(({ next }) => {
+      return next({
+        context: permix.setupContext({
           post: { create: true, read: true, update: true },
           user: { delete: true },
-        }) })
+        }),
       })
+    })
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
@@ -389,15 +381,14 @@ describe('createPermix', () => {
     const admin = createPermix<Def>().contextKey('admin')
     const guest = createPermix<Def>().contextKey('guest')
 
-    const withAdmin = orpcPermix
-      .use(({ next }) => {
-        return next({
-          context: admin.setupContext({
-            post: { create: true, read: true, update: true },
-            user: { delete: true },
-          }),
-        })
+    const withAdmin = orpcPermix.use(({ next }) => {
+      return next({
+        context: admin.setupContext({
+          post: { create: true, read: true, update: true },
+          user: { delete: true },
+        }),
       })
+    })
 
     // Using admin's checkMiddleware after admin's setupContext is fine
     withAdmin.use(admin.checkMiddleware('post.create'))

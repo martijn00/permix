@@ -1,5 +1,6 @@
 import { createPermix } from 'permix'
 import { createComponents } from 'permix/react'
+
 import { getUser } from './user'
 
 // Define permix instance with feature flags
@@ -35,9 +36,7 @@ export const regularUserFeatures = permix.template({
 export async function setupFeatureFlags() {
   const user = await getUser()
 
-  const featureConfig = user.isBetaUser
-    ? betaUserFeatures()
-    : regularUserFeatures()
+  const featureConfig = user.isBetaUser ? betaUserFeatures() : regularUserFeatures()
 
   permix.setup(featureConfig)
 }

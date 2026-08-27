@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix, PermixRuleNotDefinedError } from '../core'
 import { createComponents, PermixHydrate, PermixProvider } from './components'
 import { usePermix } from './composables'
@@ -25,7 +26,7 @@ describe('components', () => {
     }>()
 
     const TestComponent = {
-      template: '<div>{{ check(\'post.create\') }}</div>',
+      template: "<div>{{ check('post.create') }}</div>",
       setup() {
         const { check } = usePermix(permixClient)
         return { check }
@@ -83,12 +84,12 @@ describe('components', () => {
 
   it('should work with Check component and data', () => {
     const permix = createPermix<{
-      post: [{ name: 'edit', type: { authorId: string } }]
+      post: [{ name: 'edit'; type: { authorId: string } }]
     }>()
 
     permix.setup({
       post: {
-        edit: post => post?.authorId === '1',
+        edit: (post) => post?.authorId === '1',
       },
     })
 
@@ -224,7 +225,7 @@ describe('components', () => {
     expect(wrapper.html()).not.toContain(otherwiseText)
   })
 
-  it('shouldn\'t accept invalid props', () => {
+  it("shouldn't accept invalid props", () => {
     const permix = createPermix<{
       post: ['create']
     }>()

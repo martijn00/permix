@@ -7,8 +7,9 @@ description: Learn how to use the `isReady()` method to check if permissions are
 
 Sometimes you need to know when permissions are ready to use. For example, you might want to wait for permissions to be ready before rendering a component. That's where the `isReady()` and `isReadyAsync()` methods come in.
 
-<Callout type="warn">
-`hydrate()` alone does **not** make the instance ready. You must call `setup()` after hydration to restore function-based rules and mark the instance as ready.
+<Callout type='warn'>
+  `hydrate()` alone does **not** make the instance ready. You must call `setup()` after hydration to
+  restore function-based rules and mark the instance as ready.
 </Callout>
 
 ## Usage
@@ -30,8 +31,8 @@ console.log(permix.isReady()) // false
 permix.setup({
   post: {
     create: true,
-    read: true
-  }
+    read: true,
+  },
 })
 
 console.log(permix.isReady()) // true
@@ -60,7 +61,8 @@ async function init() {
 This is particularly useful in SSR applications when using function-based permissions, since the dehydration process converts all function permissions to `false` until they are properly rehydrated on the client.
 
 <Callout>
-Read more about [hydration](/docs/guide/hydration) to learn how to transfer permissions from the server to the client.
+  Read more about [hydration](/docs/guide/hydration) to learn how to transfer permissions from the
+  server to the client.
 </Callout>
 
 ```ts
@@ -68,12 +70,12 @@ Read more about [hydration](/docs/guide/hydration) to learn how to transfer perm
 import { createPermix } from 'permix'
 
 const serverPermix = createPermix<{
-  post: [{ name: 'read', type: { isPublic: boolean } }]
+  post: [{ name: 'read'; type: { isPublic: boolean } }]
 }>()
 
 serverPermix.setup({
   post: {
-    read: post => !!post?.isPublic,
+    read: (post) => !!post?.isPublic,
   },
 })
 
@@ -82,7 +84,7 @@ const state = serverPermix.dehydrate()
 
 // Client instance (separate from the server)
 const clientPermix = createPermix<{
-  post: [{ name: 'read', type: { isPublic: boolean } }]
+  post: [{ name: 'read'; type: { isPublic: boolean } }]
 }>()
 
 clientPermix.hydrate(state)
@@ -94,7 +96,7 @@ console.log(clientPermix.check('post.read')) // false
 // Restore function-based rules and mark the instance ready
 clientPermix.setup({
   post: {
-    read: post => !!post?.isPublic,
+    read: (post) => !!post?.isPublic,
   },
 })
 
@@ -103,5 +105,7 @@ console.log(clientPermix.check('post.read', { isPublic: true })) // true
 ```
 
 <Callout>
-The `ready` event fires **once** on the first `setup()` (or when initial rules are passed to `createPermix`). Register `permix.hook('ready', ...)` before that first `setup()` if you need to react to readiness — not after a later `setup()` on an already-ready instance.
+  The `ready` event fires **once** on the first `setup()` (or when initial rules are passed to
+  `createPermix`). Register `permix.hook('ready', ...)` before that first `setup()` if you need to
+  react to readiness — not after a later `setup()` on an already-ready instance.
 </Callout>

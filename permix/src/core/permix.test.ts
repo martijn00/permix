@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+
 import { PermixNotReadyError, PermixRuleNotDefinedError } from './errors'
 import { createPermix } from './permix'
 
@@ -42,7 +43,7 @@ describe('createPermix', () => {
     } as never)
 
     expect(() => permix.check('post.create')).toThrow(
-      expect.objectContaining({ path: 'post.create', name: 'PermixRuleNotDefinedError' }),
+      expect.objectContaining({ path: 'post.create', name: 'PermixRuleNotDefinedError' })
     )
   })
 
@@ -55,7 +56,7 @@ describe('createPermix', () => {
     })
 
     expect(() => permix.check('post.create')).toThrow(
-      expect.objectContaining({ path: 'post.create', name: 'PermixRuleNotDefinedError' }),
+      expect.objectContaining({ path: 'post.create', name: 'PermixRuleNotDefinedError' })
     )
   })
 
@@ -77,19 +78,18 @@ describe('createPermix', () => {
   })
 
   it('should validate permission for entity with data callback', () => {
-    interface Post { authorId: string }
+    interface Post {
+      authorId: string
+    }
 
     const permix = createPermix<{
-      post: [
-        'read',
-        { name: 'create', type: Post },
-      ]
+      post: ['read', { name: 'create'; type: Post }]
     }>()
 
     permix.setup({
       post: {
         read: true,
-        create: post => post?.authorId === '1',
+        create: (post) => post?.authorId === '1',
       },
     })
 
@@ -99,17 +99,17 @@ describe('createPermix', () => {
   })
 
   it('should require data argument when action declares required: true', () => {
-    interface Post { authorId: string }
+    interface Post {
+      authorId: string
+    }
 
     const permix = createPermix<{
-      post: [
-        { name: 'create', type: Post, required: true },
-      ]
+      post: [{ name: 'create'; type: Post; required: true }]
     }>()
 
     permix.setup({
       post: {
-        create: post => post.authorId === '1',
+        create: (post) => post.authorId === '1',
       },
     })
 
@@ -172,7 +172,10 @@ describe('createPermix', () => {
     const ONE_PATH: typeof permix.$inferPath = 'user.create'
     expect(ONE_PATH).toBe('user.create')
 
-    const AVAILABLE_PERMISSIONS = ['user.create', 'job.remove'] satisfies typeof permix.$inferPath[]
+    const AVAILABLE_PERMISSIONS = [
+      'user.create',
+      'job.remove',
+    ] satisfies (typeof permix.$inferPath)[]
     expect(AVAILABLE_PERMISSIONS).toEqual(['user.create', 'job.remove'])
 
     // @ts-expect-error 'user.unknown' is not a valid permission path
@@ -354,10 +357,7 @@ describe('deep rules', () => {
 
   it('should work with callback and per-action data', () => {
     const permix = createPermix<{
-      user: [
-        'read',
-        { name: 'write', type: { authorId: string }, required: true },
-      ]
+      user: ['read', { name: 'write'; type: { authorId: string }; required: true }]
       workspace: {
         customer: ['write']
         guest: ['write']
@@ -367,7 +367,7 @@ describe('deep rules', () => {
     permix.setup({
       user: {
         read: true,
-        write: data => data.authorId === '1',
+        write: (data) => data.authorId === '1',
       },
       workspace: {
         customer: {
@@ -382,11 +382,11 @@ describe('deep rules', () => {
     expect(permix.check('user.read')).toBe(true)
     expect(permix.check('user.write', { authorId: '1' })).toBe(true)
     expect(permix.check('user.write', { authorId: '2' })).toBe(false)
-    expect(permix.check(c => c('user.read'))).toBe(true)
-    expect(permix.check(c => c('user.read') && c('user.write', { authorId: '1' }))).toBe(true)
-    expect(permix.check(c => c('user.write', { authorId: '1' }))).toBe(true)
-    expect(permix.check(c => c('user.write', { authorId: '2' }))).toBe(false)
-    expect(permix.check(c => c('workspace.customer.write'))).toBe(true)
+    expect(permix.check((c) => c('user.read'))).toBe(true)
+    expect(permix.check((c) => c('user.read') && c('user.write', { authorId: '1' }))).toBe(true)
+    expect(permix.check((c) => c('user.write', { authorId: '1' }))).toBe(true)
+    expect(permix.check((c) => c('user.write', { authorId: '2' }))).toBe(false)
+    expect(permix.check((c) => c('workspace.customer.write'))).toBe(true)
   })
 
   describe('hydration', () => {
@@ -479,14 +479,12 @@ describe('deep rules', () => {
 
     it('should evaluate data rules without check data when dehydrating', () => {
       const permix = createPermix<{
-        user: [
-          { name: 'write', type: { authorId: string }, required: true },
-        ]
+        user: [{ name: 'write'; type: { authorId: string }; required: true }]
       }>()
 
       permix.setup({
         user: {
-          write: data => data.authorId === '1',
+          write: (data) => data.authorId === '1',
         },
       })
 
@@ -689,14 +687,14 @@ describe('deep rules', () => {
 
     it('should call check hook with path and data', () => {
       const permix = createPermix<{
-        post: ['create', { name: 'edit', type: { authorId: string }, required: true }]
+        post: ['create', { name: 'edit'; type: { authorId: string }; required: true }]
       }>()
 
       const fn = vi.fn()
       permix.hook('check', fn)
 
       permix.setup({
-        post: { create: true, edit: post => post.authorId === '1' },
+        post: { create: true, edit: (post) => post.authorId === '1' },
       })
 
       permix.check('post.create')
@@ -716,7 +714,7 @@ describe('deep rules', () => {
 
       permix.setup({ post: { create: true, read: false } })
 
-      permix.check(c => c('post.create') && c('post.read'))
+      permix.check((c) => c('post.create') && c('post.read'))
       expect(fn).toHaveBeenCalledWith({ path: null })
     })
 

@@ -12,6 +12,7 @@ import {
   ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page'
 import { Suspense } from 'react'
+
 import { useMDXComponents } from '@/components/mdx'
 import { SidebarScrollFix } from '@/components/sidebar-scroll'
 import { baseOptions } from '@/lib/layout.shared'
@@ -45,9 +46,9 @@ const clientLoader = browserCollections.docs.createClientLoader({
     }: {
       markdownUrl: string
       path: string
-    },
+    }
   ) {
-    // eslint-disable-next-line react/rules-of-hooks
+    // eslint-disable-next-line rules-of-hooks
     const components = useMDXComponents()
 
     return (
@@ -57,8 +58,8 @@ const clientLoader = browserCollections.docs.createClientLoader({
         full={'full' in frontmatter ? frontmatter.full : undefined}
       >
         <DocsTitle>{frontmatter.title}</DocsTitle>
-        <DocsDescription className="mb-0">{frontmatter.description}</DocsDescription>
-        <div className="-mt-4 flex flex-row items-center gap-2 border-b pb-6">
+        <DocsDescription className='mb-0'>{frontmatter.description}</DocsDescription>
+        <div className='-mt-4 flex flex-row items-center gap-2 border-b pb-6'>
           <MarkdownCopyButton markdownUrl={markdownUrl} />
           <ViewOptionsPopover
             markdownUrl={markdownUrl}

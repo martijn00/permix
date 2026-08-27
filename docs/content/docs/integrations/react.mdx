@@ -8,7 +8,8 @@ description: Learn how to use Permix with React applications
 Permix provides official React integration through the `PermixProvider` component and `usePermix` hook. This allows you to manage permissions reactively in your React app.
 
 <Callout>
-Before getting started with React integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with React integration, make sure you've completed the initial setup steps
+  in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -33,7 +34,8 @@ function App() {
 ```
 
 <Callout>
-Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook to maintain type safety.
+  Remember to always pass the same Permix instance to both the `PermixProvider` and `usePermix` hook
+  to maintain type safety.
 </Callout>
 
 </Step>
@@ -75,7 +77,7 @@ And then you can use the `Check` component in your components:
 export default function Page() {
   return (
     <Check
-      path="entity.action"
+      path='entity.action'
       data={data}
       otherwise={<p>Will show this if a user doesn't have permission</p>}
       reverse
@@ -111,14 +113,8 @@ export default function Page() {
 
   return (
     <div>
-      {canEdit ? (
-        <button>Edit Post</button>
-      ) : (
-        <p>You don't have permission to edit this post</p>
-      )}
-      <Check path="post.create">
-        Can I create a post inside the Check component?
-      </Check>
+      {canEdit ? <button>Edit Post</button> : <p>You don't have permission to edit this post</p>}
+      <Check path='post.create'>Can I create a post inside the Check component?</Check>
     </div>
   )
 }

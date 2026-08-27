@@ -1,6 +1,7 @@
 import type { InjectionKey, Ref } from 'vue'
-import type { Definition, Permix, Rules } from '../core'
 import { inject, provide, ref } from 'vue'
+
+import type { Definition, Permix, Rules } from '../core'
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>
@@ -12,7 +13,9 @@ const PERMIX_CONTEXT_KEY = Symbol('vue-permix') as InjectionKey<Ref<PermixContex
 
 export function providePermixContext(permix: Permix<any>) {
   if (!permix) {
-    throw new Error('[Permix]: Looks like you forgot to provide the permix instance to PermixProvider')
+    throw new Error(
+      '[Permix]: Looks like you forgot to provide the permix instance to PermixProvider'
+    )
   }
 
   const context = ref({

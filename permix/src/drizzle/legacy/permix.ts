@@ -1,6 +1,7 @@
 import type { Table } from 'drizzle-orm'
-import type { Permix as PermixCore } from '../../core'
 import { Table as DrizzleTable, is } from 'drizzle-orm'
+
+import type { Permix as PermixCore } from '../../core'
 import { createPermix as createPermixCore } from '../../core'
 import { PermixInvalidActionsError } from '../errors'
 
@@ -30,8 +31,7 @@ export type DrizzleDefinition<
   [K in DrizzleTableKeys<S>]: [...Actions]
 }
 
-export type ActionMap<Actions extends readonly string[]>
-  = Partial<Record<Actions[number], boolean>>
+export type ActionMap<Actions extends readonly string[]> = Partial<Record<Actions[number], boolean>>
 
 export interface CreateDrizzlePermixOptions<Actions extends readonly string[]> {
   /**
@@ -46,10 +46,9 @@ export interface CreateDrizzlePermixOptions<Actions extends readonly string[]> {
 /**
  * Extends the core Permix API with Drizzle-specific metadata.
  */
-export interface DrizzlePermix<
-  S,
-  Actions extends readonly string[],
-> extends PermixCore<DrizzleDefinition<S, Actions>> {
+export interface DrizzlePermix<S, Actions extends readonly string[]> extends PermixCore<
+  DrizzleDefinition<S, Actions>
+> {
   /**
    * The list of action names that were generated for every table.
    */
@@ -94,10 +93,7 @@ export interface DrizzlePermix<
 export function createPermix<
   S extends Record<string, unknown>,
   const Actions extends readonly string[] = readonly DefaultDrizzleAction[],
->(
-  schema: S,
-  options: CreateDrizzlePermixOptions<Actions> = {},
-): DrizzlePermix<S, Actions> {
+>(schema: S, options: CreateDrizzlePermixOptions<Actions> = {}): DrizzlePermix<S, Actions> {
   const actions = (options.actions ?? DEFAULT_DRIZZLE_ACTIONS) as unknown as Actions
 
   if (!Array.isArray(actions) || actions.length === 0) {
@@ -112,7 +108,7 @@ export function createPermix<
 
   const permix = createPermixCore<D>()
 
-  return Object.assign(permix, { actions, tables }) as DrizzlePermix<S, Actions>
+  return Object.assign(permix, { actions, tables })
 }
 
 /** Return type of {@link createPermix}. */

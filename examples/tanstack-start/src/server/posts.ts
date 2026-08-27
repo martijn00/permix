@@ -1,5 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+
 import { permix } from '@/lib/permix'
 import { getPost, getPosts } from '@/lib/posts'
 
@@ -11,7 +12,7 @@ export const getHomePageData = createServerFn().handler(async ({ context }) => {
     posts,
     canCreate: instance.check('post.create'),
     canReadFirst: instance.check('post.read', posts[0]),
-    postChecks: posts.map(post => ({
+    postChecks: posts.map((post) => ({
       id: post.id,
       canUpdate: instance.check('post.update', post),
       canDelete: instance.check('post.delete', post),

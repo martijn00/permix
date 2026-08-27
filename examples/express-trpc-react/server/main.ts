@@ -1,10 +1,11 @@
-import type { PermissionsDefinition } from '@/shared/permix'
 import { initTRPC, TRPCError } from '@trpc/server'
 import * as trpcExpress from '@trpc/server/adapters/express'
 import cors from 'cors'
 import express from 'express'
 import { createPermix } from 'permix/trpc'
 import { z } from 'zod'
+
+import type { PermissionsDefinition } from '@/shared/permix'
 import { getRules } from '@/shared/permix'
 
 const app = express()
@@ -52,10 +53,12 @@ export const appRouter = router({
     ]),
   userWrite: publicProcedure
     .use(permix.checkMiddleware('user.create'))
-    .input(z.object({
-      name: z.string(),
-      email: z.email(),
-    }))
+    .input(
+      z.object({
+        name: z.string(),
+        email: z.email(),
+      })
+    )
     .mutation(() => {
       // Imagine this is a database mutation
       return { id: '1', name: 'John Doe', email: 'john.doe@example.com' }
@@ -71,7 +74,7 @@ app.use(
     createContext: () => ({
       extraInfo: 'some extra info',
     }),
-  }),
+  })
 )
 app.listen(3000, () => {
   console.log('Server is running on port 3000')

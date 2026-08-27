@@ -12,7 +12,8 @@ This integration is designed to plug directly into [srvx](https://srvx.h3.dev) â
 </Callout>
 
 <Callout>
-Before getting started with the server integration, make sure you've completed the initial setup steps in the [Quick Start](/docs/quick-start) guide.
+  Before getting started with the server integration, make sure you've completed the initial setup
+  steps in the [Quick Start](/docs/quick-start) guide.
 </Callout>
 
 <Steps>
@@ -37,10 +38,10 @@ interface Post {
 // Create your Permix instance
 const permix = createPermix<{
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
 }>()
 
@@ -68,7 +69,8 @@ serve({
 ```
 
 <Callout>
-The middleware preserves full type safety from your Permix definition, ensuring your permission checks are type-safe.
+  The middleware preserves full type safety from your Permix definition, ensuring your permission
+  checks are type-safe.
 </Callout>
 
 </Step>
@@ -81,14 +83,10 @@ Use the `checkMiddleware` function to enforce a permission in your handler:
 
 ```ts
 serve({
-  middleware: [
-    permix.setupMiddleware({ /* ... */ }),
-  ],
+  middleware: [permix.setupMiddleware({/* ... */})],
   fetch(req) {
     // Check a single path
-    return permix.checkMiddleware('post.create')(req, () =>
-      Response.json({ success: true }),
-    )
+    return permix.checkMiddleware('post.create')(req, () => Response.json({ success: true }))
   },
 })
 ```
@@ -103,7 +101,7 @@ permix.checkMiddleware('post.create')
 permix.checkMiddleware('post.update', post)
 
 // Compose multiple checks with a callback
-permix.checkMiddleware(c => c('post.read') && c('post.update'))
+permix.checkMiddleware((c) => c('post.read') && c('post.update'))
 ```
 
 If the check passes, `next()` is called. If it fails, the middleware short-circuits with the response from `onForbidden` (a 403 JSON response by default).
@@ -186,8 +184,7 @@ By default, the middleware returns a 403 Forbidden response with `{ "error": "Fo
 
 ```ts
 const permix = createPermix<Definition>({
-  onForbidden: () =>
-    Response.json({ error: 'Custom forbidden message' }, { status: 403 }),
+  onForbidden: () => Response.json({ error: 'Custom forbidden message' }, { status: 403 }),
 })
 ```
 
@@ -199,21 +196,19 @@ You can also provide a handler that returns different responses based on the pat
 const permix = createPermix<Definition>({
   onForbidden: ({ req, path, data }) => {
     if (path === 'post.create') {
-      return Response.json(
-        { error: `You don't have permission for ${path}` },
-        { status: 403 },
-      )
+      return Response.json({ error: `You don't have permission for ${path}` }, { status: 403 })
     }
 
     return Response.json(
       { error: 'You do not have permission to perform this action' },
-      { status: 403 },
+      { status: 403 }
     )
   },
 })
 ```
 
 The `onForbidden` handler receives:
+
 - `req`: the incoming web-standard `Request`
 - `next`: the downstream handler â€” call it to let the request through anyway
 - `path`: the permission path that was checked (e.g. `'post.create'`)
@@ -286,9 +281,7 @@ const setup = permix.setupMiddleware({
 export default {
   fetch(req: Request) {
     return setup(req, () =>
-      permix.checkMiddleware('post.create')(req, () =>
-        Response.json({ ok: true }),
-      ),
+      permix.checkMiddleware('post.create')(req, () => Response.json({ ok: true }))
     )
   },
 }

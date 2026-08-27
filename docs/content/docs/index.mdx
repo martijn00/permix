@@ -17,9 +17,9 @@ if (user.role === 'admin') {
 Later, I started using [CASL](https://casl.js.org) for permissions management in a [Vue](https://vuejs.org/) application.
 
 ```ts
-can('read', ['Post', 'Comment']);
-can('manage', 'Post', { author: 'me' });
-can('create', 'Comment');
+can('read', ['Post', 'Comment'])
+can('manage', 'Post', { author: 'me' })
+can('create', 'Comment')
 ```
 
 But time goes on, CASL becomes older, and developers' needs grow, especially for type-safe libraries. Unfortunately, CASL couldn't satisfy my type validation needs and so I started thinking again about writing my own validation solution. But this time I wanted to make it as a library, as I already had experience with open-source.
@@ -46,7 +46,7 @@ const permix = createPermix<{
 permix.setup({
   post: {
     read: true,
-  }
+  },
 })
 
 const canReadPost = permix.check('post.read') // true
@@ -79,15 +79,15 @@ interface Comment {
 // Create definition to describe your permissions
 type PermissionsDefinition = {
   post: [
-    { name: 'create', type: Post },
-    { name: 'read', type: Post },
-    { name: 'update', type: Post },
-    { name: 'delete', type: Post },
+    { name: 'create'; type: Post },
+    { name: 'read'; type: Post },
+    { name: 'update'; type: Post },
+    { name: 'delete'; type: Post },
   ]
   comment: [
-    { name: 'create', type: Comment },
-    { name: 'read', type: Comment },
-    { name: 'update', type: Comment },
+    { name: 'create'; type: Comment },
+    { name: 'read'; type: Comment },
+    { name: 'update'; type: Comment },
   ]
 }
 
@@ -98,8 +98,8 @@ const editorPermissions = permix.template({
   post: {
     create: true,
     read: true,
-    update: post => !post?.published,
-    delete: post => !post?.published,
+    update: (post) => !post?.published,
+    delete: (post) => !post?.published,
   },
   comment: {
     create: false,
@@ -118,7 +118,7 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
   comment: {
     create: true,
     read: true,
-    update: comment => comment?.authorId === userId,
+    update: (comment) => comment?.authorId === userId,
   },
 }))
 
@@ -175,15 +175,15 @@ What are the benefits of using Permix?
 
 ## Core concepts
 
-| Topic | Guide |
-| --- | --- |
-| Schema and instance API | [Instance](/docs/guide/instance) |
-| Assigning rules | [Setup](/docs/guide/setup) |
-| Checking permissions | [Check](/docs/guide/check) |
-| Role presets | [Template](/docs/guide/template) |
-| SSR transfer | [Hydration](/docs/guide/hydration) |
-| Async bootstrap | [Ready state](/docs/guide/ready) |
-| Permission change hooks | [Events](/docs/guide/events) |
+| Topic                   | Guide                              |
+| ----------------------- | ---------------------------------- |
+| Schema and instance API | [Instance](/docs/guide/instance)   |
+| Assigning rules         | [Setup](/docs/guide/setup)         |
+| Checking permissions    | [Check](/docs/guide/check)         |
+| Role presets            | [Template](/docs/guide/template)   |
+| SSR transfer            | [Hydration](/docs/guide/hydration) |
+| Async bootstrap         | [Ready state](/docs/guide/ready)   |
+| Permission change hooks | [Events](/docs/guide/events)       |
 
 ## Ready?
 

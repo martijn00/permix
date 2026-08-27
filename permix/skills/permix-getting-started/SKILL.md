@@ -121,7 +121,7 @@ Dynamic template (parameters):
 ```ts
 const forUser = permix.template((user: User) => ({
   post: {
-    update: post => post.authorId === user.id,
+    update: (post) => post.authorId === user.id,
   },
 }))
 

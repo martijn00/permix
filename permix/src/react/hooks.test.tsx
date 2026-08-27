@@ -1,6 +1,7 @@
 import { render, renderHook, waitFor } from '@testing-library/react'
 import * as React from 'react'
 import { describe, expect, it } from 'vitest'
+
 import { createPermix } from '../core'
 import { PermixProvider, usePermix } from './index'
 import '@testing-library/jest-dom/vitest'
@@ -21,9 +22,7 @@ describe('permix react', () => {
     const usePermissions = () => usePermix(permix)
 
     const { result } = renderHook(() => usePermissions(), {
-      wrapper: ({ children }) => (
-        <PermixProvider permix={permix}>{children}</PermixProvider>
-      ),
+      wrapper: ({ children }) => <PermixProvider permix={permix}>{children}</PermixProvider>,
     })
 
     expect(result.current.check('post.create')).toBe(true)
@@ -32,12 +31,12 @@ describe('permix react', () => {
 
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     permix.setup({
       post: {
-        create: post => post?.id === '1',
+        create: (post) => post?.id === '1',
         read: false,
       },
     })
@@ -49,8 +48,8 @@ describe('permix react', () => {
 
       return (
         <div>
-          <span data-testid="create">{check('post.create', post).toString()}</span>
-          <span data-testid="read">{check('post.read').toString()}</span>
+          <span data-testid='create'>{check('post.create', post).toString()}</span>
+          <span data-testid='read'>{check('post.read').toString()}</span>
         </div>
       )
     }
@@ -58,7 +57,7 @@ describe('permix react', () => {
     const { getByTestId } = render(
       <PermixProvider permix={permix}>
         <TestComponent />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(getByTestId('create')).toHaveTextContent('true')
@@ -66,7 +65,7 @@ describe('permix react', () => {
 
     permix.setup({
       post: {
-        create: post => post?.id === '2',
+        create: (post) => post?.id === '2',
         read: true,
       },
     })
@@ -90,7 +89,7 @@ describe('permix react', () => {
     const { container } = render(
       <PermixProvider permix={permix}>
         <TestComponent />
-      </PermixProvider>,
+      </PermixProvider>
     )
 
     expect(container.firstChild).toHaveTextContent('false')
@@ -109,7 +108,7 @@ describe('permix react', () => {
 
   it('should throw error when PermixProvider is missing', () => {
     const permix = createPermix<{
-      post: [{ name: 'create', type: { id: string } }, 'read']
+      post: [{ name: 'create'; type: { id: string } }, 'read']
     }>()
 
     const TestComponent = () => {

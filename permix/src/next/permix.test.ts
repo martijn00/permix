@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+
 import { createPermix } from './permix'
 
 // React's `cache()` only memoizes within a Next.js request scope (backed by
@@ -15,8 +16,7 @@ vi.mock('react', async () => {
       const store = new Map<string, ReturnType<T>>()
       return ((...args: Parameters<T>) => {
         const key = JSON.stringify(args)
-        if (!store.has(key))
-          store.set(key, fn(...args))
+        if (!store.has(key)) store.set(key, fn(...args))
         return store.get(key)!
       }) as T
     },
@@ -160,7 +160,7 @@ describe('next createPermix', () => {
 
   it('supports parameterized templates', () => {
     const permix = createPermix<{
-      post: [{ name: 'edit', type: { authorId: string } }]
+      post: [{ name: 'edit'; type: { authorId: string } }]
     }>()
 
     const template = permix.template((userId: string) => ({

@@ -4,8 +4,7 @@ import { permix, setupForUser } from './permix'
 function assert(label: string, actual: boolean, expected: boolean) {
   const status = actual === expected ? 'PASS' : 'FAIL'
   console.log(`  [${status}] ${label}: ${actual} (expected ${expected})`)
-  if (actual !== expected)
-    process.exitCode = 1
+  if (actual !== expected) process.exitCode = 1
 }
 
 // --- Scenario 1: Ownership ---
@@ -48,13 +47,13 @@ console.log('\n--- Composite check ---')
 setupForUser(alice)
 assert(
   'alice can read OR admin doc-1 (callback)',
-  permix.check(c => c('doc.read', doc1) || c('doc.admin', doc1)),
-  true,
+  permix.check((c) => c('doc.read', doc1) || c('doc.admin', doc1)),
+  true
 )
 assert(
   'alice can read AND admin doc-1 (callback)',
-  permix.check(c => c('doc.read', doc1) && c('doc.admin', doc1)),
-  true,
+  permix.check((c) => c('doc.read', doc1) && c('doc.admin', doc1)),
+  true
 )
 
 console.log('\nDone.')

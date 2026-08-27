@@ -3,6 +3,7 @@
 import { relations } from 'drizzle-orm/_relations'
 import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+
 import { PermixRuleNotDefinedError } from '../../core/errors'
 import { createPermix } from './permix'
 
@@ -14,7 +15,9 @@ const users = pgTable('users', {
 const posts = pgTable('posts', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
-  authorId: integer('author_id').notNull().references(() => users.id),
+  authorId: integer('author_id')
+    .notNull()
+    .references(() => users.id),
 })
 
 const usersRelations = relations(users, ({ many }) => ({
@@ -61,6 +64,8 @@ describe('drizzle createPermix', () => {
     const permix = createPermix(schema)
 
     expectTypeOf(permix.tables).toEqualTypeOf<('users' | 'posts')[]>()
-    expectTypeOf(permix.actions).toEqualTypeOf<readonly ('create' | 'read' | 'update' | 'delete')[]>()
+    expectTypeOf(permix.actions).toEqualTypeOf<
+      readonly ('create' | 'read' | 'update' | 'delete')[]
+    >()
   })
 })

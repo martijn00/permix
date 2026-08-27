@@ -1,11 +1,23 @@
-import type { FastifyPluginAsync, FastifyReply, FastifyRequest, preHandlerHookHandler } from 'fastify'
+import type {
+  FastifyPluginAsync,
+  FastifyReply,
+  FastifyRequest,
+  preHandlerHookHandler,
+} from 'fastify'
+import fp from 'fastify-plugin'
+
 import type { Permix as PermixCore } from '../core'
+import {
+  createCheckContext,
+  createHooks,
+  createPermix as createPermixCore,
+  createTemplate,
+  PermixNotFoundError,
+} from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
 import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 import type { MaybePromise } from '../utils'
-import fp from 'fastify-plugin'
-import { createCheckContext, createHooks, createPermix as createPermixCore, createTemplate, PermixNotFoundError } from '../core'
 
 let pluginCounter = 0
 
@@ -24,11 +36,13 @@ export interface PermixOptions<D extends Definition> {
 
 function buildPermix<D extends Definition>(
   resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {},
+  options: PermixOptions<D> = {}
 ) {
-  const onForbidden = options.onForbidden ?? (({ reply }) => {
-    reply.status(403).send({ error: 'Forbidden' })
-  })
+  const onForbidden =
+    options.onForbidden ??
+    (({ reply }) => {
+      reply.status(403).send({ error: 'Forbidden' })
+    })
 
   const pluginName = `permix-${pluginCounter++}`
 
@@ -38,8 +52,7 @@ function buildPermix<D extends Definition>(
     try {
       const instance = request.getDecorator<PermixCore<D> | undefined>(resolveKey())
       return instance ?? null
-    }
-    catch {
+    } catch {
       return null
     }
   }
@@ -53,23 +66,27 @@ function buildPermix<D extends Definition>(
   }
 
   function setupMiddleware(
-    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>,
+    callbackOrRules: ((context: MiddlewareContext) => MaybePromise<Rules<D>>) | Rules<D>
   ): FastifyPluginAsync {
-    return fp(async (fastify) => {
-      fastify.decorateRequest(resolveKey(), null)
+    return fp(
+      async (fastify) => {
+        fastify.decorateRequest(resolveKey(), null)
 
-      fastify.addHook('onRequest', async (request, reply) => {
-        const rules = typeof callbackOrRules === 'function'
-          ? await callbackOrRules({ request, reply })
-          : callbackOrRules
-        const instance = createPermixCore<D>(rules)
-        instance.hook('check', context => hooks.callHook('check', context))
-        request.setDecorator(resolveKey(), instance)
-      })
-    }, {
-      fastify: '5.x',
-      name: pluginName,
-    })
+        fastify.addHook('onRequest', async (request, reply) => {
+          const rules =
+            typeof callbackOrRules === 'function'
+              ? await callbackOrRules({ request, reply })
+              : callbackOrRules
+          const instance = createPermixCore<D>(rules)
+          instance.hook('check', (context) => hooks.callHook('check', context))
+          request.setDecorator(resolveKey(), instance)
+        })
+      },
+      {
+        fastify: '5.x',
+        name: pluginName,
+      }
+    )
   }
 
   const checkMiddleware: (...args: CheckArgs<D>) => preHandlerHookHandler = (...args) => {

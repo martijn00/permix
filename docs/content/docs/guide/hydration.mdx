@@ -7,8 +7,10 @@ description: Learn how to hydrate and dehydrate permissions in your application
 
 Hydration is the process of converting server-side state into client-side state. In Permix, hydration allows you to serialize permissions on the server and restore them on the client.
 
-<Callout type="warn">
-Note that function-based permissions will be converted to `false` during dehydration since functions cannot be serialized to JSON. You should call `setup` method on the client side after hydration to fully restore function-based permissions.
+<Callout type='warn'>
+  Note that function-based permissions will be converted to `false` during dehydration since
+  functions cannot be serialized to JSON. You should call `setup` method on the client side after
+  hydration to fully restore function-based permissions.
 </Callout>
 
 ## Usage
@@ -23,8 +25,8 @@ import { createPermix } from 'permix'
 
 const permix = createPermix<{
   post: [
-    { name: 'create', type: { isPublic: boolean } },
-    { name: 'read', type: { isPublic: boolean } },
+    { name: 'create'; type: { isPublic: boolean } },
+    { name: 'read'; type: { isPublic: boolean } },
   ]
 }>()
 
@@ -32,8 +34,8 @@ const permix = createPermix<{
 permix.setup({
   post: {
     create: true,
-    read: post => !!post?.isPublic
-  }
+    read: (post) => !!post?.isPublic,
+  },
 })
 
 // Dehydrate permissions to JSON
@@ -50,7 +52,8 @@ permix.check('post.read', { isPublic: true }) // false — function became false
 ```
 
 <Callout>
-`dehydrate()` throws `PermixNotReadyError` if you call it before `setup()` (or without initial rules).
+  `dehydrate()` throws `PermixNotReadyError` if you call it before `setup()` (or without initial
+  rules).
 </Callout>
 
 ## Server-Side Rendering
@@ -72,8 +75,8 @@ app.get('/', (req, res) => {
   permix.setup({
     post: {
       create: true,
-      read: true
-    }
+      read: true,
+    },
   })
 
   // Dehydrate permissions for client

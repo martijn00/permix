@@ -2,6 +2,7 @@ import * as icons from '@remixicon/react'
 import { docs } from 'collections/server'
 import { loader } from 'fumadocs-core/source'
 import { createElement } from 'react'
+
 import { docsRoute, siteUrl } from './shared'
 
 export const source = loader({
@@ -37,8 +38,7 @@ export function slugsToMarkdownPath(slugs: string[]) {
   const segments = [...slugs]
   if (segments.length === 0) {
     segments.push('index.md')
-  }
-  else {
+  } else {
     segments[segments.length - 1] += '.md'
   }
 

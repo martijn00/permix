@@ -1,9 +1,16 @@
+import { Context, Effect, Layer } from 'effect'
+
 import type { PermixNotReadyError, PermixRuleNotDefinedError } from '../core'
+import { createPermix as createPermixCore, createTemplate } from '../core'
 import type { CheckArgs } from '../core/check'
 import type { Definition } from '../core/definitions'
-import type { DehydratedState, Permix as PermixCore, PermixHooks, Rules, RulesPaths } from '../core/permix'
-import { Context, Effect, Layer } from 'effect'
-import { createPermix as createPermixCore, createTemplate } from '../core'
+import type {
+  DehydratedState,
+  Permix as PermixCore,
+  PermixHooks,
+  Rules,
+  RulesPaths,
+} from '../core/permix'
 
 export interface PermixOptions {
   /**
@@ -33,61 +40,67 @@ export function createPermix<D extends Definition>(options: PermixOptions = {}) 
   }
 
   function layerSetup<E, R>(rules: Effect.Effect<Rules<D>, E, R>) {
-    return Layer.effect(Tag, Effect.map(rules, r => createPermixCore<D>(r)))
+    return Layer.effect(
+      Tag,
+      Effect.map(rules, (r) => createPermixCore<D>(r))
+    )
   }
 
   function setup(rules: Rules<D>) {
-    return Effect.map(Tag, instance => instance.setup(rules))
+    return Effect.map(Tag, (instance) => instance.setup(rules))
   }
 
   function check(...args: CheckArgs<D>) {
-    return Effect.flatMap(
-      Tag,
-      instance => Effect.try({
+    return Effect.flatMap(Tag, (instance) =>
+      Effect.try({
         try: () => instance.check(...args),
-        catch: e => e as PermixNotReadyError | PermixRuleNotDefinedError,
-      }),
+        catch: (e) => e as PermixNotReadyError | PermixRuleNotDefinedError,
+      })
     )
   }
 
   function dehydrate() {
-    return Effect.flatMap(
-      Tag,
-      instance => Effect.try({
+    return Effect.flatMap(Tag, (instance) =>
+      Effect.try({
         try: () => instance.dehydrate(),
-        catch: e => e as PermixNotReadyError,
-      }),
+        catch: (e) => e as PermixNotReadyError,
+      })
     )
   }
 
   function hydrate(state: DehydratedState<D>) {
-    return Effect.flatMap(
-      Tag,
-      instance => Effect.try({
+    return Effect.flatMap(Tag, (instance) =>
+      Effect.try({
         try: () => instance.hydrate(state),
-        catch: e => e as PermixNotReadyError,
-      }),
+        catch: (e) => e as PermixNotReadyError,
+      })
     )
   }
 
   function isReady() {
-    return Effect.map(Tag, instance => instance.isReady())
+    return Effect.map(Tag, (instance) => instance.isReady())
   }
 
   function isReadyAsync() {
-    return Effect.flatMap(Tag, instance => Effect.promise(() => instance.isReadyAsync()))
+    return Effect.flatMap(Tag, (instance) => Effect.promise(() => instance.isReadyAsync()))
   }
 
   function getRules(): Effect.Effect<Rules<D> | null, never, PermixCore<D>> {
-    return Effect.map(Tag, instance => instance.getRules())
+    return Effect.map(Tag, (instance) => instance.getRules())
   }
 
-  function hook<K extends keyof PermixHooks<D>>(name: K, fn: PermixHooks<D>[K]): Effect.Effect<() => void, never, PermixCore<D>> {
-    return Effect.map(Tag, instance => instance.hook(name, fn))
+  function hook<K extends keyof PermixHooks<D>>(
+    name: K,
+    fn: PermixHooks<D>[K]
+  ): Effect.Effect<() => void, never, PermixCore<D>> {
+    return Effect.map(Tag, (instance) => instance.hook(name, fn))
   }
 
-  function hookOnce<K extends keyof PermixHooks<D>>(name: K, fn: PermixHooks<D>[K]): Effect.Effect<void, never, PermixCore<D>> {
-    return Effect.map(Tag, instance => instance.hookOnce(name, fn))
+  function hookOnce<K extends keyof PermixHooks<D>>(
+    name: K,
+    fn: PermixHooks<D>[K]
+  ): Effect.Effect<void, never, PermixCore<D>> {
+    return Effect.map(Tag, (instance) => instance.hookOnce(name, fn))
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {

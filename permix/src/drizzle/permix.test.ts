@@ -1,6 +1,7 @@
 import { defineRelations } from 'drizzle-orm'
 import { integer, pgTable, pgView, serial, text } from 'drizzle-orm/pg-core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+
 import { PermixRuleNotDefinedError } from '../core/errors'
 import { PermixInvalidActionsError } from './errors'
 import { createPermix } from './permix'
@@ -14,12 +15,14 @@ const users = pgTable('users', {
 const posts = pgTable('posts', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
-  authorId: integer('author_id').notNull().references(() => users.id),
+  authorId: integer('author_id')
+    .notNull()
+    .references(() => users.id),
 })
 
-const activeUsers = pgView('active_users').as(qb => qb.select().from(users))
+const activeUsers = pgView('active_users').as((qb) => qb.select().from(users))
 
-const relations = defineRelations({ users, posts }, r => ({
+const relations = defineRelations({ users, posts }, (r) => ({
   users: { posts: r.many.posts() },
   posts: { author: r.one.users({ from: r.posts.authorId, to: r.users.id }) },
 }))
@@ -88,6 +91,8 @@ describe('drizzle createPermix', () => {
     const permix = createPermix(schema)
 
     expectTypeOf(permix.tables).toEqualTypeOf<('users' | 'posts' | 'activeUsers')[]>()
-    expectTypeOf(permix.actions).toEqualTypeOf<readonly ('create' | 'read' | 'update' | 'delete')[]>()
+    expectTypeOf(permix.actions).toEqualTypeOf<
+      readonly ('create' | 'read' | 'update' | 'delete')[]
+    >()
   })
 })

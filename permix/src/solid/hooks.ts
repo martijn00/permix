@@ -1,5 +1,6 @@
-import type { Definition, Permix, Rules } from '../core'
 import { createContext, useContext } from 'solid-js'
+
+import type { Definition, Permix, Rules } from '../core'
 import { createCheck } from '../core'
 
 export interface PermixContext<T extends Definition> {

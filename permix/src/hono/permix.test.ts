@@ -1,6 +1,7 @@
-import type { ValidateDefinition } from '../core'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
+
+import type { ValidateDefinition } from '../core'
 import { PermixNotFoundError } from '../core'
 import { createPermix } from './permix'
 
@@ -15,7 +16,7 @@ type PermissionsDefinition = ValidateDefinition<{
 }>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create', type: Post }]
+  post: [{ name: 'create'; type: Post }]
 }>
 
 describe('createPermix', () => {
@@ -29,12 +30,14 @@ describe('createPermix', () => {
   it('should allow access when permission is granted', async () => {
     const app = new Hono()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: false, update: false },
-      user: { delete: false },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+    )
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     const res = await app.request('/posts', { method: 'POST' })
     expect(res.status).toBe(200)
@@ -44,12 +47,15 @@ describe('createPermix', () => {
   it('should deny access when permission is not granted', async () => {
     const app = new Hono()
 
-    app.use('*', permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    app.use(
+      '*',
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     const res = await app.request('/posts', { method: 'POST' })
     expect(res.status).toBe(403)
@@ -63,12 +69,15 @@ describe('createPermix', () => {
 
     const app = new Hono()
 
-    app.use('*', permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    app.use(
+      '*',
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     const res = await app.request('/posts', { method: 'POST' })
     expect(res.status).toBe(403)
@@ -77,17 +86,21 @@ describe('createPermix', () => {
 
   it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
-      onForbidden: ({ c, path }) => c.json({ error: `You do not have permission for ${path}` }, 403),
+      onForbidden: ({ c, path }) =>
+        c.json({ error: `You do not have permission for ${path}` }, 403),
     })
 
     const app = new Hono()
 
-    app.use('*', permix.setupMiddleware(() => ({
-      post: { create: false, read: false, update: false },
-      user: { delete: false },
-    })))
+    app.use(
+      '*',
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     const res = await app.request('/posts', { method: 'POST' })
     expect(res.status).toBe(403)
@@ -99,14 +112,14 @@ describe('createPermix', () => {
 
     const app = new Hono()
 
-    app.use(permix.setupMiddleware({
-      post: { create: post => post?.authorId === '1' },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: (post) => post?.authorId === '1' },
+      })
+    )
 
-    app.post(
-      '/posts',
-      permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }),
-      c => c.json({ success: true }),
+    app.post('/posts', permix.checkMiddleware('post.create', { id: 'a', authorId: '1' }), (c) =>
+      c.json({ success: true })
     )
 
     const res = await app.request('/posts', { method: 'POST' })
@@ -117,15 +130,17 @@ describe('createPermix', () => {
   it('should work with checker callback form', async () => {
     const app = new Hono()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: false },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: false },
+        user: { delete: true },
+      })
+    )
 
     app.post(
       '/posts',
-      permix.checkMiddleware(c => c('post.create') && c('user.delete')),
-      c => c.json({ success: true }),
+      permix.checkMiddleware((c) => c('post.create') && c('user.delete')),
+      (c) => c.json({ success: true })
     )
 
     const res = await app.request('/posts', { method: 'POST' })
@@ -143,7 +158,7 @@ describe('createPermix', () => {
 
     app.use(permix.setupMiddleware(() => template()))
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     const res = await app.request('/posts', { method: 'POST' })
     expect(res.status).toBe(200)
@@ -159,7 +174,7 @@ describe('createPermix', () => {
     const app = new Hono()
     app.use(permix.setupMiddleware(() => template()))
 
-    app.get('/dehydrate', c => c.json(permix.getOrThrow(c).dehydrate()))
+    app.get('/dehydrate', (c) => c.json(permix.getOrThrow(c).dehydrate()))
 
     const res = await app.request('/dehydrate')
     expect(res.status).toBe(200)
@@ -175,17 +190,21 @@ describe('createPermix', () => {
 
     const app = new Hono()
 
-    app.use(admin.setupMiddleware(() => ({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    })))
-    app.use(guest.setupMiddleware(() => ({
-      post: { create: false, read: true, update: false },
-      user: { delete: false },
-    })))
+    app.use(
+      admin.setupMiddleware(() => ({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      }))
+    )
+    app.use(
+      guest.setupMiddleware(() => ({
+        post: { create: false, read: true, update: false },
+        user: { delete: false },
+      }))
+    )
 
-    app.post('/admin', admin.checkMiddleware('post.create'), c => c.json({ scope: 'admin' }))
-    app.post('/guest', guest.checkMiddleware('post.create'), c => c.json({ scope: 'guest' }))
+    app.post('/admin', admin.checkMiddleware('post.create'), (c) => c.json({ scope: 'admin' }))
+    app.post('/guest', guest.checkMiddleware('post.create'), (c) => c.json({ scope: 'guest' }))
 
     const adminResponse = await app.request('/admin', { method: 'POST' })
     expect(adminResponse.status).toBe(200)
@@ -202,12 +221,14 @@ describe('createPermix', () => {
 
     const app = new Hono()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
-    app.get('/probe', c => c.json({ attached: permix.get(c) !== null }))
+    app.get('/probe', (c) => c.json({ attached: permix.get(c) !== null }))
 
     const res = await app.request('/probe')
     expect(res.status).toBe(200)
@@ -221,7 +242,7 @@ describe('get / getOrThrow', () => {
   it('should return null when setupMiddleware has not run', async () => {
     const app = new Hono()
 
-    app.get('/', c => c.json({ result: permix.get(c) }))
+    app.get('/', (c) => c.json({ result: permix.get(c) }))
 
     const res = await app.request('/')
     expect(res.status).toBe(200)
@@ -231,10 +252,12 @@ describe('get / getOrThrow', () => {
   it('should return the instance when setupMiddleware has run', async () => {
     const app = new Hono()
 
-    app.use(permix.setupMiddleware({
-      post: { create: true, read: true, update: true },
-      user: { delete: true },
-    }))
+    app.use(
+      permix.setupMiddleware({
+        post: { create: true, read: true, update: true },
+        user: { delete: true },
+      })
+    )
 
     app.get('/', (c) => {
       const p = permix.getOrThrow(c)
@@ -276,7 +299,7 @@ describe('checkMiddleware without setupMiddleware', () => {
 
     const app = new Hono()
 
-    app.post('/posts', permix.checkMiddleware('post.create'), c => c.json({ success: true }))
+    app.post('/posts', permix.checkMiddleware('post.create'), (c) => c.json({ success: true }))
 
     app.onError((err, c) => {
       if (err instanceof PermixNotFoundError) {

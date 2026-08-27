@@ -23,7 +23,7 @@ const permix = createPermix<{
 permix.setup({
   post: {
     read: true,
-  }
+  },
 })
 
 permix.check('post.read') // true
