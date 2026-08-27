@@ -1,15 +1,15 @@
-import { getContext, setContext } from 'svelte';
+import { getContext, setContext } from 'svelte'
 
-import type { Definition, Permix, Rules } from '../core';
-import { createCheck } from '../core';
+import type { Definition, Permix, Rules } from '../core'
+import { createCheck } from '../core'
 
 export interface PermixContext<T extends Definition> {
-  permix: Permix<T>;
-  isReady: boolean;
-  rules: Rules<T> | null;
+  permix: Permix<T>
+  isReady: boolean
+  rules: Rules<T> | null
 }
 
-const PERMIX_CONTEXT_KEY = Symbol('svelte-permix');
+const PERMIX_CONTEXT_KEY = Symbol('svelte-permix')
 
 /**
  * Provides Permix context to the Svelte component tree.
@@ -23,35 +23,35 @@ export function providePermix<T extends Definition>(permix: Permix<T>): void {
     permix,
     isReady: permix.isReady(),
     rules: permix.getRules(),
-  });
+  })
 
-  setContext(PERMIX_CONTEXT_KEY, context);
+  setContext(PERMIX_CONTEXT_KEY, context)
 
   $effect(() => {
     const setup = permix.hook('setup', () => {
-      context.rules = permix.getRules();
-    });
+      context.rules = permix.getRules()
+    })
     const ready = permix.hook('ready', () => {
-      context.isReady = permix.isReady();
-    });
+      context.isReady = permix.isReady()
+    })
 
     return () => {
-      setup();
-      ready();
-    };
-  });
+      setup()
+      ready()
+    }
+  })
 }
 
 export function usePermixContext<T extends Definition>(): PermixContext<T> {
-  const context = getContext<PermixContext<T> | undefined>(PERMIX_CONTEXT_KEY);
+  const context = getContext<PermixContext<T> | undefined>(PERMIX_CONTEXT_KEY)
 
   if (!context) {
     throw new Error(
       '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
-    );
+    )
   }
 
-  return context;
+  return context
 }
 
 /**
@@ -62,15 +62,15 @@ export function usePermixContext<T extends Definition>(): PermixContext<T> {
 export function usePermix<T extends Definition>(
   permix: Pick<Permix<T>, 'getRules' | 'check'>
 ) {
-  const context = usePermixContext<T>();
+  const context = usePermixContext<T>()
 
   const check: Permix<T>['check'] = (...args) =>
-    createCheck<T>(() => context.rules ?? permix.getRules())(...args);
+    createCheck<T>(() => context.rules ?? permix.getRules())(...args)
 
   return {
     check,
     get isReady() {
-      return context.isReady;
+      return context.isReady
     },
-  };
+  }
 }

@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
-import { getRules } from '@/shared/permix';
-import type { RouterOutput } from '@/shared/trpc';
+import { getRules } from '@/shared/permix'
+import type { RouterOutput } from '@/shared/trpc'
 
-import { Check } from './components/permix';
-import { usePermissions } from './hooks/use-permissions';
-import { permix } from './permix';
-import { trpc } from './trpc';
+import { Check } from './components/permix'
+import { usePermissions } from './hooks/use-permissions'
+import { permix } from './permix'
+import { trpc } from './trpc'
 
 export default function App() {
-  const { check, isReady } = usePermissions();
-  const [users, setUsers] = useState<RouterOutput['userList']>([]);
+  const { check, isReady } = usePermissions()
+  const [users, setUsers] = useState<RouterOutput['userList']>([])
 
-  const canReadUser = check('user.read');
+  const canReadUser = check('user.read')
 
   useEffect(() => {
     // Imagine this is a request from the server that gets the user from the request
     const user = {
       role: 'user' as const,
-    };
+    }
 
-    permix.setup(getRules(user.role));
-  }, []);
+    permix.setup(getRules(user.role))
+  }, [])
 
   useEffect(() => {
     if (canReadUser) {
       trpc.userList.query().then((users) => {
-        setUsers(users);
-      });
+        setUsers(users)
+      })
     }
-  }, [canReadUser]);
+  }, [canReadUser])
 
   return (
     <>
@@ -65,5 +65,5 @@ export default function App() {
         </button>
       </Check>
     </>
-  );
+  )
 }

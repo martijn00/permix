@@ -1,10 +1,10 @@
-import { cache } from 'react';
+import { cache } from 'react'
 
-import type { Permix as PermixCore } from '../core';
-import { createPermix as createPermixCore, createTemplate } from '../core';
-import type { Definition } from '../core/definitions';
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
-import type { DehydratedState } from '../core/rules';
+import type { Permix as PermixCore } from '../core'
+import { createPermix as createPermixCore, createTemplate } from '../core'
+import type { Definition } from '../core/definitions'
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+import type { DehydratedState } from '../core/rules'
 
 /**
  * Create a per-request Permix instance for Next.js App Router.
@@ -49,42 +49,42 @@ import type { DehydratedState } from '../core/rules';
 export function createPermix<D extends Definition>() {
   // Per-request isolation: concurrent requests each get their own instance;
   // multiple callers within one request share the same one.
-  const getPermix = cache((): PermixCore<D> => createPermixCore<D>());
+  const getPermix = cache((): PermixCore<D> => createPermixCore<D>())
 
   function setup(rules: Rules<D>): void {
-    getPermix().setup(rules);
+    getPermix().setup(rules)
   }
 
-  const check: PermixCore<D>['check'] = (...args) => getPermix().check(...args);
+  const check: PermixCore<D>['check'] = (...args) => getPermix().check(...args)
 
   function dehydrate(): DehydratedState<D> {
-    return getPermix().dehydrate();
+    return getPermix().dehydrate()
   }
 
   function get(): PermixCore<D> {
-    return getPermix();
+    return getPermix()
   }
 
   function getRules(): Rules<D> | null {
-    return getPermix().getRules();
+    return getPermix().getRules()
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules);
+    return createTemplate<D, T>(rules)
   }
 
   function hook<K extends keyof PermixHooks<D>>(
     name: K,
     fn: PermixHooks<D>[K]
   ) {
-    return getPermix().hook(name, fn);
+    return getPermix().hook(name, fn)
   }
 
   function hookOnce<K extends keyof PermixHooks<D>>(
     name: K,
     fn: PermixHooks<D>[K]
   ) {
-    getPermix().hookOnce(name, fn);
+    getPermix().hookOnce(name, fn)
   }
 
   return {
@@ -98,9 +98,9 @@ export function createPermix<D extends Definition>() {
     hookOnce,
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  };
+  }
 }
 
 export type NextPermix<D extends Definition> = ReturnType<
   typeof createPermix<D>
->;
+>

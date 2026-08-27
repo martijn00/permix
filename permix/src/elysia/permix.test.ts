@@ -1,31 +1,31 @@
-import { Elysia } from 'elysia';
-import { describe, expect, it } from 'vitest';
+import { Elysia } from 'elysia'
+import { describe, expect, it } from 'vitest'
 
-import type { ValidateDefinition } from '../core';
-import { PermixNotFoundError } from '../core';
-import { createPermix } from './permix';
+import type { ValidateDefinition } from '../core'
+import { PermixNotFoundError } from '../core'
+import { createPermix } from './permix'
 
 interface Post {
-  id: string;
-  authorId: string;
+  id: string
+  authorId: string
 }
 
 type PermissionsDefinition = ValidateDefinition<{
-  post: ['create', 'read', 'update'];
-  user: ['delete'];
-}>;
+  post: ['create', 'read', 'update']
+  user: ['delete']
+}>
 
 type PostWithData = ValidateDefinition<{
-  post: [{ name: 'create'; type: Post }];
-}>;
+  post: [{ name: 'create'; type: Post }]
+}>
 
 describe(createPermix, () => {
-  const permix = createPermix<PermissionsDefinition>();
+  const permix = createPermix<PermissionsDefinition>()
 
   it('should throw ts error', () => {
     // @ts-expect-error path does not exist
-    permix.checkMiddleware('post.delete');
-  });
+    permix.checkMiddleware('post.delete')
+  })
 
   it('should allow access when permission is granted', async () => {
     const app = new Elysia()
@@ -37,14 +37,14 @@ describe(createPermix, () => {
       )
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ success: true });
-  });
+    )
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ success: true })
+  })
 
   it('should deny access when permission is not granted', async () => {
     const app = new Elysia()
@@ -56,22 +56,22 @@ describe(createPermix, () => {
       )
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(403);
-    await expect(res.json()).resolves.toStrictEqual({ error: 'Forbidden' });
-  });
+    )
+    expect(res.status).toBe(403)
+    await expect(res.json()).resolves.toStrictEqual({ error: 'Forbidden' })
+  })
 
   it('should work with custom error handler', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ context }) => {
-        context.set.status = 403;
-        return { error: 'Custom error' };
+        context.set.status = 403
+        return { error: 'Custom error' }
       },
-    });
+    })
 
     const app = new Elysia()
       .onBeforeHandle(
@@ -82,22 +82,22 @@ describe(createPermix, () => {
       )
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(403);
-    await expect(res.json()).resolves.toStrictEqual({ error: 'Custom error' });
-  });
+    )
+    expect(res.status).toBe(403)
+    await expect(res.json()).resolves.toStrictEqual({ error: 'Custom error' })
+  })
 
   it('should work with custom error and params', async () => {
     const permix = createPermix<PermissionsDefinition>({
       onForbidden: ({ context, path }) => {
-        context.set.status = 403;
-        return { error: `You do not have permission for ${path}` };
+        context.set.status = 403
+        return { error: `You do not have permission for ${path}` }
       },
-    });
+    })
 
     const app = new Elysia()
       .onBeforeHandle(
@@ -108,19 +108,19 @@ describe(createPermix, () => {
       )
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(403);
+    )
+    expect(res.status).toBe(403)
     await expect(res.json()).resolves.toStrictEqual({
       error: 'You do not have permission for post.create',
-    });
-  });
+    })
+  })
 
   it('should pass data through to a rule callback', async () => {
-    const permix = createPermix<PostWithData>();
+    const permix = createPermix<PostWithData>()
 
     const app = new Elysia()
       .onBeforeHandle(
@@ -133,14 +133,14 @@ describe(createPermix, () => {
           id: 'a',
           authorId: '1',
         }),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ success: true });
-  });
+    )
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ success: true })
+  })
 
   it('should work with checker callback form', async () => {
     const app = new Elysia()
@@ -154,55 +154,55 @@ describe(createPermix, () => {
         beforeHandle: permix.checkMiddleware(
           (c) => c('post.create') && c('user.delete')
         ),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ success: true });
-  });
+    )
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ success: true })
+  })
 
   it('should work with template', async () => {
     const template = permix.template({
       post: { create: true, read: true, update: true },
       user: { delete: true },
-    });
+    })
 
     const app = new Elysia()
       .onBeforeHandle(permix.setupMiddleware(() => template()))
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ success: true });
-  });
+    )
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ success: true })
+  })
 
   it('should dehydrate permissions', async () => {
     const template = permix.template({
       post: { create: true, read: false, update: true },
       user: { delete: false },
-    });
+    })
 
     const app = new Elysia()
       .onBeforeHandle(permix.setupMiddleware(() => template()))
-      .get('/dehydrate', (context) => permix.getOrThrow(context).dehydrate());
+      .get('/dehydrate', (context) => permix.getOrThrow(context).dehydrate())
 
-    const res = await app.handle(new Request('http://localhost/dehydrate'));
-    expect(res.status).toBe(200);
+    const res = await app.handle(new Request('http://localhost/dehydrate'))
+    expect(res.status).toBe(200)
     await expect(res.json()).resolves.toStrictEqual({
       post: { create: true, read: false, update: true },
       user: { delete: false },
-    });
-  });
+    })
+  })
 
   it('should let two factories with different keys coexist on the same context', async () => {
-    const admin = createPermix<PermissionsDefinition>().contextKey('admin');
-    const guest = createPermix<PermissionsDefinition>().contextKey('guest');
+    const admin = createPermix<PermissionsDefinition>().contextKey('admin')
+    const guest = createPermix<PermissionsDefinition>().contextKey('guest')
 
     const app = new Elysia()
       .onBeforeHandle(
@@ -222,38 +222,38 @@ describe(createPermix, () => {
       })
       .post('/guest', () => ({ scope: 'guest' }), {
         beforeHandle: guest.checkMiddleware('post.create'),
-      });
+      })
 
     const adminResponse = await app.handle(
       new Request('http://localhost/admin', { method: 'POST' })
-    );
-    expect(adminResponse.status).toBe(200);
+    )
+    expect(adminResponse.status).toBe(200)
     await expect(adminResponse.json()).resolves.toStrictEqual({
       scope: 'admin',
-    });
+    })
 
     const guestResponse = await app.handle(
       new Request('http://localhost/guest', { method: 'POST' })
-    );
-    expect(guestResponse.status).toBe(403);
+    )
+    expect(guestResponse.status).toBe(403)
     await expect(guestResponse.json()).resolves.toStrictEqual({
       error: 'Forbidden',
-    });
-  });
-});
+    })
+  })
+})
 
 describe('get / getOrThrow', () => {
-  const permix = createPermix<PermissionsDefinition>();
+  const permix = createPermix<PermissionsDefinition>()
 
   it('should return null when setupMiddleware has not run', async () => {
     const app = new Elysia().get('/', (context) => ({
       result: permix.get(context),
-    }));
+    }))
 
-    const res = await app.handle(new Request('http://localhost/'));
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ result: null });
-  });
+    const res = await app.handle(new Request('http://localhost/'))
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ result: null })
+  })
 
   it('should return the instance when setupMiddleware has run', async () => {
     const app = new Elysia()
@@ -265,72 +265,72 @@ describe('get / getOrThrow', () => {
       )
       .get('/', (context) => ({
         hasCheck: typeof permix.getOrThrow(context).check === 'function',
-      }));
+      }))
 
-    const res = await app.handle(new Request('http://localhost/'));
-    expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toStrictEqual({ hasCheck: true });
-  });
+    const res = await app.handle(new Request('http://localhost/'))
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({ hasCheck: true })
+  })
 
   it('getOrThrow should throw PermixNotFoundError when missing', async () => {
     const app = new Elysia()
       .onError(({ error, set }) => {
         if (error instanceof PermixNotFoundError) {
-          set.status = 500;
-          return { error: error.message, name: error.name };
+          set.status = 500
+          return { error: error.message, name: error.name }
         }
-        set.status = 500;
-        return { error: 'unknown' };
+        set.status = 500
+        return { error: 'unknown' }
       })
-      .get('/', (context) => permix.getOrThrow(context));
+      .get('/', (context) => permix.getOrThrow(context))
 
-    const res = await app.handle(new Request('http://localhost/'));
-    expect(res.status).toBe(500);
+    const res = await app.handle(new Request('http://localhost/'))
+    expect(res.status).toBe(500)
     await expect(res.json()).resolves.toStrictEqual({
       error:
         '[Permix]: Instance not found. Please setup the permix instance first.',
       name: 'PermixNotFoundError',
-    });
-  });
-});
+    })
+  })
+})
 
 describe('checkMiddleware without setupMiddleware', () => {
   it('should throw PermixNotFoundError and reach Elysia error handler', async () => {
-    const permix = createPermix<PermissionsDefinition>();
+    const permix = createPermix<PermissionsDefinition>()
 
     const app = new Elysia()
       .onError(({ error, set }) => {
         if (error instanceof PermixNotFoundError) {
-          set.status = 500;
-          return { error: error.message };
+          set.status = 500
+          return { error: error.message }
         }
-        set.status = 500;
-        return { error: 'unknown' };
+        set.status = 500
+        return { error: 'unknown' }
       })
       .post('/posts', () => ({ success: true }), {
         beforeHandle: permix.checkMiddleware('post.create'),
-      });
+      })
 
     const res = await app.handle(
       new Request('http://localhost/posts', { method: 'POST' })
-    );
-    expect(res.status).toBe(500);
+    )
+    expect(res.status).toBe(500)
     await expect(res.json()).resolves.toStrictEqual({
       error:
         '[Permix]: Instance not found. Please setup the permix instance first.',
-    });
-  });
-});
+    })
+  })
+})
 
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
     const permix =
-      createPermix<PermissionsDefinition>().contextKey('custom-key');
-    expect(permix.key).toBe('custom-key');
-  });
+      createPermix<PermissionsDefinition>().contextKey('custom-key')
+    expect(permix.key).toBe('custom-key')
+  })
 
   it('should expose a symbol key when using default', () => {
-    const permix = createPermix<PermissionsDefinition>();
-    expect(permix.key).toBeTypeOf('symbol');
-  });
-});
+    const permix = createPermix<PermissionsDefinition>()
+    expect(permix.key).toBeTypeOf('symbol')
+  })
+})

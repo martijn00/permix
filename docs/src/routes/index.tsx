@@ -1,17 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { createFileRoute } from '@tanstack/react-router'
+import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { HomeLayout } from 'fumadocs-ui/layouts/home'
 
-import { baseOptions } from '@/lib/layout.shared';
+import { baseOptions } from '@/lib/layout.shared'
 
-import InitCode from './-code/init.mdx';
-import SetupCode from './-code/setup.mdx';
-import UsageCode from './-code/usage.mdx';
+import InitCode from './-code/init.mdx'
+import SetupCode from './-code/setup.mdx'
+import UsageCode from './-code/usage.mdx'
 
 export const Route = createFileRoute('/')({
   component: Home,
-});
+})
 
 function Home() {
   return (
@@ -89,5 +89,5 @@ function Home() {
         </div>
       </div>
     </HomeLayout>
-  );
+  )
 }

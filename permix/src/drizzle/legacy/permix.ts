@@ -1,9 +1,9 @@
-import type { Table } from 'drizzle-orm';
-import { Table as DrizzleTable, is } from 'drizzle-orm';
+import type { Table } from 'drizzle-orm'
+import { Table as DrizzleTable, is } from 'drizzle-orm'
 
-import type { Permix as PermixCore } from '../../core';
-import { createPermix as createPermixCore } from '../../core';
-import { PermixInvalidActionsError } from '../errors';
+import type { Permix as PermixCore } from '../../core'
+import { createPermix as createPermixCore } from '../../core'
+import { PermixInvalidActionsError } from '../errors'
 
 /**
  * The default CRUD action set used when no `actions` are provided.
@@ -13,17 +13,17 @@ export const DEFAULT_DRIZZLE_ACTIONS = [
   'read',
   'update',
   'delete',
-] as const;
+] as const
 
-export type DefaultDrizzleAction = (typeof DEFAULT_DRIZZLE_ACTIONS)[number];
+export type DefaultDrizzleAction = (typeof DEFAULT_DRIZZLE_ACTIONS)[number]
 
 /**
  * Keys of `S` whose values are Drizzle `Table` instances.
  * Relations, enums, helpers, and other non-table exports are filtered out.
  */
 export type DrizzleTableKeys<S> = {
-  [K in keyof S]: S[K] extends Table<any> ? K & string : never;
-}[keyof S];
+  [K in keyof S]: S[K] extends Table<any> ? K & string : never
+}[keyof S]
 
 /**
  * Permix {@link Definition} derived from a Drizzle schema, assigning the same
@@ -33,12 +33,12 @@ export type DrizzleDefinition<
   S,
   Actions extends readonly string[] = readonly DefaultDrizzleAction[],
 > = {
-  [K in DrizzleTableKeys<S>]: [...Actions];
-};
+  [K in DrizzleTableKeys<S>]: [...Actions]
+}
 
 export type ActionMap<Actions extends readonly string[]> = Partial<
   Record<Actions[number], boolean>
->;
+>
 
 export interface CreateDrizzlePermixOptions<Actions extends readonly string[]> {
   /**
@@ -47,7 +47,7 @@ export interface CreateDrizzlePermixOptions<Actions extends readonly string[]> {
    *
    * @default ['create', 'read', 'update', 'delete']
    */
-  actions?: Actions;
+  actions?: Actions
 }
 
 /**
@@ -60,12 +60,12 @@ export interface DrizzlePermix<
   /**
    * The list of action names that were generated for every table.
    */
-  readonly actions: Actions;
+  readonly actions: Actions
 
   /**
    * The list of table names that were detected in the supplied schema.
    */
-  readonly tables: DrizzleTableKeys<S>[];
+  readonly tables: DrizzleTableKeys<S>[]
 }
 
 /**
@@ -106,25 +106,25 @@ export function createPermix<
   options: CreateDrizzlePermixOptions<Actions> = {}
 ): DrizzlePermix<S, Actions> {
   const actions = (options.actions ??
-    DEFAULT_DRIZZLE_ACTIONS) as unknown as Actions;
+    DEFAULT_DRIZZLE_ACTIONS) as unknown as Actions
 
   if (!Array.isArray(actions) || actions.length === 0) {
-    throw new PermixInvalidActionsError();
+    throw new PermixInvalidActionsError()
   }
 
   const tables = Object.entries(schema)
     .filter(([, value]) => is(value as object, DrizzleTable))
-    .map(([key]) => key) as DrizzleTableKeys<S>[];
+    .map(([key]) => key) as DrizzleTableKeys<S>[]
 
-  type D = DrizzleDefinition<S, Actions>;
+  type D = DrizzleDefinition<S, Actions>
 
-  const permix = createPermixCore<D>();
+  const permix = createPermixCore<D>()
 
-  return Object.assign(permix, { actions, tables });
+  return Object.assign(permix, { actions, tables })
 }
 
 /** Return type of {@link createPermix}. */
 export type DrizzlePermixInstance<
   S extends Record<string, unknown>,
   Actions extends readonly string[] = readonly DefaultDrizzleAction[],
-> = ReturnType<typeof createPermix<S, Actions>>;
+> = ReturnType<typeof createPermix<S, Actions>>

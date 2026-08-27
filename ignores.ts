@@ -14,4 +14,4 @@ export const ignorePatterns = [
   '**/*.generated.ts',
   'examples/svelte/src/lib/index.ts',
   'pnpm-lock.yaml',
-];
+]

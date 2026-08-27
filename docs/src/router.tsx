@@ -1,8 +1,8 @@
-import { createRouter as createTanStackRouter } from '@tanstack/react-router';
+import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 
-import { NotFound } from '@/components/not-found';
+import { NotFound } from '@/components/not-found'
 
-import { routeTree } from './routeTree.gen';
+import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
   return createTanStackRouter({
@@ -11,5 +11,5 @@ export function getRouter() {
     scrollRestoration: true,
     scrollToTopSelectors: ['#nd-sidebar [data-radix-scroll-area-viewport]'],
     defaultNotFoundComponent: NotFound,
-  });
+  })
 }

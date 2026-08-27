@@ -1,12 +1,12 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js'
 
 export interface User {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 export function useUser() {
-  const [user, setUser] = createSignal<User | null>(null);
+  const [user, setUser] = createSignal<User | null>(null)
 
   createEffect(() => {
     // Simulate a network request
@@ -14,9 +14,9 @@ export function useUser() {
       setUser({
         id: Math.random() < 0.5 ? '1' : '2',
         name: 'John Doe',
-      });
-    });
-  });
+      })
+    })
+  })
 
-  return user;
+  return user
 }

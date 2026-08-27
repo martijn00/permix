@@ -1,14 +1,14 @@
-import { defineConfig } from 'oxlint';
-import core from 'ultracite/oxlint/core';
-import next from 'ultracite/oxlint/next';
-import react from 'ultracite/oxlint/react';
-import solid from 'ultracite/oxlint/solid';
-import svelte from 'ultracite/oxlint/svelte';
-import tanstack from 'ultracite/oxlint/tanstack';
-import vitest from 'ultracite/oxlint/vitest';
-import vue from 'ultracite/oxlint/vue';
+import { defineConfig } from 'oxlint'
+import core from 'ultracite/oxlint/core'
+import next from 'ultracite/oxlint/next'
+import react from 'ultracite/oxlint/react'
+import solid from 'ultracite/oxlint/solid'
+import svelte from 'ultracite/oxlint/svelte'
+import tanstack from 'ultracite/oxlint/tanstack'
+import vitest from 'ultracite/oxlint/vitest'
+import vue from 'ultracite/oxlint/vue'
 
-import { ignorePatterns } from './ignores.ts';
+import { ignorePatterns } from './ignores.ts'
 
 const nonReactGlobs = [
   'permix/src/vue/**',
@@ -17,7 +17,7 @@ const nonReactGlobs = [
   'examples/vue/**',
   'examples/solid/**',
   'examples/svelte/**',
-];
+]
 
 const vitestOverrides = (vitest.overrides ?? []).map((override) => ({
   ...override,
@@ -34,7 +34,7 @@ const vitestOverrides = (vitest.overrides ?? []).map((override) => ({
     'vitest/prefer-import-in-mock': 'off',
     'typescript/consistent-type-imports': 'off',
   },
-}));
+}))
 
 export default defineConfig({
   extends: [core, react, next, tanstack, vue, solid, svelte],
@@ -126,4 +126,4 @@ export default defineConfig({
       },
     },
   ],
-});
+})

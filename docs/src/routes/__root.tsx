@@ -3,14 +3,14 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-} from '@tanstack/react-router';
-import { RootProvider } from 'fumadocs-ui/provider/tanstack';
-import type { ReactNode } from 'react';
+} from '@tanstack/react-router'
+import { RootProvider } from 'fumadocs-ui/provider/tanstack'
+import type { ReactNode } from 'react'
 
-import { AnalyticsProvider } from '@/components/analytics';
-import { appName, siteUrl } from '@/lib/shared';
+import { AnalyticsProvider } from '@/components/analytics'
+import { appName, siteUrl } from '@/lib/shared'
 
-import appCss from '@/styles/app.css?url';
+import appCss from '@/styles/app.css?url'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -56,14 +56,14 @@ export const Route = createRootRoute({
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
   component: RootComponent,
-});
+})
 
 function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
     </RootDocument>
-  );
+  )
 }
 
 function RootDocument({ children }: { children: ReactNode }) {
@@ -78,5 +78,5 @@ function RootDocument({ children }: { children: ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }

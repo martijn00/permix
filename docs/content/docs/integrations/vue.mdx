@@ -22,9 +22,9 @@ First, wrap your application with the `PermixProvider`:
 
 ```vue title="App.vue"
 <script setup lang="ts">
-import { PermixProvider } from 'permix/vue';
-import { permix } from './lib/permix';
-import YourApp from './YourApp.vue';
+import { PermixProvider } from 'permix/vue'
+import { permix } from './lib/permix'
+import YourApp from './YourApp.vue'
 </script>
 
 <template>
@@ -37,18 +37,18 @@ import YourApp from './YourApp.vue';
 You can also register the provider from `main.ts`:
 
 ```ts title="main.ts"
-import { createApp } from 'vue';
-import { PermixProvider } from 'permix/vue';
-import { permix } from './lib/permix';
-import App from './App.vue';
+import { createApp } from 'vue'
+import { PermixProvider } from 'permix/vue'
+import { permix } from './lib/permix'
+import App from './App.vue'
 
 createApp({
   components: { PermixProvider, App },
   template: '<PermixProvider :permix="permix"><App /></PermixProvider>',
   setup() {
-    return { permix };
+    return { permix }
   },
-}).mount('#app');
+}).mount('#app')
 ```
 
 <Callout>
@@ -65,11 +65,11 @@ createApp({
 For checking permissions in your components, you can use the `usePermix` composable. And to avoid importing the composable and Permix instance in every component, you can create a custom composable:
 
 ```ts title="composables/use-permissions.ts"
-import { usePermix } from 'permix/vue';
-import { permix } from './lib/permix';
+import { usePermix } from 'permix/vue'
+import { permix } from './lib/permix'
 
 export function usePermissions() {
-  return usePermix(permix);
+  return usePermix(permix)
 }
 ```
 
@@ -82,11 +82,11 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/vue` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from 'permix/vue';
+import { createComponents } from 'permix/vue'
 
 // ...
 
-export const { Check } = createComponents(permix);
+export const { Check } = createComponents(permix)
 ```
 
 And then you can use the `Check` component in your templates:
@@ -116,14 +116,14 @@ Use the `usePermix` composable in your components to check permissions:
 
 ```vue title="page.vue"
 <script setup lang="ts">
-import { usePermix } from 'permix/vue';
-import { permix, Check } from './lib/permix';
+import { usePermix } from 'permix/vue'
+import { permix, Check } from './lib/permix'
 
 const props = defineProps<{
-  post: Post;
-}>();
+  post: Post
+}>()
 
-const { check, isReady } = usePermix(permix);
+const { check, isReady } = usePermix(permix)
 </script>
 
 <template>
@@ -153,19 +153,19 @@ For SSR applications, use `PermixHydrate` to restore dehydrated server state on 
 
 ```vue title="App.vue"
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import type { DehydratedState } from 'permix';
-import { PermixHydrate, PermixProvider } from 'permix/vue';
-import { permix } from './lib/permix';
-import { getClientRules } from './lib/permissions';
+import { onMounted } from 'vue'
+import type { DehydratedState } from 'permix'
+import { PermixHydrate, PermixProvider } from 'permix/vue'
+import { permix } from './lib/permix'
+import { getClientRules } from './lib/permissions'
 
 const props = defineProps<{
-  dehydratedState: DehydratedState<any>;
-}>();
+  dehydratedState: DehydratedState<any>
+}>()
 
 onMounted(() => {
-  permix.setup(getClientRules());
-});
+  permix.setup(getClientRules())
+})
 </script>
 
 <template>

@@ -1,6 +1,6 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises'
 
-import { defineConfig } from 'tsdown';
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   name: 'permix',
@@ -28,8 +28,8 @@ export default defineConfig({
   },
   hooks: {
     'build:done': async () => {
-      const file = await readFile('./dist/react/index.mjs', 'utf-8');
-      await writeFile('./dist/react/index.mjs', `'use client';\n\n${file}`);
+      const file = await readFile('./dist/react/index.mjs', 'utf-8')
+      await writeFile('./dist/react/index.mjs', `'use client';\n\n${file}`)
     },
   },
-});
+})

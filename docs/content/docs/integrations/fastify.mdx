@@ -21,18 +21,18 @@ Permix provides a plugin for Fastify that allows you to easily check permissions
 Here's a basic example of how to use the Permix plugin with Fastify:
 
 ```ts
-import Fastify from 'fastify';
-import { createPermix } from 'permix/fastify';
+import Fastify from 'fastify'
+import { createPermix } from 'permix/fastify'
 
 interface Post {
-  id: string;
-  authorId: string;
-  title: string;
-  content: string;
+  id: string
+  authorId: string
+  title: string
+  content: string
 }
 
 // Initialize Fastify
-const fastify = Fastify();
+const fastify = Fastify()
 
 // Create your Permix instance
 const permix = createPermix<{
@@ -40,8 +40,8 @@ const permix = createPermix<{
     { name: 'create'; type: Post },
     { name: 'read'; type: Post },
     { name: 'update'; type: Post },
-  ];
-}>();
+  ]
+}>()
 
 // Set up the plugin with your permission rules
 await fastify.register(
@@ -53,9 +53,9 @@ await fastify.register(
         read: true,
         update: false,
       },
-    };
+    }
   })
-);
+)
 ```
 
 <Callout>
@@ -78,9 +78,9 @@ fastify.post(
     preHandler: permix.checkMiddleware('post.create'),
   },
   (request, reply) => {
-    reply.send({ success: true });
+    reply.send({ success: true })
   }
-);
+)
 
 // Check multiple actions
 fastify.put(
@@ -91,9 +91,9 @@ fastify.put(
     ),
   },
   (request, reply) => {
-    reply.send({ success: true });
+    reply.send({ success: true })
   }
-);
+)
 
 // Check all actions
 fastify.delete(
@@ -102,9 +102,9 @@ fastify.delete(
     preHandler: permix.checkMiddleware('post.~all'),
   },
   (request, reply) => {
-    reply.send({ success: true });
+    reply.send({ success: true })
   }
-);
+)
 
 // Check any action
 fastify.get(
@@ -113,9 +113,9 @@ fastify.get(
     preHandler: permix.checkMiddleware('post.~any'),
   },
   (request, reply) => {
-    reply.send({ posts: getAllPosts() });
+    reply.send({ posts: getAllPosts() })
   }
-);
+)
 ```
 
 </Step>
@@ -128,18 +128,18 @@ You can access the Permix instance directly in your route handlers using the `ge
 
 ```ts
 fastify.get('/posts', (request, reply) => {
-  const { check } = permix.get(request);
+  const { check } = permix.get(request)
 
   // Check permissions manually
   if (check('post.read')) {
     // User has permission to read posts
-    reply.send({ posts: getAllPosts() });
+    reply.send({ posts: getAllPosts() })
   } else {
     reply
       .status(403)
-      .send({ error: 'You do not have permission to read posts' });
+      .send({ error: 'You do not have permission to read posts' })
   }
-});
+})
 ```
 
 The `get` function returns the Permix instance with available methods.
@@ -160,14 +160,14 @@ const adminTemplate = permix.template({
     read: true,
     update: true,
   },
-});
+})
 
 // Use the template in your middleware
 await fastify.register(
   permix.setupMiddleware(({ request }) => {
     // You can still customize the template based on request data
     if (request.user?.role === 'admin') {
-      return adminTemplate();
+      return adminTemplate()
     }
 
     return {
@@ -176,9 +176,9 @@ await fastify.register(
         read: true,
         update: false,
       },
-    };
+    }
   })
-);
+)
 ```
 
 </Step>
@@ -196,9 +196,9 @@ const permix = createPermix<Definition>({
   onForbidden: ({ reply }) => {
     reply.status(403).send({
       error: 'Custom forbidden message',
-    });
+    })
   },
-});
+})
 ```
 
 ### Dynamic Error Handler
@@ -211,15 +211,15 @@ const permix = createPermix<Definition>({
     if (path === 'post.create') {
       reply.status(403).send({
         error: `You don't have permission for ${path}`,
-      });
-      return;
+      })
+      return
     }
 
     reply.status(403).send({
       error: 'You do not have permission to perform this action',
-    });
+    })
   },
-});
+})
 ```
 
 The `onForbidden` handler receives:
@@ -239,7 +239,7 @@ You can use async functions in your permission setup:
 await fastify.register(
   permix.setupMiddleware(async ({ request }) => {
     // Fetch user permissions from database
-    const userPermissions = await getUserPermissions(request.user.id);
+    const userPermissions = await getUserPermissions(request.user.id)
 
     return {
       post: {
@@ -247,9 +247,9 @@ await fastify.register(
         read: userPermissions.canReadPosts,
         update: userPermissions.canUpdatePosts,
       },
-    };
+    }
   })
-);
+)
 ```
 
 ### Dynamic Data-Based Permissions
@@ -259,18 +259,18 @@ You can check permissions based on the specific data being accessed:
 ```ts
 fastify.put('/posts/:id', {
   preHandler: async (request, reply) => {
-    const post = await getPostById(request.params.id);
+    const post = await getPostById(request.params.id)
 
-    const { check } = permix.get(request);
+    const { check } = permix.get(request)
 
     // Check if user can update this specific post
     if (check('post.update', post)) {
-      return;
+      return
     } else {
-      reply.status(403).send({ error: 'You cannot update this post' });
+      reply.status(403).send({ error: 'You cannot update this post' })
     }
   },
-});
+})
 ```
 
 ### Hooks
@@ -279,6 +279,6 @@ You can register hooks at the factory level to listen for events across all requ
 
 ```ts
 permix.hook('check', ({ path, data }) => {
-  console.log(`Permission checked: ${path}`, data);
-});
+  console.log(`Permission checked: ${path}`, data)
+})
 ```

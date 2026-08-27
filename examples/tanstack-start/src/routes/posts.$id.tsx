@@ -1,15 +1,15 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router'
 
-import { EditButton } from '@/components/edit-button';
-import { getPostPageData } from '@/server/posts';
+import { EditButton } from '@/components/edit-button'
+import { getPostPageData } from '@/server/posts'
 
 export const Route = createFileRoute('/posts/$id')({
   loader: ({ params }) => getPostPageData({ data: { id: params.id } }),
   component: PostPage,
-});
+})
 
 function PostPage() {
-  const { post } = Route.useLoaderData();
+  const { post } = Route.useLoaderData()
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
@@ -37,5 +37,5 @@ function PostPage() {
         </div>
       </article>
     </main>
-  );
+  )
 }

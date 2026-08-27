@@ -1,13 +1,13 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router';
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: ({ context }) => {
     if (!context.permix.check('post.delete')) {
-      throw redirect({ to: '/' });
+      throw redirect({ to: '/' })
     }
   },
   component: AdminPage,
-});
+})
 
 function AdminPage() {
   return (
@@ -34,5 +34,5 @@ function AdminPage() {
         </p>
       </article>
     </main>
-  );
+  )
 }

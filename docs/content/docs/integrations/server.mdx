@@ -25,14 +25,14 @@ This integration is designed to plug directly into [srvx](https://srvx.h3.dev) â
 Here's a basic example of how to use the Permix middleware with srvx:
 
 ```ts
-import { serve } from 'srvx';
-import { createPermix } from 'permix/server';
+import { serve } from 'srvx'
+import { createPermix } from 'permix/server'
 
 interface Post {
-  id: string;
-  authorId: string;
-  title: string;
-  content: string;
+  id: string
+  authorId: string
+  title: string
+  content: string
 }
 
 // Create your Permix instance
@@ -42,15 +42,15 @@ const permix = createPermix<{
     { name: 'read'; type: Post },
     { name: 'update'; type: Post },
     { name: 'delete'; type: Post },
-  ];
-}>();
+  ]
+}>()
 
 // Set up the middleware with your permission rules
 serve({
   middleware: [
     permix.setupMiddleware(({ req }) => {
       // You can read headers, cookies, or any request data to determine permissions
-      const isAdmin = req.headers.get('x-user-role') === 'admin';
+      const isAdmin = req.headers.get('x-user-role') === 'admin'
 
       return {
         post: {
@@ -59,13 +59,13 @@ serve({
           update: isAdmin,
           delete: isAdmin,
         },
-      };
+      }
     }),
   ],
   fetch(req) {
-    return Response.json({ ok: true });
+    return Response.json({ ok: true })
   },
-});
+})
 ```
 
 <Callout>
@@ -88,22 +88,22 @@ serve({
     // Check a single path
     return permix.checkMiddleware('post.create')(req, () =>
       Response.json({ success: true })
-    );
+    )
   },
-});
+})
 ```
 
 `checkMiddleware` accepts the same arguments as the core `check`:
 
 ```ts
 // Check a single path
-permix.checkMiddleware('post.create');
+permix.checkMiddleware('post.create')
 
 // Check with data
-permix.checkMiddleware('post.update', post);
+permix.checkMiddleware('post.update', post)
 
 // Compose multiple checks with a callback
-permix.checkMiddleware((c) => c('post.read') && c('post.update'));
+permix.checkMiddleware((c) => c('post.read') && c('post.update'))
 ```
 
 If the check passes, `next()` is called. If it fails, the middleware short-circuits with the response from `onForbidden` (a 403 JSON response by default).
@@ -148,7 +148,7 @@ const adminTemplate = permix.template({
     update: true,
     delete: true,
   },
-});
+})
 
 // Create a template for regular user permissions
 const userTemplate = permix.template({
@@ -158,20 +158,20 @@ const userTemplate = permix.template({
     update: false,
     delete: false,
   },
-});
+})
 
 // Use templates in your middleware
 serve({
   middleware: [
     permix.setupMiddleware(({ req }) => {
-      const isAdmin = req.headers.get('x-user-role') === 'admin';
-      return isAdmin ? adminTemplate() : userTemplate();
+      const isAdmin = req.headers.get('x-user-role') === 'admin'
+      return isAdmin ? adminTemplate() : userTemplate()
     }),
   ],
   fetch(req) {
-    return Response.json({ ok: true });
+    return Response.json({ ok: true })
   },
-});
+})
 ```
 
 </Step>
@@ -188,7 +188,7 @@ By default, the middleware returns a 403 Forbidden response with `{ "error": "Fo
 const permix = createPermix<Definition>({
   onForbidden: () =>
     Response.json({ error: 'Custom forbidden message' }, { status: 403 }),
-});
+})
 ```
 
 ### Dynamic Error Handler
@@ -202,15 +202,15 @@ const permix = createPermix<Definition>({
       return Response.json(
         { error: `You don't have permission for ${path}` },
         { status: 403 }
-      );
+      )
     }
 
     return Response.json(
       { error: 'You do not have permission to perform this action' },
       { status: 403 }
-    );
+    )
   },
-});
+})
 ```
 
 The `onForbidden` handler receives:
@@ -231,8 +231,8 @@ serve({
   middleware: [
     permix.setupMiddleware(async ({ req }) => {
       // Fetch user permissions from database
-      const userId = req.headers.get('x-user-id');
-      const userPermissions = await getUserPermissions(userId);
+      const userId = req.headers.get('x-user-id')
+      const userPermissions = await getUserPermissions(userId)
 
       return {
         post: {
@@ -241,13 +241,13 @@ serve({
           update: userPermissions.canUpdatePosts,
           delete: userPermissions.canDeletePosts,
         },
-      };
+      }
     }),
   ],
   fetch(req) {
-    return Response.json({ ok: true });
+    return Response.json({ ok: true })
   },
-});
+})
 ```
 
 ### Dynamic Data-Based Permissions
@@ -256,21 +256,21 @@ You can check permissions based on the specific data being accessed:
 
 ```ts
 async function fetch(req: Request) {
-  const url = new URL(req.url);
-  const postId = url.pathname.split('/')[2];
-  const post = await getPostById(postId);
+  const url = new URL(req.url)
+  const postId = url.pathname.split('/')[2]
+  const post = await getPostById(postId)
 
-  const { check } = permix.getOrThrow(req);
+  const { check } = permix.getOrThrow(req)
 
   // Check if user can update this specific post
   if (check('post.update', post)) {
-    return Response.json({ success: true });
+    return Response.json({ success: true })
   }
 
   return Response.json(
     { error: 'You cannot update this post' },
     { status: 403 }
-  );
+  )
 }
 ```
 
@@ -279,13 +279,13 @@ async function fetch(req: Request) {
 Because the middleware is just `(req, next) => Response`, you can compose it by hand in any `fetch` handler â€” no framework required. The pattern is to chain middlewares by passing each one as the `next` of the previous:
 
 ```ts
-import { createPermix } from 'permix/server';
+import { createPermix } from 'permix/server'
 
-const permix = createPermix<Definition>();
+const permix = createPermix<Definition>()
 
 const setup = permix.setupMiddleware({
   post: { create: true, read: true, update: false, delete: false },
-});
+})
 
 export default {
   fetch(req: Request) {
@@ -293,9 +293,9 @@ export default {
       permix.checkMiddleware('post.create')(req, () =>
         Response.json({ ok: true })
       )
-    );
+    )
   },
-};
+}
 ```
 
 For anything beyond a couple of middlewares, srvx (or any other web-standard runtime) will compose them for you.
@@ -306,6 +306,6 @@ You can register hooks at the factory level to listen for events across all requ
 
 ```ts
 permix.hook('check', ({ path, data }) => {
-  console.log(`Permission checked: ${path}`, data);
-});
+  console.log(`Permission checked: ${path}`, data)
+})
 ```

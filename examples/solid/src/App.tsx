@@ -1,23 +1,23 @@
-import { createEffect } from 'solid-js';
+import { createEffect } from 'solid-js'
 
-import { usePermissions } from './hooks/permissions';
-import { usePosts } from './hooks/posts';
-import { useUser } from './hooks/user';
-import { Check, setupPermix } from './lib/permix';
+import { usePermissions } from './hooks/permissions'
+import { usePosts } from './hooks/posts'
+import { useUser } from './hooks/user'
+import { Check, setupPermix } from './lib/permix'
 
-import './App.css';
+import './App.css'
 
 function App() {
-  const user = useUser();
-  const { check, isReady } = usePermissions();
-  const posts = usePosts();
+  const user = useUser()
+  const { check, isReady } = usePermissions()
+  const posts = usePosts()
 
   createEffect(() => {
-    const value = user();
+    const value = user()
     if (value) {
-      setupPermix(value);
+      setupPermix(value)
     }
-  });
+  })
 
   return (
     <>
@@ -45,7 +45,7 @@ function App() {
         </div>
       ))}
     </>
-  );
+  )
 }
 
-export default App;
+export default App

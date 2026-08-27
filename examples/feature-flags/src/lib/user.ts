@@ -4,5 +4,5 @@ export async function getUser() {
     id: '1',
     role: 'admin' as const,
     isBetaUser: true,
-  };
+  }
 }

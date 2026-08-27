@@ -1,24 +1,24 @@
-import { ORPCError, os } from '@orpc/server';
+import { ORPCError, os } from '@orpc/server'
 
-import type { Permix as PermixCore } from '../core';
+import type { Permix as PermixCore } from '../core'
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from '../core';
-import type { CheckArgs, CheckContext } from '../core/check';
-import type { Definition } from '../core/definitions';
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
+} from '../core'
+import type { CheckArgs, CheckContext } from '../core/check'
+import type { Definition } from '../core/definitions'
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
 
 export interface PermixOptions<D extends Definition> {
   onForbidden?: (
     params: CheckContext<D> & {
-      context: Record<string, any>;
-      next: (...args: any[]) => any;
+      context: Record<string, any>
+      next: (...args: any[]) => any
     }
-  ) => any;
+  ) => any
 }
 
 function buildPermix<D extends Definition, const Key extends string>(
@@ -30,46 +30,46 @@ function buildPermix<D extends Definition, const Key extends string>(
     (() => {
       throw new ORPCError('FORBIDDEN', {
         message: 'You do not have permission to perform this action',
-      });
-    });
+      })
+    })
 
-  const hooks = createHooks<PermixHooks<D>>();
+  const hooks = createHooks<PermixHooks<D>>()
 
-  const plugin = os.$context<{ [P in Key]: PermixCore<D> }>();
+  const plugin = os.$context<{ [P in Key]: PermixCore<D> }>()
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
-    const instance = createPermixCore<D>(rules);
+    const instance = createPermixCore<D>(rules)
     instance.hook('check', (context) => {
-      hooks.callHook('check', context);
-    });
-    return { [resolveKey()]: instance } as { [P in Key]: PermixCore<D> };
+      hooks.callHook('check', context)
+    })
+    return { [resolveKey()]: instance } as { [P in Key]: PermixCore<D> }
   }
 
   function checkMiddleware(...args: CheckArgs<D>) {
     return plugin.middleware(async (opts) => {
-      const context = opts.context as Record<string, PermixCore<D>>;
-      const instance = context[resolveKey()];
+      const context = opts.context as Record<string, PermixCore<D>>
+      const instance = context[resolveKey()]
 
       if (!instance) {
-        throw new PermixNotFoundError(resolveKey());
+        throw new PermixNotFoundError(resolveKey())
       }
 
       if (instance.check(...args)) {
-        return await opts.next();
+        return await opts.next()
       }
 
-      return forbiddenHandler({ ...opts, ...createCheckContext(...args) });
-    });
+      return forbiddenHandler({ ...opts, ...createCheckContext(...args) })
+    })
   }
 
   function getRules(
     context: Record<string, PermixCore<D> | undefined>
   ): Rules<D> | null {
-    return context[resolveKey()]?.getRules() ?? null;
+    return context[resolveKey()]?.getRules() ?? null
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules);
+    return createTemplate<D, T>(rules)
   }
 
   return {
@@ -80,11 +80,11 @@ function buildPermix<D extends Definition, const Key extends string>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey();
+      return resolveKey()
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  };
+  }
 }
 
 /**
@@ -121,17 +121,17 @@ function buildPermix<D extends Definition, const Key extends string>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string = 'permix';
-  const permix = buildPermix<D, 'permix'>(() => key, options);
+  let key: string = 'permix'
+  const permix = buildPermix<D, 'permix'>(() => key, options)
 
   return Object.assign(permix, {
     contextKey<const Key extends string>(newKey: Key) {
-      key = newKey;
-      return permix as unknown as ReturnType<typeof buildPermix<D, Key>>;
+      key = newKey
+      return permix as unknown as ReturnType<typeof buildPermix<D, Key>>
     },
-  });
+  })
 }
 
 export type OrpcPermix<D extends Definition> = ReturnType<
   typeof createPermix<D>
->;
+>

@@ -22,10 +22,10 @@ const adminPermissions = permix.template({
     create: true,
     read: true,
   },
-});
+})
 
 // Later, use the template to setup permissions
-permix.setup(adminPermissions());
+permix.setup(adminPermissions())
 ```
 
 ## Dynamic Templates
@@ -34,8 +34,8 @@ Templates can accept parameters to create dynamic permissions based on runtime v
 
 ```ts
 interface User {
-  id: string;
-  role: string;
+  id: string
+  role: string
 }
 
 const userPermissions = permix.template(({ id: userId }: User) => ({
@@ -44,11 +44,11 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
     read: true,
     update: (post) => post?.authorId === userId,
   },
-}));
+}))
 
 // Use with specific user data
-const user = await getUser();
-permix.setup(userPermissions(user));
+const user = await getUser()
+permix.setup(userPermissions(user))
 ```
 
 ## Type Safety
@@ -56,11 +56,11 @@ permix.setup(userPermissions(user));
 Templates maintain full type safety from your Permix instance definition:
 
 ```ts twoslash
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create'];
-}>();
+  post: ['create']
+}>()
 
 // @errors: 2353
 // This will cause a TypeScript error
@@ -68,7 +68,7 @@ const invalidTemplate = permix.template({
   post: {
     edit: true,
   },
-});
+})
 ```
 
 ## Role-Based Example
@@ -83,7 +83,7 @@ const editorPermissions = permix.template({
     update: (post) => !post?.published,
     delete: (post) => !post?.published,
   },
-});
+})
 
 const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
@@ -92,17 +92,17 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
     update: (post) => post?.authorId === userId,
     delete: false,
   },
-}));
+}))
 
 // Setup based on user role
 async function setupPermissions() {
-  const user = await getUser();
+  const user = await getUser()
   const permissionsMap = {
     editor: () => editorPermissions(),
     user: () => userPermissions(user),
-  };
+  }
 
-  return permix.setup(permissionsMap[user.role]());
+  return permix.setup(permissionsMap[user.role]())
 }
 ```
 
@@ -111,8 +111,8 @@ async function setupPermissions() {
 You can define permission templates outside of the Permix instance using the `Rules` type. This is useful when you want to organize your permission logic in separate files:
 
 ```ts twoslash title="/lib/permix-template-standalone.ts"
-import type { Rules } from 'permix';
-import { createPermix } from 'permix';
+import type { Rules } from 'permix'
+import { createPermix } from 'permix'
 
 type PermissionsDefinition = {
   post: [
@@ -120,11 +120,11 @@ type PermissionsDefinition = {
     { name: 'read'; type: { id: string; authorId: string } },
     { name: 'update'; type: { id: string; authorId: string } },
     { name: 'delete'; type: { id: string; authorId: string } },
-  ];
-};
+  ]
+}
 
 // It can be in separate file and imported here
-const permix = createPermix<PermissionsDefinition>();
+const permix = createPermix<PermissionsDefinition>()
 
 // Create a standalone template function
 function userPermissions(
@@ -138,13 +138,13 @@ function userPermissions(
       update: role === 'admin' ? true : (post) => post?.authorId === userId,
       delete: role === 'admin',
     },
-  };
+  }
 }
 
 // Later, use it with your Permix instance
-const permissions = userPermissions('1', 'admin');
+const permissions = userPermissions('1', 'admin')
 
-permix.setup(permissions);
+permix.setup(permissions)
 ```
 
 This approach allows you to:

@@ -1,21 +1,21 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
-import { permix } from '@/lib/permix';
-import { getPost } from '@/lib/posts';
+import { permix } from '@/lib/permix'
+import { getPost } from '@/lib/posts'
 
-import { EditButton } from './edit-button';
+import { EditButton } from './edit-button'
 
 export default async function PostPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params;
-  const post = await getPost(id);
+  const { id } = await params
+  const post = await getPost(id)
 
   if (!post || !permix.check('post.read', post)) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -46,5 +46,5 @@ export default async function PostPage({
         </div>
       </article>
     </main>
-  );
+  )
 }

@@ -1,26 +1,26 @@
-import { createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js'
 
-import type { Definition, Permix, Rules } from '../core';
-import { createCheck } from '../core';
+import type { Definition, Permix, Rules } from '../core'
+import { createCheck } from '../core'
 
 export interface PermixContext<T extends Definition> {
-  permix: Permix<T>;
-  isReady: boolean;
-  rules: Rules<T> | null;
+  permix: Permix<T>
+  isReady: boolean
+  rules: Rules<T> | null
 }
 
-export const Context = createContext<PermixContext<any>>(null!);
+export const Context = createContext<PermixContext<any>>(null!)
 
 export function usePermixContext() {
-  const context = useContext(Context);
+  const context = useContext(Context)
 
   if (!context) {
     throw new Error(
       '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
-    );
+    )
   }
 
-  return context;
+  return context
 }
 
 /**
@@ -31,12 +31,12 @@ export function usePermixContext() {
 export function usePermix<T extends Definition>(
   permix: Pick<Permix<T>, 'getRules' | 'check'>
 ) {
-  const context = usePermixContext();
+  const context = usePermixContext()
 
   const check: Permix<T>['check'] = (...args) =>
     createCheck<T>(
       () => (context.rules ?? permix.getRules()) as Rules<T> | null
-    )(...args);
+    )(...args)
 
-  return { check, isReady: () => context.isReady };
+  return { check, isReady: () => context.isReady }
 }

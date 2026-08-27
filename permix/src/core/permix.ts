@@ -1,25 +1,25 @@
-import type { CheckArgs, CheckContext } from './check';
-import { createCheck, createCheckContext } from './check';
-import type { Action, ActionName, Definition } from './definitions';
-import { PermixNotReadyError } from './errors';
-import { createHooks } from './hooks';
-import type { DehydratedState, Rules } from './rules';
-import { createRules, dehydrateRules, hydrateRules } from './rules';
-import { createTemplate } from './template';
+import type { CheckArgs, CheckContext } from './check'
+import { createCheck, createCheckContext } from './check'
+import type { Action, ActionName, Definition } from './definitions'
+import { PermixNotReadyError } from './errors'
+import { createHooks } from './hooks'
+import type { DehydratedState, Rules } from './rules'
+import { createRules, dehydrateRules, hydrateRules } from './rules'
+import { createTemplate } from './template'
 
-export type { DehydratedState, Rules } from './rules';
+export type { DehydratedState, Rules } from './rules'
 
 type ActionArgs<A extends Action> = A extends { type: infer T; required: true }
   ? [T]
   : A extends { type: infer T }
     ? [T?]
-    : [];
+    : []
 
 type ActionByName<A extends Action, N extends string> = A extends unknown
   ? ActionName<A> extends N
     ? A
     : never
-  : never;
+  : never
 
 // Caps recursion depth to avoid "Type instantiation is excessively deep" errors.
 type Depth = [
@@ -33,7 +33,7 @@ type Depth = [
   unknown,
   unknown,
   unknown,
-];
+]
 
 export type RulesPaths<
   D,
@@ -45,11 +45,11 @@ export type RulesPaths<
     : {
         [K in keyof D & string]: D[K] extends Definition
           ? RulesPaths<D[K], `${Prefix}${K}.`, Rest>
-          : never;
+          : never
       }[keyof D & string]
-  : never;
+  : never
 
-export type SpecialSymbol = '~any' | '~all';
+export type SpecialSymbol = '~any' | '~all'
 
 export type SpecialPath<
   D,
@@ -63,9 +63,9 @@ export type SpecialPath<
           : {
               [K in keyof D & string]: D[K] extends Definition
                 ? SpecialPath<D[K], `${Prefix}${K}.`, Rest>
-                : never;
+                : never
             }[keyof D & string])
-  : never;
+  : never
 
 export type DataAtPath<
   D,
@@ -79,17 +79,17 @@ export type DataAtPath<
         ? DataAtPath<D[K], Tail, Rest>
         : never
       : never
-  : never;
+  : never
 
 export type CheckerFn<D extends Definition> = <P extends RulesPaths<D>>(
   path: P,
   ...data: DataAtPath<D, P>
-) => boolean;
+) => boolean
 
 export interface PermixHooks<D extends Definition = Definition> {
-  setup: () => void;
-  ready: () => void;
-  check: (context: CheckContext<D>) => void;
+  setup: () => void
+  ready: () => void
+  check: (context: CheckContext<D>) => void
 }
 
 export interface Permix<D extends Definition> {
@@ -109,7 +109,7 @@ export interface Permix<D extends Definition> {
    * })
    * ```
    */
-  setup: (rules: Rules<D>) => void;
+  setup: (rules: Rules<D>) => void
 
   /**
    * Evaluate the current rules. Accepts one of three calling forms:
@@ -138,7 +138,7 @@ export interface Permix<D extends Definition> {
    * permix.check(c => !c('post.read'))
    * ```
    */
-  check: (...args: CheckArgs<D>) => boolean;
+  check: (...args: CheckArgs<D>) => boolean
 
   /**
    * Serialize the current rules into a JSON-safe object.
@@ -153,7 +153,7 @@ export interface Permix<D extends Definition> {
    * // { post: { create: true, edit: false } }
    * ```
    */
-  dehydrate: () => DehydratedState<D>;
+  dehydrate: () => DehydratedState<D>
 
   /**
    * Restore rules from a value produced by `dehydrate()`.
@@ -171,7 +171,7 @@ export interface Permix<D extends Definition> {
    * permix.setup(clientRules)   // isReady() === true
    * ```
    */
-  hydrate: (state: DehydratedState<D>) => void;
+  hydrate: (state: DehydratedState<D>) => void
 
   /**
    * Define reusable permission rules separate from `setup()`.
@@ -189,7 +189,7 @@ export interface Permix<D extends Definition> {
    */
   template: <T = void>(
     rules: Rules<D> | ((param: T) => Rules<D>)
-  ) => (() => Rules<D>) | ((param: T) => Rules<D>);
+  ) => (() => Rules<D>) | ((param: T) => Rules<D>)
 
   /**
    * Register a hook that fires every time the named event occurs.
@@ -205,7 +205,7 @@ export interface Permix<D extends Definition> {
   hook: <K extends keyof PermixHooks<D>>(
     name: K,
     fn: PermixHooks<D>[K]
-  ) => () => void;
+  ) => () => void
 
   /**
    * Register a hook that fires only once for the named event.
@@ -220,14 +220,14 @@ export interface Permix<D extends Definition> {
   hookOnce: <K extends keyof PermixHooks<D>>(
     name: K,
     fn: PermixHooks<D>[K]
-  ) => void;
+  ) => void
 
   /**
    * Returns `true` if `setup()` has been called at least once (or initial
    * rules were passed to `createPermix`). `hydrate()` alone does **not** make
    * the instance ready.
    */
-  isReady: () => boolean;
+  isReady: () => boolean
 
   /**
    * Returns a promise that resolves once the instance is ready — i.e. once
@@ -240,12 +240,12 @@ export interface Permix<D extends Definition> {
    * permix.check('post.create')
    * ```
    */
-  isReadyAsync: () => Promise<void>;
+  isReadyAsync: () => Promise<void>
 
   /**
    * Returns the current rules object.
    */
-  getRules: () => Rules<D> | null;
+  getRules: () => Rules<D> | null
 
   /**
    * Type-only carrier for the Permix definition schema. Use with `typeof` to
@@ -257,7 +257,7 @@ export interface Permix<D extends Definition> {
    * const other = createPermix<typeof permix.$inferDefinition>()
    * ```
    */
-  readonly $inferDefinition: D;
+  readonly $inferDefinition: D
 
   /**
    * Type-only carrier for the union of all valid permission paths
@@ -271,7 +271,7 @@ export interface Permix<D extends Definition> {
    * const ALL = ['user.create', 'job.remove'] satisfies (typeof permix.$inferPath)[]
    * ```
    */
-  readonly $inferPath: RulesPaths<D>;
+  readonly $inferPath: RulesPaths<D>
 }
 
 /**
@@ -321,43 +321,43 @@ export interface Permix<D extends Definition> {
 export function createPermix<D extends Definition>(
   initialRules?: Rules<D>
 ): Permix<D> {
-  let rules: Rules<D> | null = initialRules ?? null;
-  let ready = !!initialRules;
-  const hooks = createHooks<PermixHooks<D>>();
+  let rules: Rules<D> | null = initialRules ?? null
+  let ready = !!initialRules
+  const hooks = createHooks<PermixHooks<D>>()
 
   const { promise: readyPromise, resolve: resolveReady } = ready
     ? { promise: Promise.resolve(), resolve: () => undefined }
-    : Promise.withResolvers<void>();
+    : Promise.withResolvers<void>()
 
-  const checkFn = createCheck<D>(() => rules);
+  const checkFn = createCheck<D>(() => rules)
 
   return {
     setup(r) {
-      rules = createRules<D>(r);
-      hooks.callHook('setup');
+      rules = createRules<D>(r)
+      hooks.callHook('setup')
       if (!ready) {
-        ready = true;
-        resolveReady();
-        hooks.callHook('ready');
+        ready = true
+        resolveReady()
+        hooks.callHook('ready')
       }
     },
     check(...args: CheckArgs<D>): boolean {
-      const context = createCheckContext<D>(...args);
-      hooks.callHook('check', context);
-      return checkFn(...args);
+      const context = createCheckContext<D>(...args)
+      hooks.callHook('check', context)
+      return checkFn(...args)
     },
     dehydrate() {
       if (!rules) {
-        throw new PermixNotReadyError();
+        throw new PermixNotReadyError()
       }
-      return dehydrateRules(rules) as DehydratedState<D>;
+      return dehydrateRules(rules) as DehydratedState<D>
     },
     hydrate(state) {
-      rules = hydrateRules(state);
-      hooks.callHook('setup');
+      rules = hydrateRules(state)
+      hooks.callHook('setup')
     },
     template(rules) {
-      return createTemplate(rules);
+      return createTemplate(rules)
     },
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
@@ -366,5 +366,5 @@ export function createPermix<D extends Definition>(
     getRules: () => rules,
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  };
+  }
 }

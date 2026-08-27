@@ -1,12 +1,12 @@
-import { createRouter as createTanStackRouter } from '@tanstack/react-router';
+import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 
-import { createRouterPermix } from '@/lib/permix';
+import { createRouterPermix } from '@/lib/permix'
 
-import { routeTree } from './routeTree.gen';
+import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
   // One instance per request on the server, one per tab in the browser.
-  const permix = createRouterPermix();
+  const permix = createRouterPermix()
 
   const router = createTanStackRouter({
     routeTree,
@@ -14,13 +14,13 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
-  });
+  })
 
-  return router;
+  return router
 }
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: ReturnType<typeof getRouter>;
+    router: ReturnType<typeof getRouter>
   }
 }

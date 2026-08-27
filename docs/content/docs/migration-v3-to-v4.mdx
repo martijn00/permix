@@ -47,15 +47,15 @@ v3 modeled each entity as a config object with `action`, optional `dataType`, an
 
 ```ts
 // v3
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 export const permix = createPermix<{
   post: {
-    dataType: Post;
-    action: 'read' | 'edit';
-    dataRequired?: true;
-  };
-}>();
+    dataType: Post
+    action: 'read' | 'edit'
+    dataRequired?: true
+  }
+}>()
 ```
 
 v4 uses a **tuple of action names** or **action specs** per entity:
@@ -63,8 +63,8 @@ v4 uses a **tuple of action names** or **action specs** per entity:
 ```ts
 // v4 — actions without entity data
 export const permix = createPermix<{
-  post: ['read', 'edit'];
-}>();
+  post: ['read', 'edit']
+}>()
 
 // v4 — typed entity data per action
 export const permix = createPermix<{
@@ -72,8 +72,8 @@ export const permix = createPermix<{
     'read',
     { name: 'edit'; type: Post },
     { name: 'delete'; type: Post; required: true },
-  ];
-}>();
+  ]
+}>()
 ```
 
 v4 also supports **nested** permission trees (not available in v3's definition model):
@@ -81,12 +81,12 @@ v4 also supports **nested** permission trees (not available in v3's definition m
 ```ts
 createPermix<{
   workspace: {
-    billing: ['view', 'update'];
-    member: ['invite', 'remove'];
-  };
-}>();
+    billing: ['view', 'update']
+    member: ['invite', 'remove']
+  }
+}>()
 
-permix.check('workspace.billing.view');
+permix.check('workspace.billing.view')
 ```
 
 ### Enum-based actions
@@ -112,9 +112,9 @@ If you used enums for actions, pass enum members in the tuple instead of `action
 v4 supports a flat tuple when you do not need entity grouping:
 
 ```ts
-const permix = createPermix<['read', 'write']>();
-permix.setup({ read: true, write: false });
-permix.check('read');
+const permix = createPermix<['read', 'write']>()
+permix.setup({ read: true, write: false })
+permix.check('read')
 ```
 
 See the [Instance guide](/docs/guide/instance) for `MergePermix`, `ValidateDefinition`, and [initial rules](/docs/guide/instance#initial-rules).
@@ -153,8 +153,8 @@ Details: [Check guide](/docs/guide/check).
 ### Callback composition (new)
 
 ```ts
-permix.check((c) => c('post.read') && c('post.update'));
-permix.check((c) => c('post.delete') || c('admin.override'));
+permix.check((c) => c('post.read') && c('post.update'))
+permix.check((c) => c('post.delete') || c('admin.override'))
 ```
 
 ### `checkAsync()` removed
@@ -170,9 +170,9 @@ v3 exposed `permix.checkAsync(...)` which waited for `setup()` then delegated to
 ### Path types without duplicating the schema
 
 ```ts
-const permix = createPermix<{ user: ['create']; job: ['remove'] }>();
+const permix = createPermix<{ user: ['create']; job: ['remove'] }>()
 
-type PermissionPath = typeof permix.$inferPath;
+type PermissionPath = typeof permix.$inferPath
 // 'user.create' | 'job.remove'
 ```
 
@@ -199,13 +199,13 @@ React, Vue, Solid, and Svelte integrations use a single **`path`** prop (and opt
 Gate UI on `isReady` (or catch errors) before calling `check()`:
 
 ```tsx
-const { check, isReady } = usePermix(permix);
+const { check, isReady } = usePermix(permix)
 
 if (!isReady) {
-  return <div>Loading permissions…</div>;
+  return <div>Loading permissions…</div>
 }
 
-const canEdit = check('post.edit', post);
+const canEdit = check('post.edit', post)
 ```
 
 After `hydrate()`, the provider updates rules via the `setup` hook, so **serialized** permissions can be checked before `isReady` is `true` — but you should still call `setup()` on the client to restore function-based rules and mark the instance ready.
@@ -229,12 +229,12 @@ Serialization is the same: **functions become `false` in JSON**. Ready-state beh
 | `dehydrate()` before rules | Throws generic `Error` | `PermixNotReadyError` |
 
 ```ts
-permix.hydrate(serverState);
+permix.hydrate(serverState)
 // isReady() === false
 
-permix.check('post.create'); // true if dehydrated as true — even while not ready
+permix.check('post.create') // true if dehydrated as true — even while not ready
 
-permix.setup(getClientRules(user));
+permix.setup(getClientRules(user))
 // isReady() === true; function-based rules restored
 ```
 
@@ -311,13 +311,13 @@ Other tRPC/oRPC changes:
 `setupMiddleware` / `checkMiddleware` already existed in v3; update definitions and dot-path checks. v4 Express middleware can pass rules directly or via a callback:
 
 ```ts
-app.use(permix.setupMiddleware({ post: { read: true } }));
+app.use(permix.setupMiddleware({ post: { read: true } }))
 // or
 app.use(
   permix.setupMiddleware(async ({ req }) => ({
     post: { read: req.user.isAdmin },
   }))
-);
+)
 ```
 
 Consider **`permix/server`** for fetch-style handlers (Web Standard `Request` / `Response`):

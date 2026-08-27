@@ -12,11 +12,11 @@ Instance is the main entry point for Permix that will check permissions in every
 Permix is built with TypeScript, providing type safety and validation. Using TypeScript enables autocompletion and compile-time checks for your permission definitions.
 
 ```ts twoslash title="/lib/permix-basic.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create', 'edit'];
-}>();
+  post: ['create', 'edit']
+}>()
 ```
 
 ### Generic type
@@ -28,12 +28,12 @@ Permix instance accepts a generic type to define permissions.
 List of action names for the entity. Use a tuple of strings for simple actions, or action spec objects (`{ name, type?, required? }`) when an action needs a typed entity.
 
 ```ts twoslash title="/lib/permix-actions.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create', 'edit'];
+  post: ['create', 'edit']
   //  ^^^^^^
-}>();
+}>()
 ```
 
 #### `type`
@@ -43,17 +43,17 @@ const permix = createPermix<{
 To type-check entity data in rule callbacks and `check`, add a `type` field on the action spec. Without it, callback data is `unknown`.
 
 ```ts twoslash title="/lib/permix-type.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 interface Post {
-  id: string;
-  author: string;
-  content: string;
+  id: string
+  author: string
+  content: string
 }
 
 const permix = createPermix<{
-  post: [{ name: 'create'; type: Post }, { name: 'edit'; type: Post }];
-}>();
+  post: [{ name: 'create'; type: Post }, { name: 'edit'; type: Post }]
+}>()
 
 permix.setup({
   post: {
@@ -61,16 +61,16 @@ permix.setup({
     edit: (post) => post?.author === 'John Doe',
     //        ^?
   },
-});
+})
 
 const somePost: Post = {
   id: '1',
   author: 'John Doe',
   content: 'Hello World',
-};
+}
 
-const canEdit = permix.check('post.edit'); // false
-const canEditWithPost = permix.check('post.edit', somePost); // true
+const canEdit = permix.check('post.edit') // false
+const canEditWithPost = permix.check('post.edit', somePost) // true
 ```
 
 #### `required`
@@ -80,20 +80,20 @@ const canEditWithPost = permix.check('post.edit', somePost); // true
 By default, when an action declares a `type`, the data argument in `check` is optional. Set `required: true` to require data for that action.
 
 ```ts twoslash title="/lib/permix-type-required.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 interface Post {
-  id: string;
-  author: string;
-  content: string;
+  id: string
+  author: string
+  content: string
 }
 
 const permix = createPermix<{
   post: [
     { name: 'create'; type: Post; required: true },
     { name: 'edit'; type: Post },
-  ];
-}>();
+  ]
+}>()
 
 permix.setup({
   post: {
@@ -101,17 +101,17 @@ permix.setup({
     edit: (post) => post?.author === 'John Doe',
     //        ^?
   },
-});
+})
 
 const somePost: Post = {
   id: '1',
   author: 'John Doe',
   content: 'Hello World',
-};
+}
 
 // @errors: 2345
-const canCreate = permix.check('post.create');
-const canEdit = permix.check('post.edit', somePost); // ✅ Valid
+const canCreate = permix.check('post.create')
+const canEdit = permix.check('post.edit', somePost) // ✅ Valid
 ```
 
 When `required` is `true`, TypeScript requires the data argument for that action. Use this when permission logic always depends on entity data.
@@ -121,12 +121,12 @@ When `required` is `true`, TypeScript requires the data argument for that action
 You can also define permissions as a flat tuple without nesting:
 
 ```ts twoslash title="/lib/permix-flat.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
-const permix = createPermix<['read', 'write']>();
+const permix = createPermix<['read', 'write']>()
 
-permix.setup({ read: true, write: false });
-permix.check('read'); // true
+permix.setup({ read: true, write: false })
+permix.check('read') // true
 ```
 
 #### `Definition`
@@ -134,12 +134,12 @@ permix.check('read'); // true
 You can define your permission tree in a separate type alias and reuse it with `Rules`.
 
 ```ts twoslash title="/lib/permix-definition.ts"
-import type { Definition, Rules } from 'permix';
-import { createPermix } from 'permix';
+import type { Definition, Rules } from 'permix'
+import { createPermix } from 'permix'
 
 type PermissionsDefinition = {
-  post: ['create', 'edit'];
-};
+  post: ['create', 'edit']
+}
 
 async function getRules(): Promise<Rules<PermissionsDefinition>> {
   // get user or something like that
@@ -148,12 +148,12 @@ async function getRules(): Promise<Rules<PermissionsDefinition>> {
       create: true,
       edit: false,
     },
-  };
+  }
 }
 
-const permix = createPermix<PermissionsDefinition>();
+const permix = createPermix<PermissionsDefinition>()
 
-permix.setup(await getRules());
+permix.setup(await getRules())
 ```
 
 #### `$inferPath`
@@ -161,17 +161,17 @@ permix.setup(await getRules());
 Use `$inferPath` to derive permission path types from an instance without restating the definition:
 
 ```ts title="/lib/permix-infer-path.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  user: ['create'];
-  job: ['remove'];
-}>();
+  user: ['create']
+  job: ['remove']
+}>()
 
-type PermissionPath = typeof permix.$inferPath;
+type PermissionPath = typeof permix.$inferPath
 // 'user.create' | 'job.remove'
 
-const path: PermissionPath = 'user.create';
+const path: PermissionPath = 'user.create'
 ```
 
 ### Return type
@@ -193,11 +193,11 @@ permix.
 When the same permission schema is shared between the server integration and the client bundle, wrap it with `ValidateDefinition` so TypeScript keeps the definition consistent across imports:
 
 ```ts title="/lib/permix-definition.ts"
-import type { ValidateDefinition } from 'permix';
+import type { ValidateDefinition } from 'permix'
 
 export type PermissionsDefinition = ValidateDefinition<{
-  post: ['create', 'read', 'update', 'delete'];
-}>;
+  post: ['create', 'read', 'update', 'delete']
+}>
 ```
 
 This helper is used in the [TanStack Start](/docs/integrations/tanstack-start) integration and in the repository examples.
@@ -207,20 +207,20 @@ This helper is used in the [TanStack Start](/docs/integrations/tanstack-start) i
 Combine permission trees from multiple modules with the `MergePermix` type (for example, a core app schema plus a plugin schema):
 
 ```ts title="/lib/permix-merged.ts"
-import type { MergePermix } from 'permix';
-import { createPermix } from 'permix';
+import type { MergePermix } from 'permix'
+import { createPermix } from 'permix'
 
 type AppPermissions = {
-  post: ['create', 'read'];
-};
+  post: ['create', 'read']
+}
 
 type PluginPermissions = {
-  billing: ['view', 'update'];
-};
+  billing: ['view', 'update']
+}
 
-type PermissionsDefinition = MergePermix<AppPermissions, PluginPermissions>;
+type PermissionsDefinition = MergePermix<AppPermissions, PluginPermissions>
 
-const permix = createPermix<PermissionsDefinition>();
+const permix = createPermix<PermissionsDefinition>()
 // Paths: 'post.create' | 'post.read' | 'billing.view' | 'billing.update'
 ```
 
@@ -231,9 +231,9 @@ When two definitions declare the same entity key with different actions, actions
 Not using TypeScript? Permix works perfectly fine even with plain JavaScript.
 
 ```ts title="/lib/permix.js"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
-const permix = createPermix();
+const permix = createPermix()
 ```
 
 ## Initial Rules
@@ -241,37 +241,37 @@ const permix = createPermix();
 You can provide initial rules when creating a Permix instance. This allows you to set up permissions immediately without calling `setup` separately.
 
 ```ts twoslash title="/lib/permix-initial.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create', 'edit'];
+  post: ['create', 'edit']
 }>({
   post: {
     create: true,
     edit: false,
   },
-});
+})
 
 // Permissions are immediately available
-console.log(permix.check('post.create')); // true
-console.log(permix.isReady()); // true
+console.log(permix.check('post.create')) // true
+console.log(permix.isReady()) // true
 ```
 
 This is equivalent to:
 
 ```ts twoslash title="/lib/permix-initial-setup.ts"
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create', 'edit'];
-}>();
+  post: ['create', 'edit']
+}>()
 
 permix.setup({
   post: {
     create: true,
     edit: false,
   },
-});
+})
 ```
 
 Initial rules are useful when you have permissions that are known at initialization time and don't need to be loaded asynchronously.

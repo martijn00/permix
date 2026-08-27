@@ -1,30 +1,30 @@
-import { useRouter } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useRouter } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import type { DemoRole } from '@/lib/auth';
-import { switchRole } from '@/server/auth';
+import type { DemoRole } from '@/lib/auth'
+import { switchRole } from '@/server/auth'
 
 const roles: { value: DemoRole; label: string }[] = [
   { value: 'guest', label: 'Guest' },
   { value: 'alice', label: 'Alice' },
   { value: 'bob', label: 'Bob' },
   { value: 'admin', label: 'Admin' },
-];
+]
 
 export function RoleSwitcher({ currentRole }: { currentRole: DemoRole }) {
-  const router = useRouter();
-  const [role, setRole] = useState(currentRole);
-  const [pending, setPending] = useState(false);
+  const router = useRouter()
+  const [role, setRole] = useState(currentRole)
+  const [pending, setPending] = useState(false)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPending(true);
+    event.preventDefault()
+    setPending(true)
 
     try {
-      await switchRole({ data: { role } });
-      await router.invalidate();
+      await switchRole({ data: { role } })
+      await router.invalidate()
     } finally {
-      setPending(false);
+      setPending(false)
     }
   }
 
@@ -38,7 +38,7 @@ export function RoleSwitcher({ currentRole }: { currentRole: DemoRole }) {
         name="role"
         value={role}
         onChange={(event) => {
-          setRole(event.target.value as DemoRole);
+          setRole(event.target.value as DemoRole)
         }}
         className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm"
       >
@@ -56,5 +56,5 @@ export function RoleSwitcher({ currentRole }: { currentRole: DemoRole }) {
         Apply
       </button>
     </form>
-  );
+  )
 }

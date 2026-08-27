@@ -1,17 +1,17 @@
-import type { Permix as PermixCore } from '../core';
+import type { Permix as PermixCore } from '../core'
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from '../core';
-import type { CheckArgs, CheckContext } from '../core/check';
-import type { Definition } from '../core/definitions';
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
-import type { MaybePromise } from '../utils';
+} from '../core'
+import type { CheckArgs, CheckContext } from '../core/check'
+import type { Definition } from '../core/definitions'
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+import type { MaybePromise } from '../utils'
 
-export type NextFunction = () => MaybePromise<Response>;
+export type NextFunction = () => MaybePromise<Response>
 
 /**
  * Fetch middleware compatible with [srvx](https://srvx.h3.dev/guide/middleware)
@@ -20,11 +20,11 @@ export type NextFunction = () => MaybePromise<Response>;
 export type Middleware = (
   req: Request,
   next: NextFunction
-) => MaybePromise<Response>;
+) => MaybePromise<Response>
 
 export interface MiddlewareContext {
-  req: Request;
-  next: NextFunction;
+  req: Request
+  next: NextFunction
 }
 
 export interface PermixOptions<D extends Definition> {
@@ -34,7 +34,7 @@ export interface PermixOptions<D extends Definition> {
    */
   onForbidden?: (
     params: CheckContext<D> & MiddlewareContext
-  ) => MaybePromise<Response>;
+  ) => MaybePromise<Response>
 }
 
 function buildPermix<D extends Definition>(
@@ -47,21 +47,21 @@ function buildPermix<D extends Definition>(
       new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
-      }));
+      }))
 
-  const hooks = createHooks<PermixHooks<D>>();
+  const hooks = createHooks<PermixHooks<D>>()
 
   function get(req: Request): PermixCore<D> | null {
-    const instance = (req as any)[resolveKey()] as PermixCore<D> | undefined;
-    return instance ?? null;
+    const instance = (req as any)[resolveKey()] as PermixCore<D> | undefined
+    return instance ?? null
   }
 
   function getOrThrow(req: Request): PermixCore<D> {
-    const instance = get(req);
+    const instance = get(req)
     if (!instance) {
-      throw new PermixNotFoundError(resolveKey());
+      throw new PermixNotFoundError(resolveKey())
     }
-    return instance;
+    return instance
   }
 
   function setupMiddleware(
@@ -73,40 +73,40 @@ function buildPermix<D extends Definition>(
       const rules =
         typeof callbackOrRules === 'function'
           ? await callbackOrRules({ req, next })
-          : callbackOrRules;
-      const instance = createPermixCore<D>(rules);
+          : callbackOrRules
+      const instance = createPermixCore<D>(rules)
       instance.hook('check', (context) => {
-        hooks.callHook('check', context);
-      });
-      (req as any)[resolveKey()] = instance;
-      return await next();
-    };
+        hooks.callHook('check', context)
+      })
+      ;(req as any)[resolveKey()] = instance
+      return await next()
+    }
   }
 
   const checkMiddleware: (...args: CheckArgs<D>) => Middleware =
     (...args) =>
     async (req, next) => {
-      const permix = get(req);
+      const permix = get(req)
 
       if (!permix) {
-        throw new PermixNotFoundError(resolveKey());
+        throw new PermixNotFoundError(resolveKey())
       }
 
-      const allowed = permix.check(...args);
+      const allowed = permix.check(...args)
 
       if (!allowed) {
-        return await onForbidden({ req, next, ...createCheckContext(...args) });
+        return await onForbidden({ req, next, ...createCheckContext(...args) })
       }
 
-      return await next();
-    };
+      return await next()
+    }
 
   function getRules(req: Request): Rules<D> | null {
-    return get(req)?.getRules() ?? null;
+    return get(req)?.getRules() ?? null
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules);
+    return createTemplate<D, T>(rules)
   }
 
   return {
@@ -119,11 +119,11 @@ function buildPermix<D extends Definition>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey();
+      return resolveKey()
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  };
+  }
 }
 
 /**
@@ -161,17 +161,17 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol('permix');
-  const permix = buildPermix<D>(() => key, options);
+  let key: string | symbol = Symbol('permix')
+  const permix = buildPermix<D>(() => key, options)
 
   return Object.assign(permix, {
     contextKey(newKey: string | symbol) {
-      key = newKey;
-      return permix;
+      key = newKey
+      return permix
     },
-  });
+  })
 }
 
 export type ServerPermix<D extends Definition> = ReturnType<
   typeof createPermix<D>
->;
+>

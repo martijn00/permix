@@ -17,9 +17,9 @@ if (user.role === 'admin') {
 Later, I started using [CASL](https://casl.js.org) for permissions management in a [Vue](https://vuejs.org/) application.
 
 ```ts
-can('read', ['Post', 'Comment']);
-can('manage', 'Post', { author: 'me' });
-can('create', 'Comment');
+can('read', ['Post', 'Comment'])
+can('manage', 'Post', { author: 'me' })
+can('create', 'Comment')
 ```
 
 But time goes on, CASL becomes older, and developers' needs grow, especially for type-safe libraries. Unfortunately, CASL couldn't satisfy my type validation needs and so I started thinking again about writing my own validation solution. But this time I wanted to make it as a library, as I already had experience with open-source.
@@ -37,43 +37,43 @@ When creating Permix, the goal was to simplify DX as much as possible without lo
 That is why you only need to write the following code to get started:
 
 ```ts twoslash
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['read'];
-}>();
+  post: ['read']
+}>()
 
 permix.setup({
   post: {
     read: true,
   },
-});
+})
 
-const canReadPost = permix.check('post.read'); // true
+const canReadPost = permix.check('post.read') // true
 ```
 
 It looks too simple, so here's a more interesting example:
 
 ```ts twoslash
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 // You can take types from your database
 interface User {
-  id: string;
-  role: 'editor' | 'user';
+  id: string
+  role: 'editor' | 'user'
 }
 
 interface Post {
-  id: string;
-  title: string;
-  authorId: string;
-  published: boolean;
+  id: string
+  title: string
+  authorId: string
+  published: boolean
 }
 
 interface Comment {
-  id: string;
-  content: string;
-  authorId: string;
+  id: string
+  content: string
+  authorId: string
 }
 
 // Create definition to describe your permissions
@@ -83,15 +83,15 @@ type PermissionsDefinition = {
     { name: 'read'; type: Post },
     { name: 'update'; type: Post },
     { name: 'delete'; type: Post },
-  ];
+  ]
   comment: [
     { name: 'create'; type: Comment },
     { name: 'read'; type: Comment },
     { name: 'update'; type: Comment },
-  ];
-};
+  ]
+}
 
-const permix = createPermix<PermissionsDefinition>();
+const permix = createPermix<PermissionsDefinition>()
 
 // Define permissions for different users
 const editorPermissions = permix.template({
@@ -106,7 +106,7 @@ const editorPermissions = permix.template({
     read: true,
     update: false,
   },
-});
+})
 
 const userPermissions = permix.template(({ id: userId }: User) => ({
   post: {
@@ -120,32 +120,32 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
     read: true,
     update: (comment) => comment?.authorId === userId,
   },
-}));
+}))
 
 async function getUser() {
   // Imagine that this function is fetching user from database
   return {
     id: '1',
     role: 'editor' as const,
-  };
+  }
 }
 
 // Setup permissions for signed in user
 async function setupPermix() {
-  const user = await getUser();
+  const user = await getUser()
   const permissionsMap = {
     editor: () => editorPermissions(),
     user: () => userPermissions(user),
-  };
+  }
 
-  permix.setup(permissionsMap[user.role]());
+  permix.setup(permissionsMap[user.role]())
 }
 
 // Call setupPermix where you need to setup permissions
-setupPermix();
+setupPermix()
 
 // Check if a user has permission to do something
-const canCreatePost = permix.check('post.create');
+const canCreatePost = permix.check('post.create')
 
 async function getComment() {
   // Imagine that this function is fetching comment from database
@@ -153,12 +153,12 @@ async function getComment() {
     id: '1',
     content: 'Hello, world!',
     authorId: '1',
-  };
+  }
 }
 
-const comment = await getComment();
+const comment = await getComment()
 
-const canUpdateComment = permix.check('comment.update', comment);
+const canUpdateComment = permix.check('comment.update', comment)
 ```
 
 ## Benefits

@@ -1,10 +1,10 @@
-import type { DehydratedState } from 'permix';
-import { PermixHydrate, PermixProvider } from 'permix/react';
-import { useLayoutEffect } from 'react';
+import type { DehydratedState } from 'permix'
+import { PermixHydrate, PermixProvider } from 'permix/react'
+import { useLayoutEffect } from 'react'
 
-import type { Session } from '@/lib/auth';
-import type { PermissionsDefinition, PermixInstance } from '@/lib/permix';
-import { createClientRules } from '@/lib/permix';
+import type { Session } from '@/lib/auth'
+import type { PermissionsDefinition, PermixInstance } from '@/lib/permix'
+import { createClientRules } from '@/lib/permix'
 
 function ClientRulesSetup({
   permix,
@@ -12,19 +12,19 @@ function ClientRulesSetup({
   session,
   children,
 }: {
-  permix: PermixInstance;
-  state: DehydratedState<PermissionsDefinition>;
-  session: Session | null;
-  children: React.ReactNode;
+  permix: PermixInstance
+  state: DehydratedState<PermissionsDefinition>
+  session: Session | null
+  children: React.ReactNode
 }) {
   // `hydrate()` only restores booleans — `setup()` brings back the
   // function-based `post.update` rule and flips `isReady()`. Depends on
   // `state` so it re-runs after every re-hydration, not just on session change.
   useLayoutEffect(() => {
-    permix.setup(createClientRules(session));
-  }, [permix, state, session]);
+    permix.setup(createClientRules(session))
+  }, [permix, state, session])
 
-  return children;
+  return children
 }
 
 export function Providers({
@@ -33,10 +33,10 @@ export function Providers({
   session,
   children,
 }: {
-  permix: PermixInstance;
-  state: DehydratedState<PermissionsDefinition>;
-  session: Session | null;
-  children: React.ReactNode;
+  permix: PermixInstance
+  state: DehydratedState<PermissionsDefinition>
+  session: Session | null
+  children: React.ReactNode
 }) {
   return (
     <PermixProvider permix={permix}>
@@ -46,5 +46,5 @@ export function Providers({
         </ClientRulesSetup>
       </PermixHydrate>
     </PermixProvider>
-  );
+  )
 }

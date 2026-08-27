@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { watch } from 'vue'
 
-import { usePermissions } from './composables/permissions';
-import { usePosts } from './composables/posts';
-import { useUser } from './composables/user';
-import { Check, setupPermix } from './lib/permix';
+import { usePermissions } from './composables/permissions'
+import { usePosts } from './composables/posts'
+import { useUser } from './composables/user'
+import { Check, setupPermix } from './lib/permix'
 
-const user = useUser();
-const { check, isReady } = usePermissions();
-const posts = usePosts();
+const user = useUser()
+const { check, isReady } = usePermissions()
+const posts = usePosts()
 
 watch(user, (user) => {
   if (user) {
-    setupPermix(user);
+    setupPermix(user)
   }
-});
+})
 </script>
 
 <template>

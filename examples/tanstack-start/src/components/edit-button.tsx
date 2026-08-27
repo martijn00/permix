@@ -1,11 +1,11 @@
-import type { Post } from '@/lib/permix';
-import { usePermix } from '@/lib/use-permix';
+import type { Post } from '@/lib/permix'
+import { usePermix } from '@/lib/use-permix'
 
 export function EditButton({ post }: { post: Post }) {
-  const { check } = usePermix();
+  const { check } = usePermix()
 
   if (!check('post.update', post)) {
-    return null;
+    return null
   }
 
   return (
@@ -15,5 +15,5 @@ export function EditButton({ post }: { post: Post }) {
     >
       Edit post
     </button>
-  );
+  )
 }

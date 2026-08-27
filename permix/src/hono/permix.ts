@@ -1,21 +1,21 @@
-import type { Context, MiddlewareHandler } from 'hono';
-import { createMiddleware } from 'hono/factory';
+import type { Context, MiddlewareHandler } from 'hono'
+import { createMiddleware } from 'hono/factory'
 
-import type { Permix as PermixCore } from '../core';
+import type { Permix as PermixCore } from '../core'
 import {
   createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
-} from '../core';
-import type { CheckArgs, CheckContext } from '../core/check';
-import type { Definition } from '../core/definitions';
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix';
-import type { MaybePromise } from '../utils';
+} from '../core'
+import type { CheckArgs, CheckContext } from '../core/check'
+import type { Definition } from '../core/definitions'
+import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+import type { MaybePromise } from '../utils'
 
 export interface MiddlewareContext {
-  c: Context;
+  c: Context
 }
 
 export interface PermixOptions<D extends Definition> {
@@ -25,13 +25,13 @@ export interface PermixOptions<D extends Definition> {
    */
   onForbidden?: (
     params: CheckContext<D> & MiddlewareContext
-  ) => MaybePromise<Response>;
+  ) => MaybePromise<Response>
 }
 
 // Hono's TypeScript types for `c.get`/`c.set` only accept strings, but the
 // runtime store handles symbols too — cast here to keep types happy.
 function keyToString(key: string | symbol): string {
-  return key as string;
+  return key as string
 }
 
 function buildPermix<D extends Definition>(
@@ -39,23 +39,23 @@ function buildPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
   const onForbidden =
-    options.onForbidden ?? (({ c }) => c.json({ error: 'Forbidden' }, 403));
+    options.onForbidden ?? (({ c }) => c.json({ error: 'Forbidden' }, 403))
 
-  const hooks = createHooks<PermixHooks<D>>();
+  const hooks = createHooks<PermixHooks<D>>()
 
   function get(c: Context): PermixCore<D> | null {
     const instance = c.get(keyToString(resolveKey())) as
       | PermixCore<D>
-      | undefined;
-    return instance ?? null;
+      | undefined
+    return instance ?? null
   }
 
   function getOrThrow(c: Context): PermixCore<D> {
-    const instance = get(c);
+    const instance = get(c)
     if (!instance) {
-      throw new PermixNotFoundError(resolveKey());
+      throw new PermixNotFoundError(resolveKey())
     }
-    return instance;
+    return instance
   }
 
   function setupMiddleware(
@@ -67,41 +67,41 @@ function buildPermix<D extends Definition>(
       const rules =
         typeof callbackOrRules === 'function'
           ? await callbackOrRules({ c })
-          : callbackOrRules;
-      const instance = createPermixCore<D>(rules);
+          : callbackOrRules
+      const instance = createPermixCore<D>(rules)
       instance.hook('check', (context) => {
-        hooks.callHook('check', context);
-      });
-      c.set(keyToString(resolveKey()), instance);
-      await next();
-    });
+        hooks.callHook('check', context)
+      })
+      c.set(keyToString(resolveKey()), instance)
+      await next()
+    })
   }
 
   const checkMiddleware: (...args: CheckArgs<D>) => MiddlewareHandler = (
     ...args
   ) =>
     createMiddleware(async (c, next) => {
-      const permix = get(c);
+      const permix = get(c)
 
       if (!permix) {
-        throw new PermixNotFoundError(resolveKey());
+        throw new PermixNotFoundError(resolveKey())
       }
 
-      const allowed = permix.check(...args);
+      const allowed = permix.check(...args)
 
       if (!allowed) {
-        return await onForbidden({ c, ...createCheckContext(...args) });
+        return await onForbidden({ c, ...createCheckContext(...args) })
       }
 
-      await next();
-    });
+      await next()
+    })
 
   function getRules(c: Context): Rules<D> | null {
-    return get(c)?.getRules() ?? null;
+    return get(c)?.getRules() ?? null
   }
 
   function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules);
+    return createTemplate<D, T>(rules)
   }
 
   return {
@@ -114,11 +114,11 @@ function buildPermix<D extends Definition>(
     hook: hooks.hook,
     hookOnce: hooks.hookOnce,
     get key() {
-      return resolveKey();
+      return resolveKey()
     },
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
-  };
+  }
 }
 
 /**
@@ -149,18 +149,18 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol('permix');
-  const permix = buildPermix<D>(() => key, options);
+  let key: string | symbol = Symbol('permix')
+  const permix = buildPermix<D>(() => key, options)
 
   return Object.assign(permix, {
     contextKey(newKey: string | symbol) {
-      key = newKey;
-      return permix;
+      key = newKey
+      return permix
     },
-  });
+  })
 }
 
 /** Return type of {@link createPermix}. */
 export type HonoPermix<D extends Definition> = ReturnType<
   typeof createPermix<D>
->;
+>

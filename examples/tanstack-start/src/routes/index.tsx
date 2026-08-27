@@ -1,21 +1,21 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router'
 
-import { CreatePostForm } from '@/components/create-post-form';
-import { EditButton } from '@/components/edit-button';
-import { PermissionBadge } from '@/components/permission-badge';
-import { RoleSwitcher } from '@/components/role-switcher';
-import { usePermix } from '@/lib/use-permix';
-import { getHomePageData } from '@/server/posts';
+import { CreatePostForm } from '@/components/create-post-form'
+import { EditButton } from '@/components/edit-button'
+import { PermissionBadge } from '@/components/permission-badge'
+import { RoleSwitcher } from '@/components/role-switcher'
+import { usePermix } from '@/lib/use-permix'
+import { getHomePageData } from '@/server/posts'
 
 export const Route = createFileRoute('/')({
   loader: () => getHomePageData(),
   component: Home,
-});
+})
 
 function Home() {
-  const { session, role } = Route.useRouteContext();
-  const { posts, canCreate, canReadFirst, postChecks } = Route.useLoaderData();
-  const { check } = usePermix();
+  const { session, role } = Route.useRouteContext()
+  const { posts, canCreate, canReadFirst, postChecks } = Route.useLoaderData()
+  const { check } = usePermix()
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-10">
@@ -96,7 +96,7 @@ function Home() {
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Posts</h2>
         {posts.map((post) => {
-          const checks = postChecks.find((item) => item.id === post.id);
+          const checks = postChecks.find((item) => item.id === post.id)
 
           return (
             <article
@@ -132,11 +132,11 @@ function Home() {
                 </div>
               </div>
             </article>
-          );
+          )
         })}
       </section>
 
       <CreatePostForm canCreate={canCreate} />
     </main>
-  );
+  )
 }

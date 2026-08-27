@@ -2,8 +2,8 @@ export function PermissionBadge({
   label,
   allowed,
 }: {
-  label: string;
-  allowed: boolean;
+  label: string
+  allowed: boolean
 }) {
   return (
     <span
@@ -15,5 +15,5 @@ export function PermissionBadge({
     >
       {label}:{allowed ? 'allowed' : 'denied'}
     </span>
-  );
+  )
 }

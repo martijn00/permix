@@ -1,20 +1,20 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
-import { getDemoRole, getSession } from '@/lib/auth';
-import { permix } from '@/lib/permix';
-import { getPosts } from '@/lib/posts';
+import { getDemoRole, getSession } from '@/lib/auth'
+import { permix } from '@/lib/permix'
+import { getPosts } from '@/lib/posts'
 
-import { CreatePostForm } from './components/create-post-form';
-import { PermissionBadge } from './components/permission-badge';
-import { RoleSwitcher } from './components/role-switcher';
-import { EditButton } from './posts/[id]/edit-button';
+import { CreatePostForm } from './components/create-post-form'
+import { PermissionBadge } from './components/permission-badge'
+import { RoleSwitcher } from './components/role-switcher'
+import { EditButton } from './posts/[id]/edit-button'
 
 export default async function Home() {
   const [session, role, posts] = await Promise.all([
     getSession(),
     getDemoRole(),
     getPosts(),
-  ]);
+  ])
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-10">
@@ -104,5 +104,5 @@ export default async function Home() {
 
       <CreatePostForm canCreate={permix.check('post.create')} />
     </main>
-  );
+  )
 }

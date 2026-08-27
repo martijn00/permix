@@ -1,9 +1,9 @@
-export type DemoRole = 'guest' | 'alice' | 'bob' | 'admin';
+export type DemoRole = 'guest' | 'alice' | 'bob' | 'admin'
 
 export interface Session {
-  userId: string;
-  role?: 'admin';
-  label: string;
+  userId: string
+  role?: 'admin'
+  label: string
 }
 
 const SESSIONS: Record<DemoRole, Session | null> = {
@@ -11,10 +11,10 @@ const SESSIONS: Record<DemoRole, Session | null> = {
   alice: { userId: 'alice', label: 'Alice (author of post 1)' },
   bob: { userId: 'bob', label: 'Bob (author of post 2)' },
   admin: { userId: 'admin', role: 'admin', label: 'Admin' },
-};
+}
 
 export function getSessionForRole(role: DemoRole): Session | null {
-  return SESSIONS[role] ?? null;
+  return SESSIONS[role] ?? null
 }
 
 function parseDemoRole(value: string | undefined): DemoRole {
@@ -24,18 +24,18 @@ function parseDemoRole(value: string | undefined): DemoRole {
     value === 'bob' ||
     value === 'admin'
   ) {
-    return value;
+    return value
   }
 
-  return 'alice';
+  return 'alice'
 }
 
 export function getDemoRoleFromRequest(request: Request): DemoRole {
-  const cookieHeader = request.headers.get('cookie') ?? '';
-  const match = /(?:^|;\s*)demo-role=([^;]*)/.exec(cookieHeader);
-  return parseDemoRole(match?.[1]);
+  const cookieHeader = request.headers.get('cookie') ?? ''
+  const match = /(?:^|;\s*)demo-role=([^;]*)/.exec(cookieHeader)
+  return parseDemoRole(match?.[1])
 }
 
 export function getSessionFromRequest(request: Request): Session | null {
-  return getSessionForRole(getDemoRoleFromRequest(request));
+  return getSessionForRole(getDemoRoleFromRequest(request))
 }

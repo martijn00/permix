@@ -21,15 +21,15 @@ Permix provides official React integration through the `PermixProvider` componen
 First, wrap your application with the `PermixProvider`:
 
 ```tsx title="App.tsx"
-import { PermixProvider } from 'permix/react';
-import { permix } from './lib/permix';
+import { PermixProvider } from 'permix/react'
+import { permix } from './lib/permix'
 
 function App() {
   return (
     <PermixProvider permix={permix}>
       <YourApp />
     </PermixProvider>
-  );
+  )
 }
 ```
 
@@ -47,11 +47,11 @@ function App() {
 For checking permissions in your components, you can use the `usePermix` hook. And to avoid importing the hook and Permix instance in every component, you can create a custom hook:
 
 ```tsx title="hooks/use-permissions.ts"
-import { usePermix } from 'permix/react';
-import { permix } from '../lib/permix';
+import { usePermix } from 'permix/react'
+import { permix } from '../lib/permix'
 
 export function usePermissions() {
-  return usePermix(permix);
+  return usePermix(permix)
 }
 ```
 
@@ -64,11 +64,11 @@ export function usePermissions() {
 If you prefer using components, you can import the `createComponents` function from `permix/react` and create checking components:
 
 ```ts title="lib/permix.ts"
-import { createComponents } from 'permix/react';
+import { createComponents } from 'permix/react'
 
 // ...
 
-export const { Check } = createComponents(permix);
+export const { Check } = createComponents(permix)
 ```
 
 And then you can use the `Check` component in your components:
@@ -84,7 +84,7 @@ export default function Page() {
     >
       Will show this if a user has permission
     </Check>
-  );
+  )
 }
 ```
 
@@ -97,19 +97,19 @@ export default function Page() {
 Use the `usePermix` hook and checking components in your components:
 
 ```tsx title="page.tsx"
-import { usePermix } from 'permix/react';
-import { permix } from './lib/permix';
-import { Check } from './lib/permix-components';
+import { usePermix } from 'permix/react'
+import { permix } from './lib/permix'
+import { Check } from './lib/permix-components'
 
 export default function Page() {
-  const post = usePost();
-  const { check, isReady } = usePermix(permix);
+  const post = usePost()
+  const { check, isReady } = usePermix(permix)
 
   if (!isReady) {
-    return <div>Loading permissions...</div>;
+    return <div>Loading permissions...</div>
   }
 
-  const canEdit = check('post.edit', post);
+  const canEdit = check('post.edit', post)
 
   return (
     <div>
@@ -122,7 +122,7 @@ export default function Page() {
         Can I create a post inside the Check component?
       </Check>
     </div>
-  );
+  )
 }
 ```
 
@@ -135,16 +135,16 @@ export default function Page() {
 For SSR applications, use `PermixHydrate` to restore dehydrated server state on the client. `hydrate()` does not mark the instance ready and cannot restore function-based rules — call `setup()` on the client with the full rule set (usually in the same place you restore the session):
 
 ```tsx title="App.tsx"
-import { useEffect } from 'react';
-import type { DehydratedState } from 'permix';
-import { PermixHydrate, PermixProvider } from 'permix/react';
-import { permix } from './lib/permix';
-import { getClientRules } from './lib/permissions';
+import { useEffect } from 'react'
+import type { DehydratedState } from 'permix'
+import { PermixHydrate, PermixProvider } from 'permix/react'
+import { permix } from './lib/permix'
+import { getClientRules } from './lib/permissions'
 
 function App({ dehydratedState }: { dehydratedState: DehydratedState<any> }) {
   useEffect(() => {
-    permix.setup(getClientRules());
-  }, []);
+    permix.setup(getClientRules())
+  }, [])
 
   return (
     <PermixProvider permix={permix}>
@@ -152,7 +152,7 @@ function App({ dehydratedState }: { dehydratedState: DehydratedState<any> }) {
         <YourApp />
       </PermixHydrate>
     </PermixProvider>
-  );
+  )
 }
 ```
 

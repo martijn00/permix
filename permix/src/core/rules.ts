@@ -1,11 +1,11 @@
-import { callRuleWithoutData } from './check';
-import type { Action, ActionName, Definition } from './definitions';
+import { callRuleWithoutData } from './check'
+import type { Action, ActionName, Definition } from './definitions'
 
 type ActionRule<A extends Action> = A extends { type: infer T; required: true }
   ? (data: T) => boolean
   : A extends { type: infer T }
     ? ((data?: T) => boolean) | boolean
-    : boolean | (() => boolean);
+    : boolean | (() => boolean)
 
 /**
  * The shape of the object passed to `permix.setup()` (and produced by
@@ -14,7 +14,7 @@ type ActionRule<A extends Action> = A extends { type: infer T; required: true }
  */
 export type Rules<D extends Definition> = D extends readonly Action[]
   ? { [E in D[number] as ActionName<E>]: ActionRule<E> }
-  : { [K in keyof D]: D[K] extends Definition ? Rules<D[K]> : never };
+  : { [K in keyof D]: D[K] extends Definition ? Rules<D[K]> : never }
 
 /**
  * The JSON-safe form of {@link Rules}, where every leaf rule has been
@@ -26,8 +26,8 @@ export type DehydratedState<D extends Definition> = D extends readonly Action[]
   : {
       [K in keyof D & string]: D[K] extends Definition
         ? DehydratedState<D[K]>
-        : never;
-    };
+        : never
+    }
 
 /**
  * Recursively collapse a rules tree into its JSON-safe {@link DehydratedState}.
@@ -37,19 +37,19 @@ export type DehydratedState<D extends Definition> = D extends readonly Action[]
  */
 export function dehydrateRules(node: unknown): unknown {
   if (typeof node === 'boolean') {
-    return node;
+    return node
   }
   if (typeof node === 'function') {
-    return callRuleWithoutData(node as () => unknown);
+    return callRuleWithoutData(node as () => unknown)
   }
   if (node && typeof node === 'object') {
-    const result: Record<string, unknown> = {};
+    const result: Record<string, unknown> = {}
     for (const key in node as Record<string, unknown>) {
-      result[key] = dehydrateRules((node as Record<string, unknown>)[key]);
+      result[key] = dehydrateRules((node as Record<string, unknown>)[key])
     }
-    return result;
+    return result
   }
-  return node;
+  return node
 }
 
 /**
@@ -59,15 +59,15 @@ export function dehydrateRules(node: unknown): unknown {
 export function hydrateRules<D extends Definition>(
   state: DehydratedState<D>
 ): Rules<D> {
-  const result: Record<string, unknown> = {};
+  const result: Record<string, unknown> = {}
   for (const key in state as Record<string, unknown>) {
-    const value = (state as Record<string, unknown>)[key];
+    const value = (state as Record<string, unknown>)[key]
     result[key] =
       typeof value === 'boolean'
         ? value
-        : hydrateRules(value as DehydratedState<Definition>);
+        : hydrateRules(value as DehydratedState<Definition>)
   }
-  return result as Rules<D>;
+  return result as Rules<D>
 }
 
 /**
@@ -86,5 +86,5 @@ export function hydrateRules<D extends Definition>(
  * ```
  */
 export function createRules<D extends Definition>(rules: Rules<D>): Rules<D> {
-  return rules;
+  return rules
 }

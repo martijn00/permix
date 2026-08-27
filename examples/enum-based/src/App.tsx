@@ -1,23 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
-import { usePermissions } from './hooks/use-permissions';
-import { PostPermission } from './lib/permissions';
-import { Check, permix, setupPermissions } from './lib/permix';
+import { usePermissions } from './hooks/use-permissions'
+import { PostPermission } from './lib/permissions'
+import { Check, permix, setupPermissions } from './lib/permix'
 
 export default function App() {
-  const { check } = usePermissions();
+  const { check } = usePermissions()
 
   useEffect(() => {
-    setupPermissions();
-  }, []);
+    setupPermissions()
+  }, [])
 
   function createPost() {
     // You still can use the permix instance to check permissions
     if (!permix.check(`post.${PostPermission.Create}`)) {
-      return;
+      return
     }
 
-    console.log('Creating a post');
+    console.log('Creating a post')
   }
 
   return (
@@ -33,5 +33,5 @@ export default function App() {
         Create a post
       </button>
     </div>
-  );
+  )
 }

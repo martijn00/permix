@@ -1,10 +1,10 @@
 export interface ActionSpec {
-  name: string;
-  type?: unknown;
-  required?: boolean;
+  name: string
+  type?: unknown
+  required?: boolean
 }
 
-export type Action = string | ActionSpec;
+export type Action = string | ActionSpec
 
 /**
  * The full type of a permissions tree passed to `createPermix<D>()`.
@@ -32,16 +32,16 @@ export type Action = string | ActionSpec;
  * }
  * ```
  */
-export type Definition = readonly Action[] | { [key: string]: Definition };
+export type Definition = readonly Action[] | { [key: string]: Definition }
 
 export type ValidateDefinition<D extends Definition> = D &
   ([Extract<Definition, string>] extends [never]
     ? unknown
-    : Extract<Definition, string>);
+    : Extract<Definition, string>)
 
 /** Resolves an {@link Action} to its string name. */
 export type ActionName<A extends Action> = A extends string
   ? A
   : A extends { name: infer N extends string }
     ? N
-    : never;
+    : never

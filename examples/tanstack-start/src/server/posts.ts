@@ -1,12 +1,12 @@
-import { notFound } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
+import { notFound } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 
-import { permix } from '@/lib/permix';
-import { getPost, getPosts } from '@/lib/posts';
+import { permix } from '@/lib/permix'
+import { getPost, getPosts } from '@/lib/posts'
 
 export const getHomePageData = createServerFn().handler(async ({ context }) => {
-  const instance = permix.getOrThrow(context);
-  const posts = await getPosts();
+  const instance = permix.getOrThrow(context)
+  const posts = await getPosts()
 
   return {
     posts,
@@ -17,21 +17,21 @@ export const getHomePageData = createServerFn().handler(async ({ context }) => {
       canUpdate: instance.check('post.update', post),
       canDelete: instance.check('post.delete', post),
     })),
-  };
-});
+  }
+})
 
 export const getPostPageData = createServerFn()
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data, context }) => {
-    const post = await getPost(data.id);
+    const post = await getPost(data.id)
 
     if (!post || !permix.getOrThrow(context).check('post.read', post)) {
-      throw notFound();
+      throw notFound()
     }
 
-    return { post };
-  });
+    return { post }
+  })
 
 export const createPost = createServerFn({ method: 'POST' })
   .middleware([permix.checkMiddleware('post.create')])
-  .handler(async () => ({ ok: true as const, message: 'Post created (demo)' }));
+  .handler(async () => ({ ok: true as const, message: 'Post created (demo)' }))

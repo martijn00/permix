@@ -21,34 +21,34 @@ Permix provides a middleware for tRPC that allows you to easily check permission
 Here's a basic example of how to use the Permix middleware with tRPC:
 
 ```ts
-import { initTRPC } from '@trpc/server';
-import { createPermix } from 'permix/trpc';
+import { initTRPC } from '@trpc/server'
+import { createPermix } from 'permix/trpc'
 
 interface Post {
-  id: string;
-  authorId: string;
-  title: string;
-  content: string;
+  id: string
+  authorId: string
+  title: string
+  content: string
 }
 
 interface Context {
   user: {
-    id: string;
-    role: string;
-  };
+    id: string
+    role: string
+  }
 }
 
 // Initialize tRPC
-const t = initTRPC.context<Context>().create();
+const t = initTRPC.context<Context>().create()
 
 // Create your Permix instance with a custom context key
 const permix = createPermix<{
-  post: ['create', 'read', 'update', 'delete'];
-}>().contextKey('permissions');
+  post: ['create', 'read', 'update', 'delete']
+}>().contextKey('permissions')
 
 // Create a protected procedure with Permix
 const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  const isAdmin = ctx.user.role === 'admin';
+  const isAdmin = ctx.user.role === 'admin'
 
   return next({
     ctx: permix.setupContext({
@@ -59,8 +59,8 @@ const protectedProcedure = t.procedure.use(({ ctx, next }) => {
         delete: isAdmin,
       },
     }),
-  });
-});
+  })
+})
 ```
 
 <Callout>
@@ -83,23 +83,23 @@ const router = t.router({
     .use(permix.checkMiddleware('post.create'))
     .mutation(({ input }) => {
       // Create post logic here
-      return { success: true };
+      return { success: true }
     }),
 
   updatePost: protectedProcedure
     .use(permix.checkMiddleware((c) => c('post.read') && c('post.update')))
     .mutation(({ input }) => {
       // Update post logic here
-      return { success: true };
+      return { success: true }
     }),
 
   deletePost: protectedProcedure
     .use(permix.checkMiddleware('post.delete'))
     .mutation(({ input }) => {
       // Delete post logic here
-      return { success: true };
+      return { success: true }
     }),
-});
+})
 ```
 
 </Step>
@@ -115,15 +115,15 @@ const router = t.router({
   getPosts: protectedProcedure.query(({ ctx }) => {
     // Check permissions manually
     if (ctx.permissions.check('post.read')) {
-      return getAllPosts();
+      return getAllPosts()
     }
 
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'You do not have permission to read posts',
-    });
+    })
   }),
-});
+})
 ```
 
 The `ctx.permissions` object provides:
@@ -149,7 +149,7 @@ const adminTemplate = permix.template({
     update: true,
     delete: true,
   },
-});
+})
 
 // Create a template for regular user permissions
 const userTemplate = permix.template({
@@ -159,7 +159,7 @@ const userTemplate = permix.template({
     update: false,
     delete: false,
   },
-});
+})
 
 // Use templates in your middleware
 const protectedProcedure = t.procedure.use(({ ctx, next }) => {
@@ -167,8 +167,8 @@ const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     ctx: permix.setupContext(
       ctx.user.role === 'admin' ? adminTemplate() : userTemplate()
     ),
-  });
-});
+  })
+})
 ```
 
 </Step>
@@ -187,9 +187,9 @@ const permix = createPermix<Definition>({
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: `User ${ctx.user.id} doesn't have permission for ${path}`,
-    });
+    })
   },
-}).contextKey('permissions');
+}).contextKey('permissions')
 ```
 
 ### Allow Through
@@ -199,10 +199,10 @@ You can also let denied requests through by calling `next()`:
 ```ts
 const permix = createPermix<Definition>({
   onForbidden: ({ path, next }) => {
-    console.warn(`Permission denied for ${path}, allowing through`);
-    return next();
+    console.warn(`Permission denied for ${path}, allowing through`)
+    return next()
   },
-}).contextKey('permissions');
+}).contextKey('permissions')
 ```
 
 The `onForbidden` handler receives:
@@ -220,7 +220,7 @@ You can use async functions in your permission setup:
 
 ```ts
 const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const userPermissions = await getUserPermissions(ctx.user.id);
+  const userPermissions = await getUserPermissions(ctx.user.id)
 
   return next({
     ctx: permix.setupContext({
@@ -231,8 +231,8 @@ const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
         delete: userPermissions.canDeletePosts,
       },
     }),
-  });
-});
+  })
+})
 ```
 
 ### Hooks
@@ -241,6 +241,6 @@ You can register hooks at the factory level to listen for events across all requ
 
 ```ts
 permix.hook('check', ({ path, data }) => {
-  console.log(`Permission checked: ${path}`, data);
-});
+  console.log(`Permission checked: ${path}`, data)
+})
 ```

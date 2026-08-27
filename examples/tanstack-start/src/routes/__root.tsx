@@ -1,17 +1,17 @@
-import { TanStackDevtools } from '@tanstack/react-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools'
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
-} from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+} from '@tanstack/react-router'
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
-import type { RouterContext } from '@/lib/permix';
-import { Providers } from '@/providers';
-import { getRootLoaderData } from '@/server/permix';
+import type { RouterContext } from '@/lib/permix'
+import { Providers } from '@/providers'
+import { getRootLoaderData } from '@/server/permix'
 
-import appCss from '../styles.css?url';
+import appCss from '../styles.css?url'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
@@ -35,24 +35,24 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    const data = await getRootLoaderData();
+    const data = await getRootLoaderData()
 
-    context.permix.hydrate(data.state);
+    context.permix.hydrate(data.state)
 
-    return data;
+    return data
   },
   component: RootComponent,
   shellComponent: RootDocument,
-});
+})
 
 function RootComponent() {
-  const { permix, state, session } = Route.useRouteContext();
+  const { permix, state, session } = Route.useRouteContext()
 
   return (
     <Providers permix={permix} state={state} session={session}>
       <Outlet />
     </Providers>
-  );
+  )
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -77,5 +77,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }

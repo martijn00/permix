@@ -1,22 +1,22 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { createPost } from '@/server/posts';
+import { createPost } from '@/server/posts'
 
 export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
-  const [result, setResult] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const [result, setResult] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
 
   async function handleSubmit() {
-    setResult(null);
-    setPending(true);
+    setResult(null)
+    setPending(true)
 
     try {
-      const data = await createPost();
-      setResult(data.message);
+      const data = await createPost()
+      setResult(data.message)
     } catch (error) {
-      setResult(error instanceof Error ? error.message : 'Request failed');
+      setResult(error instanceof Error ? error.message : 'Request failed')
     } finally {
-      setPending(false);
+      setPending(false)
     }
   }
 
@@ -41,5 +41,5 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
       </button>
       {result ? <p className="mt-3 text-sm text-zinc-600">{result}</p> : null}
     </section>
-  );
+  )
 }

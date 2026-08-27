@@ -1,75 +1,75 @@
-type HookFn = (...args: any[]) => void;
+type HookFn = (...args: any[]) => void
 
 export function createHooks<
   T extends { [K in keyof T]: HookFn } = Record<string, HookFn>,
 >() {
-  const hooks = new Map<keyof T, HookFn[]>();
+  const hooks = new Map<keyof T, HookFn[]>()
 
   function getList(name: keyof T): HookFn[] {
-    let list = hooks.get(name);
+    let list = hooks.get(name)
     if (!list) {
-      list = [];
-      hooks.set(name, list);
+      list = []
+      hooks.set(name, list)
     }
-    return list;
+    return list
   }
 
   const hook = <K extends keyof T>(name: K, fn: T[K]): (() => void) => {
-    getList(name).push(fn);
+    getList(name).push(fn)
 
     return () => {
-      const list = hooks.get(name);
+      const list = hooks.get(name)
       if (!list) {
-        return;
+        return
       }
-      const index = list.indexOf(fn);
+      const index = list.indexOf(fn)
       if (index !== -1) {
-        list.splice(index, 1);
+        list.splice(index, 1)
       }
-    };
-  };
+    }
+  }
 
   const hookOnce = <K extends keyof T>(name: K, fn: T[K]): void => {
     const wrapper: HookFn = (...args) => {
-      removeHook(name, wrapper as T[K]);
-      fn(...args);
-    };
-    hook(name, wrapper as T[K]);
-  };
+      removeHook(name, wrapper as T[K])
+      fn(...args)
+    }
+    hook(name, wrapper as T[K])
+  }
 
   const removeHook = <K extends keyof T>(name: K, fn: T[K]): void => {
-    const list = hooks.get(name);
+    const list = hooks.get(name)
     if (!list) {
-      return;
+      return
     }
-    const index = list.indexOf(fn);
+    const index = list.indexOf(fn)
     if (index !== -1) {
-      list.splice(index, 1);
+      list.splice(index, 1)
     }
-  };
+  }
 
   const callHook = <K extends keyof T>(
     name: K,
     ...args: Parameters<T[K]>
   ): void => {
-    const list = hooks.get(name);
+    const list = hooks.get(name)
     if (!list) {
-      return;
+      return
     }
     // Copy so a hook can unsubscribe while this call is still iterating.
     // eslint-disable-next-line unicorn/no-useless-spread
     for (const fn of [...list]) {
-      fn(...args);
+      fn(...args)
     }
-  };
+  }
 
   const clearHook = <K extends keyof T>(name: K): void => {
-    hooks.delete(name);
-  };
+    hooks.delete(name)
+  }
 
   const clearAllHooks = (): void => {
-    hooks.clear();
-  };
+    hooks.clear()
+  }
 
   return {
     hook,
@@ -78,5 +78,5 @@ export function createHooks<
     callHook,
     clearHook,
     clearAllHooks,
-  };
+  }
 }

@@ -1,39 +1,39 @@
-import { initTRPC, TRPCError } from '@trpc/server';
-import * as trpcExpress from '@trpc/server/adapters/express';
-import cors from 'cors';
-import express from 'express';
-import { createPermix } from 'permix/trpc';
-import { z } from 'zod';
+import { initTRPC, TRPCError } from '@trpc/server'
+import * as trpcExpress from '@trpc/server/adapters/express'
+import cors from 'cors'
+import express from 'express'
+import { createPermix } from 'permix/trpc'
+import { z } from 'zod'
 
-import type { PermissionsDefinition } from '@/shared/permix';
-import { getRules } from '@/shared/permix';
+import type { PermissionsDefinition } from '@/shared/permix'
+import { getRules } from '@/shared/permix'
 
-const app = express();
+const app = express()
 
-app.use(cors());
+app.use(cors())
 
-const t = initTRPC.context<{ extraInfo: string }>().create();
+const t = initTRPC.context<{ extraInfo: string }>().create()
 
 export const permix = createPermix<PermissionsDefinition>({
   onForbidden: () => {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'You do not have permission to access this resource',
-    });
+    })
   },
-});
+})
 
-export const router = t.router;
+export const router = t.router
 export const publicProcedure = t.procedure.use(({ next }) => {
   // Imagine this is a middleware that gets the user from the request
   const user = {
     role: 'admin' as const,
-  };
+  }
 
   return next({
     ctx: permix.setupContext(getRules(user.role)),
-  });
-});
+  })
+})
 
 export const appRouter = router({
   userList: publicProcedure
@@ -63,9 +63,9 @@ export const appRouter = router({
       // Imagine this is a database mutation
       ({ id: '1', name: 'John Doe', email: 'john.doe@example.com' })
     ),
-});
+})
 
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
 
 app.use(
   '/trpc',
@@ -75,7 +75,7 @@ app.use(
       extraInfo: 'some extra info',
     }),
   })
-);
+)
 app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
+  console.log('Server is running on port 3000')
+})

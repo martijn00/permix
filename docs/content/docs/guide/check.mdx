@@ -12,7 +12,7 @@ Permix provides the `check` method for verifying permissions. It returns a boole
 Check a single action using a dot-separated path:
 
 ```ts
-permix.check('post.create'); // returns true/false
+permix.check('post.create') // returns true/false
 ```
 
 ## Multiple actions
@@ -21,7 +21,7 @@ Combine multiple checks with a callback. All conditions must be truthy:
 
 ```ts
 // Check if both create and read are allowed
-permix.check((c) => c('post.create') && c('post.read'));
+permix.check((c) => c('post.create') && c('post.read'))
 ```
 
 ## All
@@ -30,10 +30,10 @@ Use the `~all` special token to verify if all possible actions in a subtree are 
 
 ```ts
 // Check if all post actions are allowed
-permix.check('post.~all');
+permix.check('post.~all')
 
 // Check if all actions in the entire permission tree are allowed
-permix.check('~all');
+permix.check('~all')
 ```
 
 ## Any
@@ -42,10 +42,10 @@ Use the `~any` special token to verify if any action in a subtree is permitted:
 
 ```ts
 // Check if any post action is allowed
-permix.check('post.~any');
+permix.check('post.~any')
 
 // Check if any action in the entire permission tree is allowed
-permix.check('~any');
+permix.check('~any')
 ```
 
 ## Waiting for setup
@@ -56,11 +56,11 @@ When permissions might be set up asynchronously, wait for the instance to be rea
 setTimeout(() => {
   permix.setup({
     post: { create: true },
-  });
-}, 1000);
+  })
+}, 1000)
 
-await permix.isReadyAsync();
-permix.check('post.create');
+await permix.isReadyAsync()
+permix.check('post.create')
 ```
 
 <Callout>
@@ -81,12 +81,12 @@ permix.setup({
     // Static permission
     read: true,
   },
-});
+})
 
 // Check with data
-const post = { id: '1', authorId: 'user1' };
+const post = { id: '1', authorId: 'user1' }
 
-permix.check('post.update', post); // true if currentUserId === 'user1'
+permix.check('post.update', post) // true if currentUserId === 'user1'
 ```
 
 <Callout type="warn">
@@ -99,16 +99,16 @@ permix.check('post.update', post); // true if currentUserId === 'user1'
 Permix provides full type safety for your permissions:
 
 ```ts twoslash
-import { createPermix } from 'permix';
+import { createPermix } from 'permix'
 
 const permix = createPermix<{
-  post: ['create', 'update'];
-}>();
+  post: ['create', 'update']
+}>()
 
 // @errors: 2345
-permix.check('post.invalid-action');
+permix.check('post.invalid-action')
 
-permix.check('invalid-entity.create');
+permix.check('invalid-entity.create')
 ```
 
 Invalid paths cause a TypeScript error at compile time. At runtime, checking an undefined path throws `PermixRuleNotDefinedError`.

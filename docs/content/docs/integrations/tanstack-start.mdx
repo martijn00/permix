@@ -25,12 +25,12 @@ You `setupMiddleware()` the rules once per request and `get()` them on the serve
 Create a Permix instance once in a shared module so it can be imported anywhere on the server:
 
 ```ts title="lib/permix.ts"
-import type { ValidateDefinition } from 'permix';
-import { createPermix } from 'permix/tanstack-start';
+import type { ValidateDefinition } from 'permix'
+import { createPermix } from 'permix/tanstack-start'
 
 interface Post {
-  id: string;
-  authorId: string;
+  id: string
+  authorId: string
 }
 
 // Define your permissions once and reuse this type on the server and client.
@@ -40,10 +40,10 @@ export type PermissionsDefinition = ValidateDefinition<{
     { name: 'read'; type: Post },
     { name: 'update'; type: Post },
     { name: 'delete'; type: Post },
-  ];
-}>;
+  ]
+}>
 
-export const permix = createPermix<PermissionsDefinition>();
+export const permix = createPermix<PermissionsDefinition>()
 ```
 
 The returned helper does **not** hold any permission state at module scope — every request gets its own isolated instance.
@@ -63,14 +63,14 @@ The returned helper does **not** hold any permission state at module scope — e
 Register `setupMiddleware()` as a global request middleware in `src/start.ts` so it runs for every request and creates a fresh, request-scoped instance. The callback receives the `request`, so you can read cookies, headers, or fetch the user.
 
 ```ts title="src/start.ts"
-import { createStart } from '@tanstack/react-start';
-import { getSession } from './lib/auth';
-import { permix } from './lib/permix';
+import { createStart } from '@tanstack/react-start'
+import { getSession } from './lib/auth'
+import { permix } from './lib/permix'
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [
     permix.setupMiddleware(async ({ request }) => {
-      const session = await getSession(request);
+      const session = await getSession(request)
 
       return {
         post: {
@@ -79,10 +79,10 @@ export const startInstance = createStart(() => ({
           update: (post) => post?.authorId === session?.userId,
           delete: session?.role === 'admin',
         },
-      };
+      }
     }),
   ],
-}));
+}))
 ```
 
 <Callout>
@@ -104,13 +104,13 @@ With plain isomorphic rules that's harmless. But as soon as the callback pulls i
 When the callback needs server-only imports, write the `.server()` boundary yourself and pass in `createSetupHandler()` — the same setup logic, but placed where the compiler can strip it:
 
 ```ts title="src/start.ts"
-import { createMiddleware, createStart } from '@tanstack/react-start';
-import { auth } from './lib/auth'; // server-only: stays out of the client bundle
-import { permix } from './lib/permix';
+import { createMiddleware, createStart } from '@tanstack/react-start'
+import { auth } from './lib/auth' // server-only: stays out of the client bundle
+import { permix } from './lib/permix'
 
 const permixMiddleware = createMiddleware().server(
   permix.createSetupHandler(async ({ request }) => {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await auth.api.getSession({ headers: request.headers })
 
     return {
       post: {
@@ -119,13 +119,13 @@ const permixMiddleware = createMiddleware().server(
         update: (post) => post?.authorId === session?.userId,
         delete: session?.role === 'admin',
       },
-    };
+    }
   })
-);
+)
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [permixMiddleware],
-}));
+}))
 ```
 
 `createSetupHandler()` accepts exactly what `setupMiddleware()` accepts — a rules object or a callback receiving the `request` — and produces the same request-scoped instance, hooks included. `checkMiddleware()` is unaffected: it never closes over your setup imports.
@@ -139,33 +139,33 @@ export const startInstance = createStart(() => ({
 The request-scoped instance lives on TanStack Start's **server** request context, which is shared with server functions and server routes. Read it with `getOrThrow(context)` (or `get(context)`) inside a `createServerFn` handler and call `check()`:
 
 ```ts title="src/server/posts.ts"
-import { notFound } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
-import { permix } from '../lib/permix';
-import { getPost } from '../lib/posts';
+import { notFound } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { permix } from '../lib/permix'
+import { getPost } from '../lib/posts'
 
 export const getPostPageData = createServerFn()
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data, context }) => {
-    const post = await getPost(data.id);
+    const post = await getPost(data.id)
 
     if (!post || !permix.getOrThrow(context).check('post.read', post)) {
-      throw notFound();
+      throw notFound()
     }
 
-    return { post };
-  });
+    return { post }
+  })
 ```
 
 Then call the server function from your route loader:
 
 ```tsx title="src/routes/posts.$id.tsx"
-import { createFileRoute } from '@tanstack/react-router';
-import { getPostPageData } from '../server/posts';
+import { createFileRoute } from '@tanstack/react-router'
+import { getPostPageData } from '../server/posts'
 
 export const Route = createFileRoute('/posts/$id')({
   loader: ({ params }) => getPostPageData({ data: { id: params.id } }),
-});
+})
 ```
 
 Use `get(context)` instead of `getOrThrow(context)` when you want a nullable value rather than a [`PermixNotFoundError`](/docs/guide/instance) if setup didn't run.
@@ -189,15 +189,15 @@ Use `get(context)` instead of `getOrThrow(context)` when you want a nullable val
 Use `checkMiddleware()` to enforce a permission before a server function's handler runs:
 
 ```ts title="src/lib/posts.ts"
-import { createServerFn } from '@tanstack/react-start';
-import { permix } from './permix';
+import { createServerFn } from '@tanstack/react-start'
+import { permix } from './permix'
 
 export const createPost = createServerFn({ method: 'POST' })
   .middleware([permix.checkMiddleware('post.create')])
   .handler(async () => {
     // Only runs when `post.create` passed.
     // ...
-  });
+  })
 ```
 
 By default a denied check throws a `PermixError`. Pass an `onForbidden` handler to `createPermix` to customise this — for example to throw a `redirect()`.
@@ -205,9 +205,9 @@ By default a denied check throws a `PermixError`. Pass an `onForbidden` handler 
 ```ts
 const permix = createPermix<Definition>({
   onForbidden: ({ path }) => {
-    throw new Error(`Forbidden: ${path}`);
+    throw new Error(`Forbidden: ${path}`)
   },
-});
+})
 ```
 
 </Step>
@@ -221,35 +221,35 @@ const permix = createPermix<Definition>({
 `getRouter()` runs **once per request on the server** and **once per tab in the browser**, so this instance is request-scoped during SSR and a singleton in the browser — the same lifetime you want for the client cache.
 
 ```tsx title="src/router.tsx"
-import type { PermissionsDefinition } from './lib/permix';
-import { createRouter as createTanStackRouter } from '@tanstack/react-router';
-import { createPermix } from 'permix';
-import { routeTree } from './routeTree.gen';
+import type { PermissionsDefinition } from './lib/permix'
+import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+import { createPermix } from 'permix'
+import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
-  const permix = createPermix<PermissionsDefinition>();
+  const permix = createPermix<PermissionsDefinition>()
 
   return createTanStackRouter({
     routeTree,
     context: { permix },
-  });
+  })
 }
 ```
 
 Type the context on the root route with `createRootRouteWithContext`:
 
 ```tsx title="src/routes/__root.tsx"
-import type { Permix } from 'permix';
-import type { PermissionsDefinition } from '../lib/permix';
-import { createRootRouteWithContext } from '@tanstack/react-router';
+import type { Permix } from 'permix'
+import type { PermissionsDefinition } from '../lib/permix'
+import { createRootRouteWithContext } from '@tanstack/react-router'
 
 export interface RouterContext {
-  permix: Permix<PermissionsDefinition>;
+  permix: Permix<PermissionsDefinition>
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   // ...
-});
+})
 ```
 
 <Callout type="warn">
@@ -274,65 +274,65 @@ Use `dehydrate(context)` to serialize the request's permissions, then hydrate th
 </Callout>
 
 ```ts title="src/lib/permix.server.ts"
-import { createServerFn } from '@tanstack/react-start';
-import { permix } from './permix';
+import { createServerFn } from '@tanstack/react-start'
+import { permix } from './permix'
 
 export const getPermixState = createServerFn().handler(({ context }) =>
   permix.dehydrate(context)
-);
+)
 ```
 
 The root route's `beforeLoad` runs before every child route's `beforeLoad` and `loader`, so hydrating there makes `context.permix` ready everywhere below it. Returning the state also puts it on the context for the components.
 
 ```tsx title="src/routes/__root.tsx"
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
-import { getPermixState } from '../lib/permix.server';
-import { Providers } from '../providers';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { getPermixState } from '../lib/permix.server'
+import { Providers } from '../providers'
 
 // `RouterContext` from the previous step.
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
-    const state = await getPermixState();
+    const state = await getPermixState()
 
-    context.permix.hydrate(state);
+    context.permix.hydrate(state)
 
-    return { state };
+    return { state }
   },
   component: RootComponent,
-});
+})
 
 function RootComponent() {
-  const { permix, state } = Route.useRouteContext();
+  const { permix, state } = Route.useRouteContext()
 
   return (
     <Providers permix={permix} state={state}>
       <Outlet />
     </Providers>
-  );
+  )
 }
 ```
 
 Pass the very same instance to `PermixProvider` so routes and components read one source of truth:
 
 ```tsx title="src/providers.tsx"
-import type { DehydratedState, Permix } from 'permix';
-import type { PermissionsDefinition } from './lib/permix';
-import { PermixHydrate, PermixProvider } from 'permix/react';
+import type { DehydratedState, Permix } from 'permix'
+import type { PermissionsDefinition } from './lib/permix'
+import { PermixHydrate, PermixProvider } from 'permix/react'
 
 export function Providers({
   permix,
   state,
   children,
 }: {
-  permix: Permix<PermissionsDefinition>;
-  state: DehydratedState<PermissionsDefinition>;
-  children: React.ReactNode;
+  permix: Permix<PermissionsDefinition>
+  state: DehydratedState<PermissionsDefinition>
+  children: React.ReactNode
 }) {
   return (
     <PermixProvider permix={permix}>
       <PermixHydrate state={state}>{children}</PermixHydrate>
     </PermixProvider>
-  );
+  )
 }
 ```
 
@@ -349,16 +349,16 @@ export function Providers({
 With the instance hydrated on the router context, any route can guard itself without a dedicated server function. The check runs on the server during SSR and on the client on subsequent navigations.
 
 ```tsx title="src/routes/dashboard.tsx"
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {
     if (!context.permix.check('post.create')) {
-      throw redirect({ to: '/login' });
+      throw redirect({ to: '/login' })
     }
   },
   component: DashboardComponent,
-});
+})
 ```
 
 <Callout type="warn">
@@ -381,31 +381,31 @@ Two limits are worth knowing:
 Read the instance off the router context and pass it to `usePermix`:
 
 ```tsx title="src/lib/use-permix.ts"
-import { useRouteContext } from '@tanstack/react-router';
-import { usePermix as useReactPermix } from 'permix/react';
+import { useRouteContext } from '@tanstack/react-router'
+import { usePermix as useReactPermix } from 'permix/react'
 
 export function usePermix() {
-  const { permix } = useRouteContext({ from: '__root__' });
+  const { permix } = useRouteContext({ from: '__root__' })
 
-  return useReactPermix(permix);
+  return useReactPermix(permix)
 }
 ```
 
 ```tsx title="src/components/edit-button.tsx"
-import { usePermix } from '../lib/use-permix';
+import { usePermix } from '../lib/use-permix'
 
 export function EditButton({
   post,
 }: {
-  post: { id: string; authorId: string };
+  post: { id: string; authorId: string }
 }) {
-  const { check } = usePermix();
+  const { check } = usePermix()
 
   if (!check('post.update', post)) {
-    return null;
+    return null
   }
 
-  return <button type="button">Edit post</button>;
+  return <button type="button">Edit post</button>
 }
 ```
 
@@ -420,28 +420,28 @@ If you prefer the component API, create checkers with `createComponents` from `p
 `createPermix` exposes the same `template()` helper as the core API for reusing rule sets:
 
 ```ts title="lib/permix.ts"
-import { createPermix } from 'permix/tanstack-start';
+import { createPermix } from 'permix/tanstack-start'
 
 export const permix = createPermix<{
-  post: ['create', 'read', 'update', 'delete'];
-}>();
+  post: ['create', 'read', 'update', 'delete']
+}>()
 
 export const adminTemplate = permix.template({
   post: { create: true, read: true, update: true, delete: true },
-});
+})
 
 export const guestTemplate = permix.template({
   post: { create: false, read: true, update: false, delete: false },
-});
+})
 ```
 
 ```ts title="src/start.ts"
-import { adminTemplate, guestTemplate, permix } from './lib/permix';
+import { adminTemplate, guestTemplate, permix } from './lib/permix'
 
 permix.setupMiddleware(async ({ request }) => {
-  const session = await getSession(request);
-  return session?.role === 'admin' ? adminTemplate() : guestTemplate();
-});
+  const session = await getSession(request)
+  return session?.role === 'admin' ? adminTemplate() : guestTemplate()
+})
 ```
 
 </Step>
@@ -501,6 +501,6 @@ You can register hooks at the factory level to listen for events across all requ
 
 ```ts
 permix.hook('check', ({ path, data }) => {
-  console.log(`Permission checked: ${path}`, data);
-});
+  console.log(`Permission checked: ${path}`, data)
+})
 ```

@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
 export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null)
 
   async function handleSubmit() {
-    setResult(null);
+    setResult(null)
 
-    const response = await fetch('/api/posts', { method: 'POST' });
-    const data = await response.json();
+    const response = await fetch('/api/posts', { method: 'POST' })
+    const data = await response.json()
 
     setResult(
       response.ok
         ? data.message
         : `${response.status}: ${data.error ?? 'Request failed'}`
-    );
+    )
   }
 
   return (
@@ -42,5 +42,5 @@ export function CreatePostForm({ canCreate }: { canCreate: boolean }) {
         </p>
       ) : null}
     </section>
-  );
+  )
 }

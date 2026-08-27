@@ -1,21 +1,21 @@
-import { ORPCError, os } from '@orpc/server';
-import { RPCHandler } from '@orpc/server/fetch';
-import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
+import { ORPCError, os } from '@orpc/server'
+import { RPCHandler } from '@orpc/server/fetch'
+import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 
-import type { ValidateDefinition } from '../core';
-import { createPermix } from './permix';
+import type { ValidateDefinition } from '../core'
+import { createPermix } from './permix'
 
 interface Context {
   user: {
-    id: string;
-  };
+    id: string
+  }
 }
 
 type Def = ValidateDefinition<{
-  post: ['create', 'read', 'update'];
-  user: ['delete'];
-}>;
+  post: ['create', 'read', 'update']
+  user: ['delete']
+}>
 
 function createRequest(path: string, body: any = {}) {
   return new Request(path, {
@@ -24,18 +24,18 @@ function createRequest(path: string, body: any = {}) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  });
+  })
 }
 
 describe(createPermix, () => {
-  const orpcPermix = os.$context<Context>();
+  const orpcPermix = os.$context<Context>()
 
-  const permix = createPermix<Def>().contextKey('someCustomName');
+  const permix = createPermix<Def>().contextKey('someCustomName')
 
   it('should throw ts error', () => {
     // @ts-expect-error invalid permission path
-    permix.checkMiddleware('post.delete');
-  });
+    permix.checkMiddleware('post.delete')
+  })
 
   it('should check with ctx', async () => {
     const router = orpcPermix.router({
@@ -52,19 +52,19 @@ describe(createPermix, () => {
         .handler(({ context }) => ({
           success: context.someCustomName.check('post.create'),
         })),
-    });
+    })
 
     const result = await new RPCHandler(router).handle(
       createRequest('/createPost'),
       {
         context: { user: { id: '1' } },
       }
-    );
-    expect(result.response?.status).toStrictEqual(200);
+    )
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should throw if called without setup', async () => {
     const router = orpcPermix.router({
@@ -73,15 +73,15 @@ describe(createPermix, () => {
         // @ts-expect-error context.someCustomName does not exist
         .use(permix.checkMiddleware('post.create'))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(500);
-  });
+    expect(result.response?.status).toStrictEqual(500)
+  })
 
   it('should allow access when permission is defined', async () => {
     const protectedMiddleware = orpcPermix.use(({ next }) =>
@@ -91,27 +91,27 @@ describe(createPermix, () => {
           user: { delete: true },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
         .use(permix.checkMiddleware('post.create'))
         .handler(({ context }) => {
-          context.someCustomName.check('post.update');
-          return { success: true };
+          context.someCustomName.check('post.update')
+          return { success: true }
         }),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(200);
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should allow access by context', async () => {
     const protectedMiddleware = orpcPermix.use(({ context, next }) =>
@@ -127,30 +127,30 @@ describe(createPermix, () => {
           },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
         .use(permix.checkMiddleware('post.create'))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(200);
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
+    })
 
     const result2 = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '2' } },
-    });
+    })
 
-    expect(result2.response?.status).toStrictEqual(403);
-  });
+    expect(result2.response?.status).toStrictEqual(403)
+  })
 
   it('should deny access when permission is not granted', async () => {
     const protectedMiddleware = orpcPermix.use(({ next }) =>
@@ -160,30 +160,30 @@ describe(createPermix, () => {
           user: { delete: false },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
         .use(permix.checkMiddleware('post.create'))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(403);
-  });
+    expect(result.response?.status).toStrictEqual(403)
+  })
 
   it('should work with custom onForbidden that throws', async () => {
     const permix = createPermix<Def>({
       onForbidden: ({ path }) => {
         throw new ORPCError('FORBIDDEN', {
           message: `No access to ${path}`,
-        });
+        })
       },
-    });
+    })
 
     const protectedMiddleware = orpcPermix.use(({ next }) =>
       next({
@@ -192,20 +192,20 @@ describe(createPermix, () => {
           user: { delete: false },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
         .use(permix.checkMiddleware('post.create'))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(403);
+    expect(result.response?.status).toStrictEqual(403)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: {
         code: 'FORBIDDEN',
@@ -213,13 +213,13 @@ describe(createPermix, () => {
         message: 'No access to post.create',
         status: 403,
       },
-    });
-  });
+    })
+  })
 
   it('should work with onForbidden that allows through via next()', async () => {
     const permix = createPermix<Def>({
       onForbidden: ({ next }) => next(),
-    }).contextKey('someCustomName');
+    }).contextKey('someCustomName')
 
     const protectedMiddleware = orpcPermix.use(({ next }) =>
       next({
@@ -228,24 +228,24 @@ describe(createPermix, () => {
           user: { delete: false },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
         .use(permix.checkMiddleware('post.create'))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(200);
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should chain multiple permissions', async () => {
     const protectedMiddleware = orpcPermix.use(({ next }) =>
@@ -255,24 +255,24 @@ describe(createPermix, () => {
           user: { delete: true },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createAndReadPost: protectedMiddleware
         .use(permix.checkMiddleware((c) => c('post.create') && c('post.read')))
         .handler(() => ({ success: true })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(createRequest('/createAndReadPost'), {
       context: { user: { id: '1' } },
-    });
+    })
 
-    expect(result.response?.status).toStrictEqual(200);
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should save types for context and input', async () => {
     const protectedMiddleware = orpcPermix.use(({ next }) =>
@@ -282,7 +282,7 @@ describe(createPermix, () => {
           user: { delete: true },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createAndReadPost: protectedMiddleware
@@ -298,9 +298,9 @@ describe(createPermix, () => {
           // @ts-expect-error userId is string
           inputUserId: input.userId * 1,
         })),
-    });
+    })
 
-    const handler = new RPCHandler(router);
+    const handler = new RPCHandler(router)
     const result = await handler.handle(
       createRequest('/createAndReadPost', {
         json: { userId: '1' },
@@ -308,21 +308,21 @@ describe(createPermix, () => {
       {
         context: { user: { id: '1' } },
       }
-    );
+    )
 
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: {
         userId: 1,
         inputUserId: 1,
       },
-    });
-  });
+    })
+  })
 
   it('should work with template', async () => {
     const template = permix.template({
       post: { create: true, read: true, update: true },
       user: { delete: true },
-    });
+    })
 
     const router = orpcPermix.router({
       createPost: orpcPermix
@@ -331,37 +331,37 @@ describe(createPermix, () => {
         .handler(({ context }) => ({
           success: context.someCustomName.check('post.create'),
         })),
-    });
+    })
 
     const result = await new RPCHandler(router).handle(
       createRequest('/createPost'),
       {
         context: { user: { id: '1' } },
       }
-    );
-    expect(result.response?.status).toStrictEqual(200);
+    )
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should dehydrate permissions', async () => {
     const template = permix.template({
       post: { create: true, read: false, update: true },
       user: { delete: false },
-    });
+    })
 
-    const p = permix.setupContext(template());
-    const dehydrated = p.someCustomName.dehydrate();
+    const p = permix.setupContext(template())
+    const dehydrated = p.someCustomName.dehydrate()
 
     expect(dehydrated).toStrictEqual({
       post: { create: true, read: false, update: true },
       user: { delete: false },
-    });
-  });
+    })
+  })
 
   it('should work with default key', async () => {
-    const permix = createPermix<Def>();
+    const permix = createPermix<Def>()
 
     const protectedMiddleware = orpcPermix.use(({ next }) =>
       next({
@@ -370,7 +370,7 @@ describe(createPermix, () => {
           user: { delete: true },
         }),
       })
-    );
+    )
 
     const router = orpcPermix.router({
       createPost: protectedMiddleware
@@ -378,23 +378,23 @@ describe(createPermix, () => {
         .handler(({ context }) => ({
           success: context.permix.check('post.create'),
         })),
-    });
+    })
 
     const result = await new RPCHandler(router).handle(
       createRequest('/createPost'),
       {
         context: { user: { id: '1' } },
       }
-    );
-    expect(result.response?.status).toStrictEqual(200);
+    )
+    expect(result.response?.status).toStrictEqual(200)
     await expect(result.response?.json()).resolves.toStrictEqual({
       json: { success: true },
-    });
-  });
+    })
+  })
 
   it('should throw ts error when using checkMiddleware from a different permix instance', () => {
-    const admin = createPermix<Def>().contextKey('admin');
-    const guest = createPermix<Def>().contextKey('guest');
+    const admin = createPermix<Def>().contextKey('admin')
+    const guest = createPermix<Def>().contextKey('guest')
 
     const withAdmin = orpcPermix.use(({ next }) =>
       next({
@@ -403,12 +403,12 @@ describe(createPermix, () => {
           user: { delete: true },
         }),
       })
-    );
+    )
 
     // Using admin's checkMiddleware after admin's setupContext is fine
-    withAdmin.use(admin.checkMiddleware('post.create'));
+    withAdmin.use(admin.checkMiddleware('post.create'))
 
     // @ts-expect-error using guest's checkMiddleware without guest's setupContext
-    withAdmin.use(guest.checkMiddleware('post.create'));
-  });
-});
+    withAdmin.use(guest.checkMiddleware('post.create'))
+  })
+})

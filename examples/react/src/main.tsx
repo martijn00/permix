@@ -1,11 +1,11 @@
-import { PermixProvider } from 'permix/react';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import { PermixProvider } from 'permix/react'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 
-import App from './App.tsx';
-import { permix } from './lib/permix.ts';
+import App from './App.tsx'
+import { permix } from './lib/permix.ts'
 
-import './index.css';
+import './index.css'
 
 createRoot(document.querySelector('#root')!).render(
   <StrictMode>
@@ -13,4 +13,4 @@ createRoot(document.querySelector('#root')!).render(
       <App />
     </PermixProvider>
   </StrictMode>
-);
+)

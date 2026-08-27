@@ -1,27 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
-import { usePermissions } from './hooks/use-permissions';
-import { permix, setupFeatureFlags } from './lib/permix';
+import { usePermissions } from './hooks/use-permissions'
+import { permix, setupFeatureFlags } from './lib/permix'
 
 export default function App() {
-  const { check } = usePermissions();
+  const { check } = usePermissions()
 
   useEffect(() => {
-    setupFeatureFlags();
-  }, []);
+    setupFeatureFlags()
+  }, [])
 
   if (!check('betaFeatures.newUI')) {
-    return null;
+    return null
   }
 
   async function handleApiCall() {
     if (!permix.check('betaFeatures.experimentalAPI')) {
-      return;
+      return
     }
 
     // Call experimental API...
 
-    console.log('Calling experimental API...');
+    console.log('Calling experimental API...')
   }
 
   return (
@@ -31,5 +31,5 @@ export default function App() {
         Call experimental API
       </button>
     </div>
-  );
+  )
 }
