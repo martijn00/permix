@@ -15,11 +15,11 @@
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "npm-run-all2": "^9.0.1",
+    "npm-run-all2": "^9.0.3",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "taze": "^19.14.1",
+    "taze": "^21.1.0",
     "turbo": "catalog:",
     "typescript": "catalog:",
     "ultracite": "catalog:"

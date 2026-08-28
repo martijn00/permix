@@ -8,17 +8,17 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "16.2.6",
+    "next": "16.3.3",
     "permix": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "tailwindcss": "^4.3.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "catalog:"
   }
 }
