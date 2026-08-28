@@ -148,5 +148,12 @@ describe('standard-schema createPermix', () => {
     expectTypeOf(permix.actions).toEqualTypeOf<
       readonly ['create', 'read', 'update', 'delete']
     >()
+    expectTypeOf(permix.validate).toEqualTypeOf<false | 'deny' | 'throw'>()
+    expect(permix.validate).toBe(false)
+  })
+
+  it('records the validate option on the instance', () => {
+    const permix = createPermix({ post: postSchema }, { validate: 'deny' })
+    expect(permix.validate).toBe('deny')
   })
 })

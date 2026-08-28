@@ -148,6 +148,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
+    "arktype": "^2.2.3",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "happy-dom": "^20.9.0",

@@ -78,7 +78,7 @@ const definition = {
 export const permix = createPermix<typeof definition>()
 ```
 
-Or `{ name: 'edit'; schema: typeof postSchema }` on the generic. CRUD-from-schemas: `createPermix` from `permix/standard-schema`. `check()` does not parse data at runtime.
+Or `{ name: 'edit'; schema: typeof postSchema }` on the generic. CRUD-from-schemas: `createPermix` from `permix/standard-schema` (`{ validate: 'deny' | 'throw' }` to parse `check()` data). Core `check()` does not parse.
 
 Every action you declare in `D` must appear in every `setup()` call (use `false` to deny).
 

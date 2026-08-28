@@ -5,8 +5,8 @@
  * Standard Schema implementations without taking a runtime dependency.
  *
  * Flattened from the spec's `StandardSchemaV1` namespace to match this repo's
- * lint rules. The `~standard` protocol is type-only here. Permix does not
- * parse `check()` data at runtime.
+ * lint rules. Core `createPermix<D>()` uses these types for inference only.
+ * Runtime `validate` lives on `permix/standard-schema`.
  */
 
 export interface StandardSchemaV1Types<Input = unknown, Output = Input> {
