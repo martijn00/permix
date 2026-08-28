@@ -193,7 +193,9 @@
     "scripts:copy-readme": "node ./scripts/copy-readme.ts",
     "skills:stale": "intent stale skills",
     "skills:validate": "intent validate skills",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:supabase-rls": "node ./scripts/test-supabase-rls.mjs",
+    "verify:packed": "pnpm run build && node ./scripts/verify-packed-package.mjs"
   },
   "dependencies": {
     "chokidar": "catalog:",
