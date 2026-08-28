@@ -6,6 +6,7 @@ export default defineConfig({
   name: 'permix',
   entry: [
     './src/core/index.ts',
+    './src/adapter/index.ts',
     './src/react/index.ts',
     './src/vue/index.ts',
     './src/trpc/index.ts',

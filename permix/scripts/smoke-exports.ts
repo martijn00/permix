@@ -1,5 +1,10 @@
 const entrypoints = [
   ['.', await import('permix'), ['createPermix', 'permission']],
+  [
+    './adapter',
+    await import('permix/adapter'),
+    ['createAdapter', 'serializeAdapterError'],
+  ],
   ['./trpc', await import('permix/trpc'), ['createPermix']],
   ['./orpc', await import('permix/orpc'), ['createPermix']],
   ['./express', await import('permix/express'), ['createPermix']],
