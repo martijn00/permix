@@ -23,6 +23,12 @@ function dashboardMain(page: Page) {
     .filter({ has: page.getByTestId('dashboard-shell') })
 }
 
+function tenantShell(page: Page, tenant: 'acme' | 'globex') {
+  return page.getByTestId('tenant-shell').filter({
+    has: page.getByTestId('tenant-name').filter({ hasText: tenant }),
+  })
+}
+
 test.describe('next 16.3 instant navigation', () => {
   test('cache-safe permission UI is present under the lock', async ({
     page,
@@ -82,9 +88,8 @@ test.describe('next 16.3 instant navigation', () => {
 
     await instant(page, async () => {
       await page.getByTestId('globex-link').click()
-      await expect(
-        page.getByTestId('tenant-shell').filter({ hasText: 'globex:create-denied' })
-      ).toBeVisible()
+      await expect(tenantShell(page, 'globex')).toBeVisible()
+      await expect(page.getByText('globex:create-denied')).toBeVisible()
     })
   })
 
@@ -97,9 +102,8 @@ test.describe('next 16.3 instant navigation', () => {
 
     await instant(page, async () => {
       await page.getByTestId('globex-prefetch-link').click()
-      await expect(
-        page.getByTestId('tenant-shell').filter({ hasText: 'globex:create-denied' })
-      ).toBeVisible()
+      await expect(tenantShell(page, 'globex')).toBeVisible()
+      await expect(page.getByText('globex:create-denied')).toBeVisible()
     })
   })
 })
