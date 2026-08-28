@@ -1,0 +1,87 @@
+---
+title: Convex
+description: Resolve permissions before Convex query, mutation, action, and HTTP handlers
+---
+
+## Overview
+
+`permix/convex` wraps generated Convex function builders. Every invocation calls `ctx.auth.getUserIdentity()`, resolves async rules, creates an isolated Permix instance, and only then starts application handler work.
+
+## Configure wrappers
+
+```ts
+import { createConvexPermix } from 'permix/convex'
+import type { DataModel } from './_generated/dataModel'
+
+type Definition = {
+  documents: [
+    'read',
+    { name: 'update'; type: { ownerId: string }; required: true },
+  ]
+}
+
+export const permissions = createConvexPermix<Definition, DataModel>({
+  resolveRules: async ({ identity }) => ({
+    documents: {
+      read: true,
+      update: ({ ownerId }) => ownerId === identity.subject,
+    },
+  }),
+})
+```
+
+The resolver receives a discriminated `kind` (`query`, `mutation`, `action`, or `httpAction`), the original Convex context, and function arguments/request.
+
+## Wrap functions
+
+```ts
+import { v } from 'convex/values'
+import { query, mutation, action, httpAction } from './_generated/server'
+import { permissions } from './permissions'
+
+export const getDocument = permissions.query(query)({
+  args: { ownerId: v.string() },
+  returns: v.boolean(),
+  handler: ({ permix }, args) => permix.check('documents.update', args),
+})
+
+export const updateDocument = permissions.mutation(mutation)({
+  args: { ownerId: v.string() },
+  returns: v.null(),
+  handler: async ({ permix }, args) => {
+    if (!permix.check('documents.update', args)) {
+      throw new Error('Forbidden')
+    }
+    return null
+  },
+})
+
+export const runImport = permissions.action(action)(async ({ permix }) => {
+  if (!permix.check('documents.read')) throw new Error('Forbidden')
+  return null
+})
+
+export const health = permissions.httpAction(httpAction)(async ({ identity }) =>
+  Response.json({ subject: identity.subject })
+)
+```
+
+The wrappers preserve Convex argument/return validators and public/internal builder visibility. Unauthenticated invocations are rejected before the handler.
+
+## Data-model inference
+
+```ts
+import {
+  defineConvexTableSelection,
+  type ConvexDefinition,
+} from 'permix/convex'
+import type { DataModel } from './_generated/dataModel'
+
+const tables = defineConvexTableSelection<DataModel>()(['documents'] as const)
+
+type Definition = ConvexDefinition<DataModel, typeof tables>
+```
+
+The inferred actions mirror unambiguous generated document operations: `get`, `insert`, `patch`, `replace`, and `delete`, including their generated ID and document payload types. Business permissions such as `publish` or `moderate` should remain explicit in your canonical Permix definition.
+
+Internal or scheduled functions without an end-user identity should use a separate trusted authorization path instead of pretending to be a user.

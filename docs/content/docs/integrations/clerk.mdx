@@ -1,0 +1,96 @@
+---
+title: Clerk
+description: Resolve isolated Permix rules from Clerk sessions and organization permissions
+---
+
+## Overview
+
+`permix/clerk` provides the same authorization outcome as the Better Auth integration: authenticated server checks, async rules, dehydrated permission transport, and a typed client. Clerk has no third-party plugin registry, so this is a Permix provider integration rather than a Clerk-native plugin.
+
+## Server integration
+
+```ts
+import {
+  createClerkPermix,
+  createClerkRequestAuthenticator,
+} from 'permix/clerk'
+import { clerkClient } from '@clerk/nextjs/server'
+
+type Definition = {
+  documents: [
+    'read',
+    { name: 'update'; type: { ownerId: string }; required: true },
+  ]
+}
+
+const permissions = createClerkPermix<Definition>({
+  authenticateRequest: createClerkRequestAuthenticator(clerkClient),
+  resolveRules: async (principal) => ({
+    documents: {
+      read: principal.orgId !== undefined,
+      update: ({ ownerId }) => ownerId === principal.userId,
+    },
+  }),
+})
+```
+
+You may also pass an already authenticated Clerk `Auth` object directly to `check`, `resolve`, or `dehydrate`. Permix exposes verified identifiers, organization role/permissions, session claims, and Clerk's `has()` function to the resolver without fetching full Clerk resources.
+
+## Mapping Clerk authorization
+
+```ts
+import { createClerkAuthorizationMapping } from 'permix/clerk'
+
+const mapping = createClerkAuthorizationMapping<Definition>({
+  'documents.read': { permission: 'org:documents:read' },
+  'documents.update': { role: 'org:editor' },
+})
+
+const allowed = mapping.check(principal, 'documents.read')
+```
+
+The mapping is explicit: Permix paths do not need to use Clerk's `org:<feature>:<permission>` naming. Supply a permission catalog to validate unknown and uncovered mapped paths.
+
+## Permissions endpoint and client
+
+```ts
+import {
+  createClerkPermissionsHandler,
+  createClerkPermixClient,
+} from 'permix/clerk'
+
+export const GET = createClerkPermissionsHandler(permissions)
+
+const client = createClerkPermixClient<Definition>({
+  endpoint: '/api/permissions',
+  organizationId: 'org_123',
+  getToken: async ({ organizationId }) =>
+    getTokenForOrganization(organizationId),
+})
+
+const permix = await client.getPermix()
+```
+
+Use an explicit bearer token for the intended active organization. Relying only on a singleton browser session cookie can select the wrong tenant in multi-organization clients.
+
+## Next.js convenience
+
+```ts
+import { createNextClerkPermix } from 'permix/clerk/next'
+
+export const permissions = createNextClerkPermix<Definition>({
+  resolveRules: (principal) => ({
+    documents: {
+      read: principal.orgId !== undefined,
+      update: ({ ownerId }) => ownerId === principal.userId,
+    },
+  }),
+})
+```
+
+Clerk boundaries to keep explicit:
+
+- Organization permission checks require an active organization.
+- `has({ permission })` covers custom organization permissions, not system permissions.
+- Role and permission claims can be stale until Clerk refreshes the token.
+- Browser checks are UX only; enforce permissions again on the server.

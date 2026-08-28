@@ -4,12 +4,7 @@ import type {
   AdapterErrorDto,
   AdapterPathCheckArgs,
 } from '../adapter'
-import type {
-  Definition,
-  DehydratedState,
-  Permix,
-  Rules,
-} from '../core'
+import type { Definition, DehydratedState, Permix, Rules } from '../core'
 import type { PermissionCatalog } from '../extractor/types'
 import type { MaybePromise } from '../utils'
 
