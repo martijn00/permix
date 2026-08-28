@@ -105,6 +105,10 @@
       "types": "./dist/drizzle/legacy/index.d.mts",
       "import": "./dist/drizzle/legacy/index.mjs"
     },
+    "./standard-schema": {
+      "types": "./dist/standard-schema/index.d.mts",
+      "import": "./dist/standard-schema/index.mjs"
+    },
     "./effect": {
       "types": "./dist/effect/index.d.mts",
       "import": "./dist/effect/index.mjs"
@@ -153,6 +157,7 @@
     "svelte-check": "^4.5.0",
     "tsdown": "^0.22.1",
     "typescript": "^6.0.3",
+    "valibot": "^1.4.2",
     "vite-plugin-solid": "^2.11.12",
     "vitest": "^4.1.8",
     "vue": "^3.5.17",

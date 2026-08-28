@@ -1,6 +1,6 @@
 import type { CheckArgs, CheckContext } from './check'
 import { createCheck, createCheckContext } from './check'
-import type { Action, ActionName, Definition } from './definitions'
+import type { Action, ActionData, ActionName, Definition } from './definitions'
 import { PermixNotReadyError } from './errors'
 import { createHooks } from './hooks'
 import type { DehydratedState, Rules } from './rules'
@@ -9,11 +9,11 @@ import { createTemplate } from './template'
 
 export type { DehydratedState, Rules } from './rules'
 
-type ActionArgs<A extends Action> = A extends { type: infer T; required: true }
-  ? [T]
-  : A extends { type: infer T }
-    ? [T?]
-    : []
+type ActionArgs<A extends Action> = [ActionData<A>] extends [never]
+  ? []
+  : A extends { required: true }
+    ? [ActionData<A>]
+    : [ActionData<A>?]
 
 type ActionByName<A extends Action, N extends string> = A extends unknown
   ? ActionName<A> extends N
@@ -316,6 +316,16 @@ export interface Permix<D extends Definition> {
  * })
  * permix.check('post.create')                // true
  * permix.check('post.edit', { authorId: '1' }) // true/false
+ * ```
+ *
+ * @example Standard Schema (Zod, Valibot, …)
+ * ```ts
+ * const permix = createPermix<{
+ *   post: [
+ *     'create',
+ *     { name: 'edit', schema: typeof postSchema, required: true },
+ *   ]
+ * }>()
  * ```
  */
 export function createPermix<D extends Definition>(

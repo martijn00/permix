@@ -66,6 +66,8 @@ permix.check('post.update', post) // optional data if not required: true
 permix.check('post.delete', post) // required: true — data required
 ```
 
+Prefer `schema: typeof postSchema` (or `action('edit', postSchema)`) when the entity already has a Zod/Valibot/ArkType schema — see https://permix.letstri.dev/docs/integrations/standard-schema. `check()` still does not parse data.
+
 **ReBAC pattern**: capture the **actor** in closures at `setup` time; pass the **resource** at `check` time. No separate ReBAC API.
 
 ## Readiness

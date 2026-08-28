@@ -1,0 +1,208 @@
+---
+title: Standard Schema
+description: Infer entity types from Zod, Valibot, ArkType, and other Standard Schema validators
+---
+
+## Overview
+
+Permix can take entity types from any library that implements [Standard Schema](https://standardschema.dev/) — Zod, Valibot, ArkType, Effect Schema, and others. You already have those schemas for API validation; reuse them so permission callbacks and `check()` stay aligned with the same object shape.
+
+Two entry points:
+
+| Import | Use when |
+| --- | --- |
+| `action` from `permix` | You already have a `createPermix<D>()` tree and want a few actions typed from a schema |
+| `createPermix` from `permix/standard-schema` | You want a Drizzle-style factory: one entity per schema, CRUD actions by default |
+
+Schemas are used **only for TypeScript inference**. `check()` does not parse or validate data at runtime. Keep request-body validation in tRPC, oRPC, or your HTTP layer.
+
+<Callout>
+  Before getting started, complete the initial setup steps in the [Quick
+  Start](/docs/quick-start) guide.
+</Callout>
+
+<Steps>
+
+<Step>
+
+## `schema` on an action spec
+
+Pass `schema: typeof yourSchema` instead of (or in addition to) `type`. Entity data is inferred from the schema's output type. If both `type` and `schema` are set, **`type` wins**.
+
+```ts twoslash title="/lib/permix-schema.ts"
+import { createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const permix = createPermix<{
+  post: ['create', { name: 'edit'; schema: typeof postSchema; required: true }]
+}>()
+
+permix.setup({
+  post: {
+    create: true,
+    edit: (post) => post.authorId === 'user-1',
+    //        ^?
+  },
+})
+
+permix.check('post.edit', { id: '1', authorId: 'user-1' })
+```
+
+The same `schema` field works with Valibot, ArkType, or any other Standard Schema implementation — not only Zod.
+
+</Step>
+
+<Step>
+
+## `action()` helper
+
+`action(name, schema, { required }?)` builds an action spec so you can infer the definition from a value instead of repeating `typeof schema` on every leaf.
+
+```ts twoslash title="/lib/permix-action.ts"
+import { action, createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const definition = {
+  post: ['create', action('edit', postSchema, { required: true })],
+} as const
+
+const permix = createPermix<typeof definition>()
+
+permix.setup({
+  post: {
+    create: true,
+    edit: (post) => post.authorId === 'user-1',
+  },
+})
+
+permix.check('post.edit', { id: '1', authorId: 'user-1' })
+```
+
+Use `as const` so action names stay literal. Nested trees work the same way — `action()` is only a leaf constructor.
+
+</Step>
+
+<Step>
+
+## Schema map factory
+
+`permix/standard-schema` turns a map of schemas into a Permix instance. Each key becomes an entity; by default each entity gets `create`, `read`, `update`, and `delete`, with entity data typed from that schema.
+
+```ts twoslash title="/lib/standard-schema.ts"
+import { createPermix } from 'permix/standard-schema'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const commentSchema = z.object({
+  id: z.string(),
+  postId: z.string(),
+})
+
+const permix = createPermix({
+  post: postSchema,
+  comment: commentSchema,
+})
+
+permix.setup({
+  post: {
+    create: true,
+    read: true,
+    update: (post) => post.authorId === 'user-1',
+    delete: false,
+  },
+  comment: { create: true, read: true, update: false, delete: false },
+})
+
+permix.check('post.update', { id: '1', authorId: 'user-1' })
+permix.check('comment.delete')
+```
+
+The returned instance is a regular Permix object — `check`, `setup`, `template`, `dehydrate`, `hydrate`, `hook`, `isReady` work unchanged.
+
+</Step>
+
+<Step>
+
+## Customising actions
+
+Override the action list for every bare schema, or per entity with `entity()`. Plain action tuples stay untyped (same as `createPermix<{ dashboard: ['view'] }>()`).
+
+```ts twoslash title="/lib/standard-schema-entity.ts"
+import { createPermix, entity } from 'permix/standard-schema'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const permix = createPermix({
+  post: entity(postSchema, [
+    'create',
+    'read',
+    { name: 'publish', required: true },
+  ]),
+  dashboard: ['view'],
+})
+
+permix.setup({
+  post: {
+    create: true,
+    read: true,
+    publish: (post) => post.authorId === 'user-1',
+  },
+  dashboard: { view: true },
+})
+
+permix.check('post.publish', { id: '1', authorId: 'user-1' })
+permix.check('dashboard.view')
+```
+
+Same action names for every schema, without `entity()`:
+
+```ts
+const permix = createPermix(
+  { post: postSchema, comment: commentSchema },
+  { actions: ['view', 'edit'] as const }
+)
+```
+
+</Step>
+
+<Step>
+
+## Discovering entities and actions at runtime
+
+```ts
+const permix = createPermix({ post: postSchema })
+
+permix.entities // ['post']
+permix.actions // readonly ['create', 'read', 'update', 'delete']
+```
+
+`actions` is the default set applied to **bare** schemas. `entity()` entries keep their own list.
+
+</Step>
+
+</Steps>
+
+## Notes
+
+- Nested permission trees (`workspace.member`) stay on core `createPermix<D>()` plus `action()` — the factory is one entity level, like [Drizzle](/docs/integrations/drizzle).
+- `check()` does **not** run `schema.parse`. Invalid extra fields are ignored unless your rule reads them; malformed required fields still fail inside the rule (or throw, which `~any` / `~all` / `dehydrate` treat as `false`).
+- No extra peer dependency. Install Zod (or Valibot, ArkType, …) yourself. Permix only depends on the Standard Schema type protocol.
+- Complements Drizzle: Drizzle answers “which tables and actions?”; Standard Schema answers “what does the entity look like?”

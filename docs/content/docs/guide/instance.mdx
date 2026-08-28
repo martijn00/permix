@@ -73,11 +73,68 @@ const canEdit = permix.check('post.edit') // false
 const canEditWithPost = permix.check('post.edit', somePost) // true
 ```
 
+#### `schema`
+
+<Callout>
+  Not required. Alternative to `type` when you already have a Zod (or Valibot,
+  ArkType, …) schema.
+</Callout>
+
+Pass a [Standard Schema](https://standardschema.dev/) on the action spec. Entity data is inferred from the schema's output type, so you do not need a separate `interface Post`. If both `type` and `schema` are set, `type` wins.
+
+```ts twoslash title="/lib/permix-schema.ts"
+import { action, createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  author: z.string(),
+})
+
+const permix = createPermix<{
+  post: [{ name: 'edit'; schema: typeof postSchema }]
+}>()
+
+permix.setup({
+  post: {
+    edit: (post) => post?.author === 'John Doe',
+    //        ^?
+  },
+})
+```
+
+`action(name, schema, { required }?)` builds the same spec from a value. Use `as const` on the definition so action names stay literal:
+
+```ts twoslash title="/lib/permix-action.ts"
+import { action, createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const definition = {
+  post: ['create', action('edit', postSchema, { required: true })],
+} as const
+
+const permix = createPermix<typeof definition>()
+
+permix.setup({
+  post: {
+    create: true,
+    edit: (post) => post.authorId === 'user-1',
+  },
+})
+```
+
+To generate a whole CRUD tree from a map of schemas, see the [Standard Schema](/docs/integrations/standard-schema) integration.
+
 #### `required`
 
 <Callout>Not required, defaults to `false`.</Callout>
 
-By default, when an action declares a `type`, the data argument in `check` is optional. Set `required: true` to require data for that action.
+By default, when an action declares a `type` (or `schema`), the data argument in `check` is optional. Set `required: true` to require data for that action.
 
 ```ts twoslash title="/lib/permix-type-required.ts"
 import { createPermix } from 'permix'

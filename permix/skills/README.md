@@ -59,6 +59,7 @@ The package includes the `tanstack-intent` npm keyword. Published versions are i
 | --- | --- |
 | Effect | https://permix.letstri.dev/docs/integrations/effect |
 | Drizzle ORM | https://permix.letstri.dev/docs/integrations/drizzle |
+| Standard Schema (Zod, Valibot, …) | https://permix.letstri.dev/docs/integrations/standard-schema |
 | Events (`hook`, `hookOnce`) | https://permix.letstri.dev/docs/guide/events |
 
 Examples: https://github.com/letstri/permix/tree/main/examples

@@ -1,11 +1,11 @@
 import { callRuleWithoutData } from './check'
-import type { Action, ActionName, Definition } from './definitions'
+import type { Action, ActionData, ActionName, Definition } from './definitions'
 
-type ActionRule<A extends Action> = A extends { type: infer T; required: true }
-  ? (data: T) => boolean
-  : A extends { type: infer T }
-    ? ((data?: T) => boolean) | boolean
-    : boolean | (() => boolean)
+type ActionRule<A extends Action> = [ActionData<A>] extends [never]
+  ? boolean | (() => boolean)
+  : A extends { required: true }
+    ? (data: ActionData<A>) => boolean
+    : ((data?: ActionData<A>) => boolean) | boolean
 
 /**
  * The shape of the object passed to `permix.setup()` (and produced by
