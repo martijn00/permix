@@ -6,6 +6,15 @@ const entrypoints = [
     ['createAdapter', 'serializeAdapterError'],
   ],
   [
+    './supabase',
+    await import('permix/supabase'),
+    [
+      'createSupabaseClaimsAdapter',
+      'createSupabasePolicyManifest',
+      'verifySupabaseClaims',
+    ],
+  ],
+  [
     './pdp',
     await import('permix/pdp'),
     ['createPdpClient', 'createPdpHandler', 'createPdpOpenApiDocument'],
