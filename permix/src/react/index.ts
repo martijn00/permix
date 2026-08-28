@@ -4,4 +4,3 @@ export { createPermix } from './create-permix'
 export type { CreatePermixResult } from './create-permix'
 export { usePermix } from './hooks'
 export type { PermixContext } from './hooks'
-

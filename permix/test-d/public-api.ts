@@ -11,8 +11,8 @@ import { createPermix as createNextPermix } from 'permix/next'
 import { createPermix as createNodePermix } from 'permix/node'
 import { createPermix as createOrpcPermix } from 'permix/orpc'
 import {
-    createComponents as createReactComponents,
-    createPermix as createReactPermix,
+  createComponents as createReactComponents,
+  createPermix as createReactPermix,
 } from 'permix/react'
 import { createPermix as createServerPermix } from 'permix/server'
 import { createComponents as createSolidComponents } from 'permix/solid'
@@ -64,27 +64,27 @@ type FactoryCheck = ReturnType<(typeof reactFactory)['usePermix']>['check']
 const factoryCheck: FactoryCheck = core.check
 
 export {
-    allowed,
-    core,
-    drizzle,
-    drizzleLegacy,
-    effect,
-    elysia,
-    express,
-    factoryCheck,
-    fastify,
-    hono,
-    next,
-    node,
-    orpc,
-    react,
-    reactFactory,
-    reactStandalone,
-    server,
-    solid,
-    svelte,
-    tanstackStart,
-    trpc,
-    vue
+  allowed,
+  core,
+  drizzle,
+  drizzleLegacy,
+  effect,
+  elysia,
+  express,
+  factoryCheck,
+  fastify,
+  hono,
+  next,
+  node,
+  orpc,
+  react,
+  reactFactory,
+  reactStandalone,
+  server,
+  solid,
+  svelte,
+  tanstackStart,
+  trpc,
+  vue,
 }
 
