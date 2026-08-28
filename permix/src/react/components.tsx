@@ -21,15 +21,17 @@ import { useEffectEvent } from './use-effect-event'
 import { useLayoutEffect } from './use-isomorphic-layout-effect'
 
 function createSnapshotReader<D extends Definition>(
-  permix: Permix<D>,
+  getPermix: () => Permix<D>,
   read: () => Pick<PermixContext<D>, 'isReady' | 'rules'>
 ) {
   let snapshot: PermixContext<D> | null = null
 
   return () => {
     const current = read()
+    const permix = getPermix()
     if (
       !snapshot ||
+      snapshot.permix !== permix ||
       snapshot.isReady !== current.isReady ||
       snapshot.rules !== current.rules
     ) {
@@ -46,18 +48,22 @@ function createSnapshotReader<D extends Definition>(
 function createProviderContext<D extends Definition>(
   permix: Permix<D>
 ): PermixContext<D> {
-  const getSnapshot = createSnapshotReader(permix, () => ({
-    isReady: permix.isReady(),
-    rules: permix.getRules(),
-  }))
+  let current = permix
+  const getSnapshot = createSnapshotReader(
+    () => current,
+    () => ({
+      isReady: current.isReady(),
+      rules: current.getRules(),
+    })
+  )
   const subscribe = (onStoreChange: () => void) => {
     const unsubSetup = permix.hook('setup', (instance) => {
+      current = instance
       onStoreChange()
-      void instance
     })
     const unsubReady = permix.hook('ready', (instance) => {
+      current = instance
       onStoreChange()
-      void instance
     })
     return () => {
       unsubSetup()
@@ -66,7 +72,9 @@ function createProviderContext<D extends Definition>(
   }
 
   return {
-    permix,
+    get permix() {
+      return getSnapshot().permix
+    },
     get isReady() {
       return getSnapshot().isReady
     },
@@ -82,16 +90,21 @@ function createHydrateContext<D extends Definition>(
   parent: PermixContext<D>,
   state: DehydratedState<D>
 ): PermixContext<D> {
-  const getSnapshot = createSnapshotReader(parent.permix, () => {
-    const snapshot = readPermixContext(parent)
-    return {
-      isReady: snapshot.isReady,
-      rules: snapshot.rules ?? (state as unknown as Rules<D>),
+  const getSnapshot = createSnapshotReader(
+    () => readPermixContext(parent).permix,
+    () => {
+      const snapshot = readPermixContext(parent)
+      return {
+        isReady: snapshot.isReady,
+        rules: snapshot.rules ?? (state as unknown as Rules<D>),
+      }
     }
-  })
+  )
 
   return {
-    permix: parent.permix,
+    get permix() {
+      return getSnapshot().permix
+    },
     get isReady() {
       return getSnapshot().isReady
     },
@@ -119,18 +132,7 @@ export function PermixProvider<D extends Definition>({
   context?: React.Context<PermixContext<D> | null>
 }) {
   const Ctx = context ?? (Context as React.Context<PermixContext<D> | null>)
-  const [current, setCurrent] = React.useState(permix)
-
-  React.useEffect(() => {
-    const unsubSetup = permix.hook('setup', setCurrent)
-    const unsubReady = permix.hook('ready', setCurrent)
-    return () => {
-      unsubSetup()
-      unsubReady()
-    }
-  }, [permix])
-
-  const value = React.useMemo(() => createProviderContext(current), [current])
+  const value = React.useMemo(() => createProviderContext(permix), [permix])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
@@ -199,7 +201,7 @@ export function createComponents<D extends Definition>(
 
     const hasPermission = usePermixSelector(value, (snapshot) =>
       runCheck(
-        value.permix,
+        snapshot.permix,
         snapshot.rules,
         ...([path, data] as unknown as CheckArgs<D>)
       )
