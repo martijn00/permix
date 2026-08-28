@@ -6,6 +6,8 @@ import { defineConfig, defineDocs } from 'fumadocs-mdx/config'
 import { transformerTwoslash } from 'fumadocs-twoslash'
 import { createFileSystemTypesCache } from 'fumadocs-twoslash/cache-fs'
 
+import { remarkIncludeChangelog } from './remark-include-changelog'
+
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
@@ -17,7 +19,7 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: [remarkMdxMermaid],
+    remarkPlugins: [remarkMdxMermaid, remarkIncludeChangelog],
     rehypeCodeOptions: {
       themes: {
         light: 'github-light',

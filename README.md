@@ -40,6 +40,14 @@ pnpm dlx @tanstack/intent@latest install
 
 Skills are indexed on the [Agent Skills Registry](https://tanstack.com/intent/registry) and update when you update the package.
 
+## Changelog
+
+Release notes are in [CHANGELOG.md](CHANGELOG.md) and on the docs site at [permix.letstri.dev/docs/changelog](https://permix.letstri.dev/docs/changelog).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
 ## License
 
 MIT License - see the [LICENSE](https://github.com/letstri/permix/blob/main/LICENSE) file for details

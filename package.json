@@ -11,9 +11,13 @@
     "prepare": "husky",
     "publish": "cd permix && pnpm publish",
     "test": "cd permix && pnpm run test",
-    "update": "taze -r -I major"
+    "update": "taze -r -I major",
+    "verify": "pnpm run format:check && pnpm run lint && pnpm run test && pnpm run check-types && pnpm run build",
+    "commitlint": "commitlint --config commitlint.config.mts"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "husky": "^9.1.7",
     "npm-run-all2": "^9.0.1",
     "oxfmt": "^0.64.0",

@@ -5,7 +5,7 @@ description: >-
 metadata:
   type: core
   library: permix
-  library_version: '4.1.2'
+  library_version: '4.1.2' # x-release-please-version
 requires: []
 sources:
   - 'letstri/permix:docs/content/docs/quick-start.mdx'

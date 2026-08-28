@@ -72,4 +72,4 @@ pnpm run skills:validate   # structure + packaging before publish
 pnpm run skills:stale      # flag drift vs docs/sources
 ```
 
-CI runs `intent validate` on PRs and `intent stale` after releases (`.github/workflows/check-skills.yml`). Update `library_version` in SKILL frontmatter when cutting a release.
+CI runs `intent validate` on PRs and `intent stale` after releases (`.github/workflows/check-skills.yml`). Release Please bumps `library_version` in SKILL frontmatter with the package version.

@@ -8,7 +8,7 @@ Skills for teams **using** Permix ship in the published npm package at [`permix/
 
 Repo-root [`_artifacts/`](_artifacts/skill_tree.yaml) (`domain_map.yaml`, `skill_spec.md`, `skill_tree.yaml`) tracks skill coverage and source-doc references for CI staleness checks.
 
-When you change public API behavior, docs examples, or integration patterns, keep `permix/skills/` aligned with `docs/content/docs/` and `examples/`, bump `library_version` in SKILL frontmatter on release, and run `cd permix && pnpm run skills:stale`.
+When you change public API behavior, docs examples, or integration patterns, keep `permix/skills/` aligned with `docs/content/docs/` and `examples/`, then run `cd permix && pnpm run skills:stale`. Release Please bumps `library_version` in SKILL frontmatter on release.
 
 ## Repository layout
 
@@ -33,6 +33,7 @@ From repo root (pnpm workspace: `permix`, `docs`, `examples/*`):
 
 ```bash
 pnpm install
+pnpm verify                 # format, lint, test, types, build
 pnpm test && pnpm run check-types
 pnpm run lint
 pnpm run format
@@ -41,5 +42,7 @@ cd permix && pnpm run build
 cd docs && pnpm dev          # http://localhost:3000
 cd docs && pnpm types:check  # fumadocs-mdx + tsc for docs only
 ```
+
+Use [Conventional Commits](https://www.conventionalcommits.org/). Husky runs commitlint on `commit-msg`. Release Please on `main` opens a release PR that bumps `permix`, updates [CHANGELOG.md](CHANGELOG.md), and tags `vMAJOR.MINOR.PATCH`. Merging that PR publishes a GitHub Release; npm publish runs from `.github/workflows/npm-publish.yml`. The docs changelog page (`/docs/changelog`) inlines repo-root `CHANGELOG.md` at compile time.
 
 Do not commit unless the user asks.
