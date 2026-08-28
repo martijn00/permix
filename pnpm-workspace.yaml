@@ -12,6 +12,7 @@ catalog:
   '@types/react': ^19.2.15
   '@types/react-dom': ^19.2.3
   '@vitejs/plugin-react': ^6.0.2
+  better-auth: ^1.7.2
   chokidar: ^5.0.0
   oxc-parser: ^0.147.0
   oxfmt: ^0.64.0

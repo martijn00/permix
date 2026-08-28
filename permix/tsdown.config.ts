@@ -8,6 +8,7 @@ export default defineConfig({
     './src/core/index.ts',
     './src/adapter/index.ts',
     './src/supabase/index.ts',
+    './src/better-auth/index.ts',
     './src/pdp/index.ts',
     './src/react/index.ts',
     './src/vue/index.ts',

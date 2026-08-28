@@ -15,6 +15,15 @@ const entrypoints = [
     ],
   ],
   [
+    './better-auth',
+    await import('permix/better-auth'),
+    [
+      'createBetterAuthPermixClient',
+      'createBetterAuthPermixPlugin',
+      'rulesFromBetterAuthRole',
+    ],
+  ],
+  [
     './pdp',
     await import('permix/pdp'),
     ['createPdpClient', 'createPdpHandler', 'createPdpOpenApiDocument'],
