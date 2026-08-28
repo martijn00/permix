@@ -1,8 +1,8 @@
 import path from 'node:path'
 
 import type {
-    GeneratePermissionsOptions,
-    PermissionWatcher,
+  GeneratePermissionsOptions,
+  PermissionWatcher,
 } from '../extractor'
 import { generatePermissions, watchPermissions } from '../extractor'
 
