@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T23:33:20.775Z",
+  "generatedAt": "2026-08-28T23:42:37.505Z",
   "measurements": {
     "core": {
       "bytes": 4941,
@@ -97,9 +97,37 @@
       "bytes": 6186,
       "gzipBytes": 2396
     },
+    "adapter": {
+      "bytes": 6253,
+      "gzipBytes": 2428
+    },
+    "pdp": {
+      "bytes": 13089,
+      "gzipBytes": 4393
+    },
+    "better-auth": {
+      "bytes": 6902,
+      "gzipBytes": 2695
+    },
+    "clerk": {
+      "bytes": 7302,
+      "gzipBytes": 2721
+    },
+    "clerk-next": {
+      "bytes": 7386,
+      "gzipBytes": 2758
+    },
+    "convex": {
+      "bytes": 7276,
+      "gzipBytes": 2753
+    },
+    "supabase": {
+      "bytes": 7195,
+      "gzipBytes": 2752
+    },
     "extractor": {
       "bytes": 14640,
-      "gzipBytes": 5102
+      "gzipBytes": 5121
     },
     "extractor-cli": {
       "bytes": 19230,
