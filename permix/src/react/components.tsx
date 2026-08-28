@@ -6,10 +6,34 @@ import type {
   Definition,
   DehydratedState,
   Permix,
+  Rules,
   RulesPaths,
 } from '../core'
 import type { PermixContext } from './hooks'
 import { Context, usePermix, usePermixContext } from './hooks'
+import { useEffectEvent } from './use-effect-event'
+import { useLayoutEffect } from './use-isomorphic-layout-effect'
+
+function readPermixSnapshot<D extends Definition>(
+  permix: Permix<D>
+): PermixContext<D> {
+  return {
+    permix,
+    isReady: permix.isReady(),
+    rules: permix.getRules(),
+  }
+}
+
+function snapshotsEqual<D extends Definition>(
+  left: PermixContext<D>,
+  right: PermixContext<D>
+): boolean {
+  return (
+    left.permix === right.permix &&
+    left.isReady === right.isReady &&
+    left.rules === right.rules
+  )
+}
 
 /**
  * Provides Permix context to the React component tree.
@@ -19,56 +43,79 @@ import { Context, usePermix, usePermixContext } from './hooks'
 export function PermixProvider<D extends Definition>({
   children,
   permix,
+  context,
 }: {
   children: React.ReactNode
   permix: Permix<D>
+  context?: React.Context<PermixContext<D> | null>
 }) {
-  const [context, setContext] = React.useState<PermixContext<D>>(() => ({
-    permix,
-    isReady: permix.isReady(),
-    rules: permix.getRules(),
-  }))
+  const Ctx = context ?? (Context as React.Context<PermixContext<D> | null>)
+  const snapshotRef = React.useRef<PermixContext<D> | null>(null)
 
-  React.useEffect(() => {
-    const syncRules = () => {
-      queueMicrotask(() => {
-        setContext((c) => ({ ...c, rules: permix.getRules() }))
-      })
-    }
-    const syncReady = () => {
-      queueMicrotask(() => {
-        setContext((c) => ({ ...c, isReady: permix.isReady() }))
-      })
-    }
-    const setup = permix.hook('setup', syncRules)
-    const ready = permix.hook('ready', syncReady)
+  const subscribe = React.useCallback(
+    (onStoreChange: () => void) => {
+      const unsubSetup = permix.hook('setup', onStoreChange)
+      const unsubReady = permix.hook('ready', onStoreChange)
+      onStoreChange()
+      return () => {
+        unsubSetup()
+        unsubReady()
+      }
+    },
+    [permix]
+  )
 
-    return () => {
-      setup()
-      ready()
+  const getSnapshot = React.useCallback(() => {
+    const next = readPermixSnapshot(permix)
+    const prev = snapshotRef.current
+    if (prev && snapshotsEqual(prev, next)) {
+      return prev
     }
+    snapshotRef.current = next
+    return next
   }, [permix])
 
-  return <Context.Provider value={context}>{children}</Context.Provider>
+  const snapshot = React.useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getSnapshot
+  )
+
+  return <Ctx.Provider value={snapshot}>{children}</Ctx.Provider>
 }
 
-export function PermixHydrate({
+export function PermixHydrate<D extends Definition>({
   children,
   state,
+  context,
 }: {
   children: React.ReactNode
-  state: DehydratedState<any>
+  state: DehydratedState<D>
+  context?: React.Context<PermixContext<D> | null>
 }) {
-  const { permix } = usePermixContext()
+  const Ctx = context ?? (Context as React.Context<PermixContext<D> | null>)
+  const parent = usePermixContext(context)
 
-  // Run before children render so `check()` can use hydrated booleans on the first pass.
-  // PermixProvider defers context updates from the `setup` hook to avoid setState during render.
-  // eslint-disable-next-line react/use-memo, react/void-use-memo
-  React.useMemo(() => {
-    permix.hydrate(state)
-  }, [permix, state])
+  const hydrateEvent = useEffectEvent((nextState: DehydratedState<D>) => {
+    parent.permix.hydrate(nextState)
+  })
 
-  return children
+  useLayoutEffect(() => {
+    hydrateEvent(state)
+  }, [state])
+
+  const overlay = React.useMemo<PermixContext<D>>(
+    () => ({
+      permix: parent.permix,
+      isReady: parent.isReady,
+      rules: state as unknown as Rules<D>,
+    }),
+    [parent.permix, parent.isReady, state]
+  )
+
+  const value = parent.rules === null ? overlay : parent
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
 export interface CheckProps<D extends Definition, P extends RulesPaths<D>> {
@@ -84,7 +131,8 @@ export interface PermixComponents<D extends Definition> {
 }
 
 export function createComponents<D extends Definition>(
-  permix: Pick<Permix<D>, 'getRules' | 'check'>
+  permix: Pick<Permix<D>, 'getRules' | 'check'>,
+  context?: React.Context<PermixContext<D> | null>
 ): PermixComponents<D> {
   function Check<P extends RulesPaths<D>>({
     children,
@@ -93,7 +141,7 @@ export function createComponents<D extends Definition>(
     otherwise = null,
     reverse = false,
   }: CheckProps<D, P>) {
-    const { check } = usePermix(permix)
+    const { check } = usePermix(permix, context)
 
     const hasPermission = check(...([path, data] as unknown as CheckArgs<D>))
     return reverse

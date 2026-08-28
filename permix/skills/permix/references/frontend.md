@@ -6,44 +6,30 @@ Docs: https://permix.letstri.dev/docs/integrations/react
 
 ## React
 
-### Provider
+### Factory (recommended)
+
+Call `createPermix` from `permix/react` once at module scope — same name as `permix/next` and `permix/express`. It returns a Permix instance plus bound Provider, `usePermix`, `Check`, and `PermixHydrate` with an isolated context. Nested factories do not share state.
+
+```ts
+import { createPermix } from 'permix/react'
+
+export const { permix, PermixProvider, PermixHydrate, usePermix, Check } =
+  createPermix<{ post: ['create', 'read'] }>()
+```
 
 ```tsx
-import { PermixProvider } from 'permix/react'
-import { permix } from './lib/permix'
+import { PermixProvider, usePermix, Check } from './lib/permix'
 
 export function App() {
   return (
-    <PermixProvider permix={permix}>
+    <PermixProvider>
       <Routes />
     </PermixProvider>
   )
 }
-```
 
-### Setup after auth
-
-```ts
-// e.g. after session loads
-await loadUser()
-permix.setup(roleRulesFor(user))
-```
-
-### Hook (wrap once)
-
-```ts
-// hooks/use-permissions.ts
-import { usePermix } from 'permix/react'
-import { permix } from '../lib/permix'
-
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
-
-```tsx
 function EditButton({ post }) {
-  const { check, isReady } = usePermissions()
+  const { check, isReady } = usePermix()
 
   if (!isReady) return null
 
@@ -53,26 +39,47 @@ function EditButton({ post }) {
 }
 ```
 
-Pass the **same** `permix` instance to `PermixProvider` and `usePermix`.
-
-### Declarative `Check` component
-
-```ts
-import { createComponents } from 'permix/react'
-
-export const { Check } = createComponents(permix)
-```
-
 ```tsx
 <Check path="post.create" otherwise={<span>Denied</span>}>
   <CreateForm />
 </Check>
 ```
 
+Supports React 18 and React 19. Native `useEffectEvent` is used on React 19.2+; React 18 uses a compatible fallback.
+
+### Setup after auth
+
+```ts
+// e.g. after session loads
+await loadUser()
+permix.setup(roleRulesFor(user))
+```
+
+### Compatible alternative
+
+`PermixProvider` with a `permix` prop, `usePermix(permix)`, and `createComponents(permix)` still work. Pass the **same** `permix` instance to the provider and the hook — in development a mismatch throws.
+
 ```tsx
-<Check path="post.update" data={post} reverse>
-  Hidden when allowed; shown when denied
-</Check>
+import { PermixProvider, usePermix } from 'permix/react'
+import { permix } from './lib/permix'
+
+export function App() {
+  return (
+    <PermixProvider permix={permix}>
+      <Routes />
+    </PermixProvider>
+  )
+}
+
+export function usePermissions() {
+  return usePermix(permix)
+}
+```
+
+```ts
+import { createComponents } from 'permix/react'
+
+export const { Check } = createComponents(permix)
 ```
 
 ### SSR
@@ -169,15 +176,16 @@ Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
 ### React
 
 ```tsx
-import { DehydratedState, PermixHydrate, PermixProvider } from 'permix/react'
+import type { DehydratedState } from 'permix'
+import { permix, PermixHydrate, PermixProvider } from './lib/permix'
 
 function App({
   dehydratedState,
 }: {
-  dehydratedState: DehydratedState<typeof schema>
+  dehydratedState: DehydratedState<{ post: ['create', 'read'] }>
 }) {
   return (
-    <PermixProvider permix={permix}>
+    <PermixProvider>
       <PermixHydrate state={dehydratedState}>
         <YourApp />
       </PermixHydrate>
@@ -186,11 +194,13 @@ function App({
 }
 ```
 
-Run client `permix.setup(...)` where you restore the session (e.g. after `PermixHydrate` mounts or in the same auth effect).
+Run client `permix.setup(...)` where you restore the session (e.g. after `PermixHydrate` mounts or in the same auth effect). `PermixHydrate` supplies dehydrated booleans on the first render without mutating the instance during render; the instance hydrates after commit. `isReady` stays `false` until client `setup()`.
 
 ### Next.js / TanStack Start
 
 Use framework helpers from `permix/next` or `permix/tanstack-start` when available — they wire dehydrate/hydrate into the framework data flow.
+
+**Next.js App Router (`permix/next`)** — `createPermix(resolveRules)` caches one initialized instance per request. Async Server Components `await getPermix()` / `await check()`. Non-async Server Components call `usePermix()` (React `use()`); `check()` is sync at the call site. Keep layouts/pages synchronous; put async permission/data work in feature components behind page-owned Suspense. Cookie/session checks stay out of the shared App Shell. `"use cache"` / `next/root-params` belong in the **app** resolver, not inside Permix. `"use cache: private"` payloads should check permission before loading data and return `null` when denied; `notFound()`/`redirect()` stay uncached. Client `check` is a UI hint. Route Handlers and Server Actions must `createPermix()` + `setup()` a core instance per invocation — they do not share RSC `cache()`.
 
 In TanStack Start, `permix.get(context)` only works in server functions and server routes. To check inside `beforeLoad`/`loader`, put a core instance on the **router context** in `getRouter()` (`context: { permix }`), type it with `createRootRouteWithContext`, hydrate it in the root route's `beforeLoad`, then call `context.permix.check(...)` in any child route. Passing only the context type without the runtime value leaves `context.permix` undefined.
 

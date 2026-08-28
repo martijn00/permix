@@ -1,0 +1,61 @@
+name: React Compatibility
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+jobs:
+  react-compatibility:
+    name: React ${{ matrix.react }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - react: '18.3.1'
+            react-types: '18.3.23'
+            react-dom-types: '18.3.7'
+            pin: true
+          - react: '19.2.6'
+            react-types: '19.2.15'
+            react-dom-types: '19.2.3'
+            pin: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Pin React catalog versions
+        if: matrix.pin
+        env:
+          REACT: ${{ matrix.react }}
+          REACT_TYPES: ${{ matrix.react-types }}
+          REACT_DOM_TYPES: ${{ matrix.react-dom-types }}
+        run: node .github/scripts/select-react-catalog.mjs
+
+      - name: Install pinned Permix dependencies
+        if: matrix.pin
+        run: pnpm install --filter permix --no-frozen-lockfile
+
+      - name: Install dependencies
+        if: ${{ !matrix.pin }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Test React adapter
+        run: pnpm --filter permix exec vitest run src/react
+
+      - name: Build
+        run: pnpm --filter permix build
