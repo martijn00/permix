@@ -15,6 +15,7 @@ export const ignorePatterns = [
   '**/next-env.d.ts',
   '**/*.gen.ts',
   '**/*.generated.ts',
+  '**/*.generated.json',
   'examples/svelte/src/lib/index.ts',
   'pnpm-lock.yaml',
   'permix/test/next/.scratch/**',

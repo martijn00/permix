@@ -1,5 +1,5 @@
 const entrypoints = [
-  ['.', await import('permix'), ['createPermix']],
+  ['.', await import('permix'), ['createPermix', 'permission']],
   ['./trpc', await import('permix/trpc'), ['createPermix']],
   ['./orpc', await import('permix/orpc'), ['createPermix']],
   ['./express', await import('permix/express'), ['createPermix']],
@@ -11,6 +11,16 @@ const entrypoints = [
   ['./drizzle', await import('permix/drizzle'), ['createPermix']],
   ['./drizzle/legacy', await import('permix/drizzle/legacy'), ['createPermix']],
   ['./effect', await import('permix/effect'), ['createPermix']],
+  [
+    './extractor',
+    await import('permix/extractor'),
+    ['extractPermissions', 'generatePermissions'],
+  ],
+  [
+    './next/config',
+    await import('permix/next/config'),
+    ['createPermixPlugin', 'withPermix'],
+  ],
 ] as const
 
 for (const [subpath, module, expectedExports] of entrypoints) {

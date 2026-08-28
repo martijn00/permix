@@ -1,3 +1,5 @@
+import { withPermix } from 'permix/next/config'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['permix'],
@@ -9,4 +11,7 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withPermix(nextConfig, {
+  include: ['app/**/*.{ts,tsx}'],
+  watch: false,
+})

@@ -27,6 +27,9 @@ export default defineConfig({
     './src/tanstack-start/index.ts',
     './src/nest/index.ts',
     './src/react-router/index.ts',
+    './src/extractor/index.ts',
+    './src/extractor/cli.ts',
+    './src/next/config.ts',
   ],
   dts: {
     build: true,

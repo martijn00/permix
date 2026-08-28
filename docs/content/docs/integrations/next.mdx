@@ -21,6 +21,12 @@ The client still uses `permix/react`. Hydrate only the permission-dependent isla
   guide](/docs/guide/hydration) before this page.
 </Callout>
 
+<Callout>
+  To generate typed permission constants before Next compiles, use `withPermix`
+  from `permix/next/config`. See [Permission
+  extraction](/docs/guide/extraction).
+</Callout>
+
 <Callout type="warn">
   Requires **Next.js 15+**. Route Handlers and Server Actions do **not** share
   the RSC `cache()` identity. Create and `setup()` an explicit core

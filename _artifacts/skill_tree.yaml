@@ -63,15 +63,18 @@ skills:
       - node
       - elysia
       - astro
+      - extractor
     references:
       - 'references/check.md'
       - 'references/frontend.md'
       - 'references/server.md'
+      - 'references/extraction.md'
     sources:
       - 'letstri/permix:docs/content/docs/guide/check.mdx'
       - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
       - 'letstri/permix:docs/content/docs/guide/ready.mdx'
       - 'letstri/permix:docs/content/docs/guide/hydration.mdx'
+      - 'letstri/permix:docs/content/docs/guide/extraction.mdx'
       - 'letstri/permix:docs/content/docs/integrations/react.mdx'
       - 'letstri/permix:docs/content/docs/integrations/vue.mdx'
       - 'letstri/permix:docs/content/docs/integrations/solid.mdx'

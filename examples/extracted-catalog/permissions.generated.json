@@ -1,0 +1,76 @@
+{
+  "permissions": [
+    {
+      "annotations": {
+        "area": "work-management",
+        "risk": "standard",
+        "surfaces": [
+          "task-page",
+          "api",
+          "ai-tool"
+        ]
+      },
+      "description": "Add comments from the task page, public API, or an AI tool.",
+      "key": "tasks.comment",
+      "references": [
+        {
+          "column": 12,
+          "file": "src/permission-markers.ts",
+          "line": 4
+        }
+      ],
+      "tags": [
+        "tasks",
+        "collaboration"
+      ],
+      "title": "Comment on a task"
+    },
+    {
+      "annotations": {
+        "area": "work-management",
+        "risk": "elevated",
+        "surfaces": [
+          "task-page",
+          "api"
+        ]
+      },
+      "description": "Permanently delete a task.",
+      "key": "tasks.delete",
+      "references": [
+        {
+          "column": 11,
+          "file": "src/permission-markers.ts",
+          "line": 13
+        }
+      ],
+      "title": "Delete a task"
+    },
+    {
+      "key": "tasks.read",
+      "references": [
+        {
+          "column": 9,
+          "file": "src/permission-markers.ts",
+          "line": 21
+        }
+      ],
+      "title": "Read tasks"
+    },
+    {
+      "annotations": {
+        "area": "organization",
+        "risk": "elevated"
+      },
+      "key": "workspace.members.invite",
+      "references": [
+        {
+          "column": 29,
+          "file": "src/permission-markers.ts",
+          "line": 24
+        }
+      ],
+      "title": "Invite workspace members"
+    }
+  ],
+  "schemaVersion": 1
+}

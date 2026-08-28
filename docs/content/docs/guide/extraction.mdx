@@ -1,0 +1,139 @@
+---
+title: Permission extraction
+description: Generate typed permission constants, definitions, and metadata from application code
+---
+
+Permission extraction is opt-in. It turns explicit permission markers in your application into:
+
+- `.permix/permissions.ts`, with a key union, nested constants, metadata, and a `Definition` for every Permix adapter
+- `.permix/permissions.json`, with versioned metadata and every source reference
+
+The generated catalog describes your permission vocabulary. It does not grant access, synchronize a database, or replace `setup()` rules.
+
+## Mark permissions
+
+Import `permission` directly from `permix`. The function returns the key unchanged, so it can be used wherever a string permission path is accepted.
+
+```ts
+import { permission } from 'permix'
+
+export const canComment = permission({
+  key: 'tasks.comment',
+  title: 'Comment on tasks',
+  description: 'Add a comment to an existing task.',
+  tags: ['tasks', 'collaboration'],
+  annotations: {
+    area: 'work-management',
+    risk: 'standard',
+    surfaces: ['web', 'api', 'ai-tool'],
+  },
+})
+```
+
+The extractor follows direct named imports, aliases, and namespace imports in JS, JSX, TS, and TSX files. Keys and metadata must be static. Dynamic values, spreads, malformed metadata, and conflicting metadata for the same key fail the scan with a file and line diagnostic.
+
+## Generate the catalog
+
+```bash
+pnpm permix extract
+pnpm permix extract --watch
+pnpm permix extract --check
+```
+
+Use repeatable `--include` and `--exclude` options for monorepos:
+
+```bash
+pnpm permix extract \
+  --cwd ../.. \
+  --include "apps/dashboard/src/**/*.{ts,tsx}" \
+  --include "packages/features/src/**/*.{ts,tsx}" \
+  --module-output apps/dashboard/src/permissions.generated.ts \
+  --catalog-output apps/dashboard/permissions.json
+```
+
+`--check` does not write files. It exits non-zero when either artifact is missing or stale, which makes it suitable for CI.
+
+## Use generated types and constants
+
+```ts
+import { createPermix } from 'permix'
+import { type Definition, permissions } from './.permix/permissions'
+
+export const permix = createPermix<Definition>()
+
+permix.setup({
+  tasks: {
+    comment: true,
+  },
+})
+
+permix.check(permissions.tasks.comment)
+```
+
+Manual definitions remain supported. You can migrate one application at a time.
+
+## Add typed payload data
+
+Extraction never serializes validators or erased TypeScript types. Add payload types with the generated overlay helper and the existing `action()` API:
+
+```ts
+import { action, createPermix } from 'permix'
+import { z } from 'zod'
+import { type Definition, definePermissionOverlay } from './.permix/permissions'
+
+const taskSchema = z.object({ taskId: z.string() })
+
+const overlay = definePermissionOverlay({
+  tasks: [action('comment', taskSchema, { required: true })],
+})
+
+type AppDefinition = Definition<typeof overlay>
+
+export const permix = createPermix<AppDefinition>()
+```
+
+Overlay paths must already exist in extracted source. The schema remains in application code and is not copied into either generated artifact. Extraction also does not enable runtime validation; use the explicit `permix/standard-schema` factory options when runtime validation is required. That factory validates by the first path segment, not by an individual deep permission path.
+
+## Enrich metadata centrally
+
+Inline metadata supplies defaults. A typed central config can replace or fill presentation fields. Run extraction once to create the generated helper before adding this config:
+
+```ts
+import { definePermissionConfig } from './.permix/permissions'
+
+export const permissionMetadata = definePermissionConfig({
+  'tasks.comment': {
+    title: 'Comment on a task',
+    description: 'Available from the task page, API, and AI tools.',
+  },
+})
+```
+
+Pass that object as `metadata` to `generatePermissions`, `watchPermissions`, or `createPermixPlugin`. Unknown config keys fail extraction instead of leaving stale documentation behind.
+
+## Next.js
+
+Wrap `next.config.ts` with `withPermix` from `permix/next/config`. Development watches by default; production performs one scan before Next compiles.
+
+```ts title="next.config.ts"
+import { withPermix } from 'permix/next/config'
+import { permissionMetadata } from './src/permission-metadata'
+
+export default withPermix(
+  {
+    reactStrictMode: true,
+  },
+  {
+    metadata: permissionMetadata,
+    moduleOutput: 'src/permissions.generated.ts',
+  }
+)
+```
+
+For plugin composition, `createPermixPlugin(options)` returns a preconfigured `withPermix` function.
+
+## Renames and removals
+
+Removing a marker removes it from the next TypeScript and JSON artifacts. Nothing else is deleted. Before renaming or removing a permission, separately review persisted roles, policy providers, SQL seeds, RLS policies, and audit integrations.
+
+Provider adapters can compare their operation keys with the catalog by calling `validatePermissionCoverage()` from `permix/extractor`. It reports both unknown provider keys and catalog permissions with no provider coverage.

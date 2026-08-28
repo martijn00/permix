@@ -120,6 +120,7 @@ skills:
       - setupMiddleware
       - checkMiddleware
       - getOrThrow
+      - permission extraction
     tasks:
       - 'Gate UI or API logic with permix.check'
       - 'Implement resource-level authorization with entity data'
@@ -129,15 +130,18 @@ skills:
       - 'Wire permix/next, permix/tanstack-start, permix/nuxt, or permix/react-router'
       - 'Protect HTTP or RPC routes on the server'
       - 'Derive rules from authenticated request context'
+      - 'Generate typed permission catalogs from source markers'
     references:
       - 'references/check.md'
       - 'references/frontend.md'
       - 'references/server.md'
+      - 'references/extraction.md'
     sources:
       - 'letstri/permix:docs/content/docs/guide/check.mdx'
       - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
       - 'letstri/permix:docs/content/docs/guide/ready.mdx'
       - 'letstri/permix:docs/content/docs/guide/hydration.mdx'
+      - 'letstri/permix:docs/content/docs/guide/extraction.mdx'
       - 'letstri/permix:docs/content/docs/integrations/react.mdx'
       - 'letstri/permix:docs/content/docs/integrations/vue.mdx'
       - 'letstri/permix:docs/content/docs/integrations/solid.mdx'

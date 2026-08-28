@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { cp, mkdir, rm, symlink } from 'node:fs/promises'
+import { cp, mkdir, readFile, rm, symlink } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { createServer } from 'node:net'
 import path from 'node:path'
@@ -99,6 +99,17 @@ async function nextBin(alias) {
   return path.join(nextPackage, 'dist/bin/next')
 }
 
+async function assertPermissionCatalog(dest) {
+  const output = path.join(dest, '.permix/permissions.json')
+  const catalog = JSON.parse(await readFile(output, 'utf-8'))
+  const hasIntegrationPermission = catalog.permissions.some(
+    (entry) => entry.key === 'integration.read'
+  )
+  if (!hasIntegrationPermission) {
+    throw new Error(`Missing integration.read in ${output}`)
+  }
+}
+
 async function withServer(version, dest, fn) {
   const port = await getFreePort()
   const baseURL = `http://127.0.0.1:${port}`
@@ -160,6 +171,7 @@ async function main() {
         PERMIX_NEXT_VERSION: version.id,
       },
     })
+    await assertPermissionCatalog(dest)
     await withServer(version, dest, async (baseURL) => {
       await run(
         'pnpm',

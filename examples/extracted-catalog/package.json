@@ -1,0 +1,19 @@
+{
+  "name": "extracted-catalog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "catalog": "tsx src/generate.ts",
+    "catalog:check": "tsx src/generate.ts --check",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "permix": "workspace:*",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

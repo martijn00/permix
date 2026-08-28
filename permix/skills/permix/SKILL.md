@@ -12,6 +12,7 @@ sources:
   - 'letstri/permix:docs/content/docs/guide/check.mdx'
   - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
   - 'letstri/permix:docs/content/docs/guide/ready.mdx'
+  - 'letstri/permix:docs/content/docs/guide/extraction.mdx'
   - 'letstri/permix:docs/content/docs/guide/hydration.mdx'
   - 'letstri/permix:docs/content/docs/integrations/react.mdx'
   - 'letstri/permix:docs/content/docs/integrations/vue.mdx'
@@ -41,6 +42,7 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 | Task | Reference |
 | --- | --- |
 | `permix.check()` paths, callbacks, `~all`/`~any`, ReBAC/ABAC with entity data, `isReady` | [references/check.md](references/check.md) |
+| Generate typed permission constants, metadata, and a `Definition` from source markers | [references/extraction.md](references/extraction.md) |
 | React, Vue, Solid, or Svelte UI — `createPermix` from `permix/react` (or `PermixProvider` / `usePermix` / `createComponents`), SSR `dehydrate`/`hydrate` for Next.js / TanStack Start / Nuxt / React Router | [references/frontend.md](references/frontend.md) |
 | Protecting Express, Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia, or Astro routes — `setupMiddleware`, `checkMiddleware`, or Nest `guard` / `@Check` | [references/server.md](references/server.md) |
 
