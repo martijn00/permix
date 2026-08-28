@@ -13,7 +13,7 @@
     "test": "turbo run test --filter=permix",
     "test:next": "pnpm --filter permix build && pnpm --filter @permix/next-integration test",
     "update": "taze -r -I major",
-    "verify": "pnpm run format:check && pnpm run lint && pnpm run test && pnpm run check-types && pnpm run build",
+    "verify": "pnpm run format:check && pnpm run lint && pnpm run test && pnpm run check-types && pnpm run build && pnpm --filter permix size:compare",
     "commitlint": "commitlint --config commitlint.config.mts"
   },
   "devDependencies": {

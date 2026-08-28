@@ -1,0 +1,170 @@
+{
+  "core": {
+    "maxBytes": 3350,
+    "maxGzipBytes": 1500,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "react-classic": {
+    "maxBytes": 4650,
+    "maxGzipBytes": 2050,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "react-factory": {
+    "maxBytes": 5600,
+    "maxGzipBytes": 2350,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "react-check": {
+    "maxBytes": 4750,
+    "maxGzipBytes": 2050,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "vue": {
+    "maxBytes": 4800,
+    "maxGzipBytes": 2050,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "solid": {
+    "maxBytes": 4500,
+    "maxGzipBytes": 1950,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "svelte": {
+    "maxBytes": 4200,
+    "maxGzipBytes": 1850,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "trpc": {
+    "maxBytes": 4400,
+    "maxGzipBytes": 1900,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "orpc": {
+    "maxBytes": 4400,
+    "maxGzipBytes": 1900,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "express": {
+    "maxBytes": 4500,
+    "maxGzipBytes": 1900,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "hono": {
+    "maxBytes": 4500,
+    "maxGzipBytes": 1900,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "node": {
+    "maxBytes": 4550,
+    "maxGzipBytes": 1950,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "server": {
+    "maxBytes": 4550,
+    "maxGzipBytes": 1950,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "astro": {
+    "maxBytes": 4750,
+    "maxGzipBytes": 2000,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "elysia": {
+    "maxBytes": 4400,
+    "maxGzipBytes": 1850,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "fastify": {
+    "maxBytes": 4650,
+    "maxGzipBytes": 2000,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "drizzle": {
+    "maxBytes": 3750,
+    "maxGzipBytes": 1700,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "drizzle-legacy": {
+    "maxBytes": 3800,
+    "maxGzipBytes": 1700,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "standard-schema": {
+    "maxBytes": 5850,
+    "maxGzipBytes": 2400,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "effect": {
+    "maxBytes": 4450,
+    "maxGzipBytes": 1850,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "next": {
+    "maxBytes": 3850,
+    "maxGzipBytes": 1600,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "next-config": {
+    "maxBytes": 111000,
+    "maxGzipBytes": 34500,
+    "maxDeltaBytes": 5000,
+    "maxDeltaGzipBytes": 1500
+  },
+  "nuxt": {
+    "maxBytes": 4300,
+    "maxGzipBytes": 1800,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "tanstack-start": {
+    "maxBytes": 4750,
+    "maxGzipBytes": 1950,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "nest": {
+    "maxBytes": 4650,
+    "maxGzipBytes": 2000,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "react-router": {
+    "maxBytes": 4600,
+    "maxGzipBytes": 1950,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "extractor": {
+    "maxBytes": 84500,
+    "maxGzipBytes": 25200,
+    "maxDeltaBytes": 3500,
+    "maxDeltaGzipBytes": 1000
+  },
+  "extractor-cli": {
+    "maxBytes": 114000,
+    "maxGzipBytes": 35300,
+    "maxDeltaBytes": 5000,
+    "maxDeltaGzipBytes": 1500
+  }
+}

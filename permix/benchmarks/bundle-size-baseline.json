@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-08-28T18:46:55.021Z",
+  "measurements": {
+    "core": {
+      "bytes": 2962,
+      "gzipBytes": 1297
+    },
+    "react-classic": {
+      "bytes": 4063,
+      "gzipBytes": 1753
+    },
+    "react-factory": {
+      "bytes": 5309,
+      "gzipBytes": 2166
+    },
+    "react-check": {
+      "bytes": 4107,
+      "gzipBytes": 1785
+    },
+    "vue": {
+      "bytes": 4333,
+      "gzipBytes": 1810
+    },
+    "solid": {
+      "bytes": 3926,
+      "gzipBytes": 1693
+    },
+    "svelte": {
+      "bytes": 3745,
+      "gzipBytes": 1644
+    },
+    "trpc": {
+      "bytes": 3910,
+      "gzipBytes": 1683
+    },
+    "orpc": {
+      "bytes": 3895,
+      "gzipBytes": 1672
+    },
+    "express": {
+      "bytes": 3976,
+      "gzipBytes": 1675
+    },
+    "hono": {
+      "bytes": 3994,
+      "gzipBytes": 1683
+    },
+    "node": {
+      "bytes": 4043,
+      "gzipBytes": 1719
+    },
+    "server": {
+      "bytes": 4027,
+      "gzipBytes": 1703
+    },
+    "astro": {
+      "bytes": 4237,
+      "gzipBytes": 1769
+    },
+    "elysia": {
+      "bytes": 3920,
+      "gzipBytes": 1644
+    },
+    "fastify": {
+      "bytes": 4137,
+      "gzipBytes": 1778
+    },
+    "drizzle": {
+      "bytes": 3343,
+      "gzipBytes": 1490
+    },
+    "drizzle-legacy": {
+      "bytes": 3370,
+      "gzipBytes": 1505
+    },
+    "standard-schema": {
+      "bytes": 5200,
+      "gzipBytes": 2096
+    },
+    "effect": {
+      "bytes": 3947,
+      "gzipBytes": 1633
+    },
+    "next": {
+      "bytes": 3405,
+      "gzipBytes": 1428
+    },
+    "next-config": {
+      "bytes": 98848,
+      "gzipBytes": 30677
+    },
+    "nuxt": {
+      "bytes": 3827,
+      "gzipBytes": 1587
+    },
+    "tanstack-start": {
+      "bytes": 4201,
+      "gzipBytes": 1740
+    },
+    "nest": {
+      "bytes": 4152,
+      "gzipBytes": 1771
+    },
+    "react-router": {
+      "bytes": 4105,
+      "gzipBytes": 1715
+    },
+    "extractor": {
+      "bytes": 75380,
+      "gzipBytes": 22620
+    },
+    "extractor-cli": {
+      "bytes": 101527,
+      "gzipBytes": 31572
+    }
+  }
+}

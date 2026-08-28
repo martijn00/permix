@@ -47,6 +47,9 @@
     "skills"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/extractor/cli.mjs"
+  ],
   "main": "./dist/core/index.mjs",
   "types": "./dist/core/index.d.mts",
   "exports": {
@@ -163,6 +166,10 @@
     "type-check:compat": "pnpm run type-check:compat:5.9 && pnpm run type-check:compat:6 && pnpm run type-check:compat:7",
     "prepublishOnly": "run-s check-types test build scripts:copy-readme skills:validate",
     "scripts:copy-readme": "node ./scripts/copy-readme.ts",
+    "size": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts",
+    "size:compare": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts --compare ./benchmarks/bundle-size-baseline.json",
+    "size:json": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts --json",
+    "size:update-baseline": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts --update-baseline",
     "skills:stale": "intent stale skills",
     "skills:validate": "intent validate skills",
     "test": "vitest run"
@@ -195,6 +202,7 @@
     "arktype": "^2.2.3",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
+    "esbuild": "catalog:",
     "h3": "^1.15.11",
     "happy-dom": "^20.9.0",
     "react": "catalog:",

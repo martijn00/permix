@@ -1,4 +1,5 @@
 dist
 README.md
+!benchmarks/README.md
 !skills/README.md
 .svelte-kit

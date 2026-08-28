@@ -7,6 +7,8 @@ export interface PermixContext<T extends Definition> {
   permix: Permix<T>
   isReady: boolean
   rules: Rules<T> | null
+  subscribe?: (onStoreChange: () => void) => () => void
+  getSnapshot?: () => PermixContext<T>
 }
 
 export function createPermixContext<D extends Definition>() {
@@ -31,6 +33,27 @@ export function usePermixContext<D extends Definition = Definition>(
   return value
 }
 
+const noop = () => undefined
+const noopSubscribe = () => noop
+const selectSnapshot = <D extends Definition>(value: PermixContext<D>) => value
+
+export function readPermixContext<D extends Definition>(
+  value: PermixContext<D>
+): PermixContext<D> {
+  return value.getSnapshot?.() ?? value
+}
+
+export function usePermixSelector<D extends Definition, S>(
+  value: PermixContext<D>,
+  selector: (snapshot: PermixContext<D>) => S
+): S {
+  return React.useSyncExternalStore(
+    value.subscribe ?? noopSubscribe,
+    () => selector(readPermixContext(value)),
+    () => selector(readPermixContext(value))
+  )
+}
+
 /**
  * Access Permix check and readiness state inside a React component.
  *
@@ -40,15 +63,14 @@ export function usePermix<T extends Definition>(
   permix: Pick<Permix<T>, 'getRules' | 'check'>,
   context?: React.Context<PermixContext<T> | null>
 ) {
-  const { isReady, rules, permix: provided } = usePermixContext(context)
+  const value = usePermixContext(context)
+  const {
+    isReady,
+    rules,
+    permix: provided,
+  } = usePermixSelector(value, selectSnapshot)
 
-  const nodeProcess = (
-    globalThis as typeof globalThis & {
-      process?: { env?: { NODE_ENV?: string } }
-    }
-  ).process
-
-  if (nodeProcess?.env?.NODE_ENV !== 'production' && provided !== permix) {
+  if (process.env.NODE_ENV !== 'production' && provided !== permix) {
     throw new Error(
       '[Permix]: usePermix must receive the same instance passed to <PermixProvider>'
     )

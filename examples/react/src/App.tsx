@@ -18,9 +18,13 @@ function App() {
     }
   }, [user])
 
+  if (!isReady) {
+    return <>Is Permix ready? No</>
+  }
+
   return (
     <>
-      Is Permix ready? {isReady ? 'Yes' : 'No'}
+      Is Permix ready? Yes
       <hr />
       My user is {user?.id ?? '...'}
       <hr />

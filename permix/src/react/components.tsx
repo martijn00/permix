@@ -9,30 +9,93 @@ import type {
   Rules,
   RulesPaths,
 } from '../core'
+import { createCheck } from '../core'
 import type { PermixContext } from './hooks'
-import { Context, usePermix, usePermixContext } from './hooks'
+import {
+  Context,
+  readPermixContext,
+  usePermixContext,
+  usePermixSelector,
+} from './hooks'
 import { useEffectEvent } from './use-effect-event'
 import { useLayoutEffect } from './use-isomorphic-layout-effect'
 
-function readPermixSnapshot<D extends Definition>(
-  permix: Permix<D>
-): PermixContext<D> {
-  return {
-    permix,
-    isReady: permix.isReady(),
-    rules: permix.getRules(),
+function createSnapshotReader<D extends Definition>(
+  permix: Permix<D>,
+  read: () => Pick<PermixContext<D>, 'isReady' | 'rules'>
+) {
+  let snapshot: PermixContext<D> | null = null
+
+  return () => {
+    const current = read()
+    if (
+      !snapshot ||
+      snapshot.isReady !== current.isReady ||
+      snapshot.rules !== current.rules
+    ) {
+      snapshot = {
+        permix,
+        isReady: current.isReady,
+        rules: current.rules,
+      }
+    }
+    return snapshot
   }
 }
 
-function snapshotsEqual<D extends Definition>(
-  left: PermixContext<D>,
-  right: PermixContext<D>
-): boolean {
-  return (
-    left.permix === right.permix &&
-    left.isReady === right.isReady &&
-    left.rules === right.rules
-  )
+function createProviderContext<D extends Definition>(
+  permix: Permix<D>
+): PermixContext<D> {
+  const getSnapshot = createSnapshotReader(permix, () => ({
+    isReady: permix.isReady(),
+    rules: permix.getRules(),
+  }))
+  const subscribe = (onStoreChange: () => void) => {
+    const unsubSetup = permix.hook('setup', onStoreChange)
+    const unsubReady = permix.hook('ready', onStoreChange)
+    return () => {
+      unsubSetup()
+      unsubReady()
+    }
+  }
+
+  return {
+    permix,
+    get isReady() {
+      return getSnapshot().isReady
+    },
+    get rules() {
+      return getSnapshot().rules
+    },
+    subscribe,
+    getSnapshot,
+  }
+}
+
+function createHydrateContext<D extends Definition>(
+  parent: PermixContext<D>,
+  state: DehydratedState<D>
+): PermixContext<D> {
+  const getSnapshot = createSnapshotReader(parent.permix, () => {
+    const snapshot = readPermixContext(parent)
+    return {
+      isReady: snapshot.isReady,
+      rules: snapshot.rules ?? (state as unknown as Rules<D>),
+    }
+  })
+
+  return {
+    permix: parent.permix,
+    get isReady() {
+      return getSnapshot().isReady
+    },
+    get rules() {
+      return getSnapshot().rules
+    },
+    subscribe: (onStoreChange) =>
+      parent.subscribe?.(onStoreChange) ?? (() => undefined),
+    getSnapshot,
+  }
 }
 
 /**
@@ -50,38 +113,9 @@ export function PermixProvider<D extends Definition>({
   context?: React.Context<PermixContext<D> | null>
 }) {
   const Ctx = context ?? (Context as React.Context<PermixContext<D> | null>)
-  const snapshotRef = React.useRef<PermixContext<D> | null>(null)
+  const value = React.useMemo(() => createProviderContext(permix), [permix])
 
-  const subscribe = React.useCallback(
-    (onStoreChange: () => void) => {
-      const unsubSetup = permix.hook('setup', onStoreChange)
-      const unsubReady = permix.hook('ready', onStoreChange)
-      onStoreChange()
-      return () => {
-        unsubSetup()
-        unsubReady()
-      }
-    },
-    [permix]
-  )
-
-  const getSnapshot = React.useCallback(() => {
-    const next = readPermixSnapshot(permix)
-    const prev = snapshotRef.current
-    if (prev && snapshotsEqual(prev, next)) {
-      return prev
-    }
-    snapshotRef.current = next
-    return next
-  }, [permix])
-
-  const snapshot = React.useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getSnapshot
-  )
-
-  return <Ctx.Provider value={snapshot}>{children}</Ctx.Provider>
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
 export function PermixHydrate<D extends Definition>({
@@ -104,16 +138,10 @@ export function PermixHydrate<D extends Definition>({
     hydrateEvent(state)
   }, [state])
 
-  const overlay = React.useMemo<PermixContext<D>>(
-    () => ({
-      permix: parent.permix,
-      isReady: parent.isReady,
-      rules: state as unknown as Rules<D>,
-    }),
-    [parent.permix, parent.isReady, state]
+  const value = React.useMemo(
+    () => createHydrateContext(parent, state),
+    [parent, state]
   )
-
-  const value = parent.rules === null ? overlay : parent
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
@@ -141,9 +169,20 @@ export function createComponents<D extends Definition>(
     otherwise = null,
     reverse = false,
   }: CheckProps<D, P>) {
-    const { check } = usePermix(permix, context)
+    const value = usePermixContext(context)
 
-    const hasPermission = check(...([path, data] as unknown as CheckArgs<D>))
+    if (process.env.NODE_ENV !== 'production' && value.permix !== permix) {
+      throw new Error(
+        '[Permix]: usePermix must receive the same instance passed to <PermixProvider>'
+      )
+    }
+
+    const hasPermission = usePermixSelector(value, (snapshot) =>
+      createCheck<D>(snapshot.rules ?? permix.getRules())(
+        ...([path, data] as unknown as CheckArgs<D>)
+      )
+    )
+
     return reverse
       ? hasPermission
         ? otherwise

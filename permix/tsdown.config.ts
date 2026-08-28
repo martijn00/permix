@@ -4,6 +4,8 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   name: 'permix',
+  root: './src',
+  unbundle: true,
   entry: [
     './src/core/index.ts',
     './src/react/index.ts',

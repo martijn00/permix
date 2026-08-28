@@ -34,6 +34,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`
 
 - Add or adjust tests when behavior changes in a meaningful way.
 - Keep `permix/skills/` aligned with `docs/content/docs/` and `examples/` when public API, docs examples, or integration patterns change.
+- Keep `permix/benchmarks/entries/` and bundle-size budgets aligned with every public export. After building, run `pnpm --filter permix size:compare`.
+- Treat bundle-size baseline and budget updates as reviewed product changes: inspect the generated bundle and explain intentional growth instead of raising limits only to pass CI.
 - Do not bump `permix` version or edit released changelog sections by hand. Release Please opens a release PR from conventional commits.
 
 ## Documentation

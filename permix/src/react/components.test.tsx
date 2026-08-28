@@ -1,8 +1,8 @@
-import { render, waitFor } from '@testing-library/react'
+import { act, render, waitFor } from '@testing-library/react'
 import * as React from 'react'
 // @ts-expect-error react-dom/server has no types under tsconfig.react.json `types: []`
 import { renderToString } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 
 import { createPermix, PermixRuleNotDefinedError } from '../core'
@@ -216,6 +216,69 @@ describe('components', () => {
     )
 
     expect(getByText(text)).toBeInTheDocument()
+  })
+
+  it('does not rerender Check when an unrelated rule changes', () => {
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const { Check } = createComponents(permix)
+    const onCheckRender = vi.fn()
+    const onChildRender = vi.fn()
+
+    const Probe = React.memo(() => {
+      onChildRender()
+      return <span data-testid="create-probe">allowed</span>
+    })
+    Probe.displayName = 'Probe'
+
+    const { queryByTestId } = render(
+      <PermixProvider permix={permix}>
+        <React.Profiler id="check" onRender={onCheckRender}>
+          <Check path="post.create">
+            <Probe />
+          </Check>
+        </React.Profiler>
+      </PermixProvider>
+    )
+
+    expect(queryByTestId('create-probe')).toBeInTheDocument()
+    expect(onCheckRender).toHaveBeenCalledOnce()
+    expect(onChildRender).toHaveBeenCalledOnce()
+
+    act(() => {
+      permix.setup({
+        post: {
+          create: true,
+          read: true,
+        },
+      })
+    })
+
+    expect(queryByTestId('create-probe')).toBeInTheDocument()
+    expect(onCheckRender).toHaveBeenCalledOnce()
+    expect(onChildRender).toHaveBeenCalledOnce()
+
+    act(() => {
+      permix.setup({
+        post: {
+          create: false,
+          read: true,
+        },
+      })
+    })
+
+    expect(queryByTestId('create-probe')).not.toBeInTheDocument()
+    expect(onCheckRender).toHaveBeenCalledTimes(2)
+    expect(onChildRender).toHaveBeenCalledOnce()
   })
 
   it('should work with Check component and data', () => {

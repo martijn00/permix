@@ -33,10 +33,9 @@ export function usePermix<T extends Definition>(
 ) {
   const context = usePermixContext()
 
-  const check: Permix<T>['check'] = (...args) =>
-    createCheck<T>(
-      () => (context.rules ?? permix.getRules()) as Rules<T> | null
-    )(...args)
+  const check: Permix<T>['check'] = createCheck<T>(
+    () => (context.rules ?? permix.getRules()) as Rules<T> | null
+  )
 
   return { check, isReady: () => context.isReady }
 }

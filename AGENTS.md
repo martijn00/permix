@@ -39,9 +39,12 @@ pnpm run lint
 pnpm run format
 pnpm run format:check
 cd permix && pnpm run build
+cd permix && pnpm run size:compare # run after build
 cd docs && pnpm dev          # http://localhost:3000
 cd docs && pnpm types:check  # fumadocs-mdx + tsc for docs only
 ```
+
+Bundle-size fixtures, budgets, and the committed baseline live in [`permix/benchmarks/`](permix/benchmarks/README.md). Every public export and the extractor CLI must remain covered. Do not raise budgets or refresh the baseline solely to make CI pass; inspect the generated bundle, document an intentional increase, and keep browser fixtures free of extractor dependencies.
 
 Use [Conventional Commits](https://www.conventionalcommits.org/). Husky runs commitlint on `commit-msg`. Release Please on `main` opens a release PR that bumps `permix`, updates [CHANGELOG.md](CHANGELOG.md), and tags `vMAJOR.MINOR.PATCH`. Merging that PR publishes a GitHub Release; npm publish runs from `.github/workflows/npm-publish.yml`. The docs changelog page (`/docs/changelog`) inlines repo-root `CHANGELOG.md` at compile time.
 

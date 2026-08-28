@@ -21,6 +21,9 @@ catalogs:
     chokidar:
       specifier: ^5.0.0
       version: 5.0.0
+    esbuild:
+      specifier: ^0.28.2
+      version: 0.28.2
     oxc-parser:
       specifier: ^0.147.0
       version: 0.147.0
@@ -805,6 +808,9 @@ importers:
       effect:
         specifier: ^3.21.2
         version: 3.21.2
+      esbuild:
+        specifier: 'catalog:'
+        version: 0.28.2
       h3:
         specifier: ^1.15.11
         version: 1.15.11

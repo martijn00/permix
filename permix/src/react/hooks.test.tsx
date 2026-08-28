@@ -1,6 +1,6 @@
-import { render, renderHook, waitFor } from '@testing-library/react'
+import { act, render, renderHook, waitFor } from '@testing-library/react'
 import * as React from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createPermix } from '../core'
 import { PermixProvider, usePermix } from './index'
@@ -29,6 +29,48 @@ describe('permix react', () => {
 
     expect(result.current.check('post.create')).toBe(true)
     expect(result.current.check('post.read')).toBe(false)
+  })
+
+  it('rerenders full usePermix consumers when any rule changes', () => {
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const onRender = vi.fn()
+
+    function TestComponent() {
+      onRender()
+      const { check } = usePermix(permix)
+      return <div>{check('post.create').toString()}</div>
+    }
+
+    const { container } = render(
+      <PermixProvider permix={permix}>
+        <TestComponent />
+      </PermixProvider>
+    )
+
+    expect(container.firstChild).toHaveTextContent('true')
+    expect(onRender).toHaveBeenCalledOnce()
+
+    act(() => {
+      permix.setup({
+        post: {
+          create: true,
+          read: true,
+        },
+      })
+    })
+
+    expect(container.firstChild).toHaveTextContent('true')
+    expect(onRender).toHaveBeenCalledTimes(2)
   })
 
   it('reads ready state on the first render when setup ran before subscribe', () => {
