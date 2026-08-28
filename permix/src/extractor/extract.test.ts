@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { PermissionExtractionError } from './error'
-import { extractPermissions } from './extract'
+import { createPermissionFileCache, extractPermissions } from './extract'
 
 const temporaryDirectories: string[] = []
 
@@ -122,5 +122,34 @@ permission({ key: 'projects.read', title: 'Second title' })
         },
       })
     ).rejects.toBeInstanceOf(PermissionExtractionError)
+  })
+
+  it('reuses parse results when mtime and size are unchanged', async () => {
+    const cwd = await createProject({
+      'src/a.ts': `import { permission } from 'permix'
+permission('projects.read')
+`,
+      'src/b.ts': `import { permission } from 'permix'
+permission('projects.update')
+`,
+    })
+    const cache = createPermissionFileCache()
+
+    const first = await extractPermissions({ cwd, cache })
+    expect(cache.misses).toBe(2)
+    expect(cache.hits).toBe(0)
+    expect(first.permissions.map((permission) => permission.key)).toStrictEqual(
+      ['projects.read', 'projects.update']
+    )
+
+    const second = await extractPermissions({ cwd, cache })
+    expect(cache.misses).toBe(0)
+    expect(cache.hits).toBe(2)
+    expect(second).toStrictEqual(first)
+
+    const forced = await extractPermissions({ cwd, cache, force: true })
+    expect(cache.misses).toBe(2)
+    expect(cache.hits).toBe(0)
+    expect(forced).toStrictEqual(first)
   })
 })

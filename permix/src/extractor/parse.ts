@@ -7,13 +7,13 @@ import type {
   ObjectProperty,
   ParamPattern,
 } from 'oxc-parser'
-import { parseSync, Visitor } from 'oxc-parser'
 
 import type {
   JsonObject,
   JsonValue,
   PermissionMetadata,
 } from '../core/permission'
+import { importOxcParser } from './deps'
 import type { PermissionDiagnostic, PermissionReference } from './types'
 
 export interface ExtractedPermission {
@@ -424,10 +424,11 @@ function isNamespaceMarkerCall(
   )
 }
 
-export function parsePermissionFile(
+export async function parsePermissionFile(
   file: string,
   source: string
-): ParsedPermissionFile {
+): Promise<ParsedPermissionFile> {
+  const { parseSync, Visitor } = await importOxcParser()
   const result = parseSync(file, source, {
     astType: 'ts',
     preserveParens: true,

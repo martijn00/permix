@@ -711,9 +711,6 @@ importers:
       '@trpc/server':
         specifier: '>=11'
         version: 11.17.0(typescript@7.0.2)
-      chokidar:
-        specifier: 'catalog:'
-        version: 5.0.0
       elysia:
         specifier: '>=1'
         version: 1.4.28(@sinclair/typebox@0.34.49)(exact-mirror@1.0.0)(file-type@22.0.1(supports-color@7.2.0))(openapi-types@12.1.3)(typescript@7.0.2)
@@ -727,20 +724,14 @@ importers:
         specifier: '>=5'
         version: 5.1.0
       hono:
-        specifier: '>=4'
-        version: 4.12.23
+        specifier: '>=4.12.25'
+        version: 4.13.5
       next:
         specifier: '>=15'
         version: 16.2.6(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.62.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      oxc-parser:
-        specifier: 'catalog:'
-        version: 0.147.0
       solid-js:
         specifier: '>=1'
         version: 1.9.13
-      tinyglobby:
-        specifier: 'catalog:'
-        version: 0.2.17
     devDependencies:
       '@nestjs/common':
         specifier: ^11.2.3
@@ -802,6 +793,9 @@ importers:
       arktype:
         specifier: ^2.2.3
         version: 2.2.3
+      chokidar:
+        specifier: 'catalog:'
+        version: 5.0.0
       drizzle-orm:
         specifier: 1.0.0-rc.3
         version: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(effect@3.21.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)
@@ -817,6 +811,9 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      oxc-parser:
+        specifier: 'catalog:'
+        version: 0.147.0
       react:
         specifier: 'catalog:'
         version: 19.2.6
@@ -838,6 +835,9 @@ importers:
       svelte-check:
         specifier: ^4.5.0
         version: 4.5.0(picomatch@4.0.7)(svelte@5.56.0)(typescript@7.0.2)
+      tinyglobby:
+        specifier: 'catalog:'
+        version: 0.2.17
       tsdown:
         specifier: ^0.22.1
         version: 0.22.1(tsx@4.22.4)(typescript@7.0.2)
@@ -5688,6 +5688,10 @@ packages:
 
   hono@4.12.23:
     resolution: {integrity: sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==}
+    engines: {node: '>=16.9.0'}
+
+  hono@4.13.5:
+    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
     engines: {node: '>=16.9.0'}
 
   hookable@6.1.1:
@@ -12460,6 +12464,8 @@ snapshots:
       space-separated-tokens: 2.0.2
 
   hono@4.12.23: {}
+
+  hono@4.13.5: {}
 
   hookable@6.1.1: {}
 

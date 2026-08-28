@@ -1,4 +1,5 @@
 import type { PermissionMetadata } from '../core/permission'
+import type { PermissionFileCache } from './extract'
 
 export const PERMISSION_CATALOG_SCHEMA_VERSION = 1 as const
 
@@ -44,6 +45,8 @@ export interface ExtractPermissionsOptions {
   readonly include?: readonly string[]
   readonly exclude?: readonly string[]
   readonly metadata?: PermissionMetadataConfig
+  readonly cache?: PermissionFileCache
+  readonly force?: boolean
 }
 
 export interface GeneratePermissionsOptions extends ExtractPermissionsOptions {

@@ -1,8 +1,8 @@
 import path from 'node:path'
 
-import { watch } from 'chokidar'
-
+import { importChokidar } from './deps'
 import { PermissionExtractionError } from './error'
+import { createPermissionFileCache } from './extract'
 import { generatePermissions } from './generate'
 import type { GeneratePermissionsResult } from './generate'
 import type { GeneratePermissionsOptions } from './types'
@@ -39,7 +39,7 @@ const WATCH_IGNORES = [
 ]
 
 /**
- * Watches a source root and performs a debounced full extraction scan.
+ * Watches a source root and regenerates artifacts from an incremental parse cache.
  */
 export async function watchPermissions(
   options: WatchPermissionsOptions = {},
@@ -47,12 +47,13 @@ export async function watchPermissions(
 ): Promise<PermissionWatcher> {
   const cwd = path.resolve(options.cwd ?? process.cwd())
   const debounceMs = options.debounceMs ?? 50
+  const cache = options.cache ?? createPermissionFileCache()
   let timer: ReturnType<typeof setTimeout> | undefined
   let running: Promise<void> | undefined
   let rerun = false
   let closed = false
 
-  async function generate(): Promise<void> {
+  async function generate(force = false): Promise<void> {
     if (closed) {
       return
     }
@@ -66,6 +67,8 @@ export async function watchPermissions(
     running = generatePermissions({
       ...options,
       cwd,
+      cache,
+      ...(force ? { force: true } : {}),
     })
       .then((result) => {
         listener?.({ type: 'generated', result })
@@ -99,9 +102,12 @@ export async function watchPermissions(
   const initialResult = await generatePermissions({
     ...options,
     cwd,
+    cache,
+    force: true,
   })
   listener?.({ type: 'generated', result: initialResult })
 
+  const { watch } = await importChokidar()
   const watcher = watch(cwd, {
     ignoreInitial: true,
     ignored: WATCH_IGNORES,
@@ -121,13 +127,19 @@ export async function watchPermissions(
     watcher.once('error', handleError)
   })
 
-  watcher.on('all', () => {
+  watcher.on('all', (event, filePath) => {
+    if (typeof filePath === 'string' && filePath.length > 0) {
+      cache.delete(path.resolve(filePath))
+    }
+    if (event === 'unlinkDir') {
+      cache.clear()
+    }
     if (timer !== undefined) {
       clearTimeout(timer)
     }
     timer = setTimeout(() => {
       timer = undefined
-      void generate()
+      void generate(options.force === true)
     }, debounceMs)
   })
 

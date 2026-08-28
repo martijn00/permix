@@ -328,6 +328,8 @@ function extractionOptions(options: GeneratePermissionsOptions, cwd: string) {
     ...(options.include === undefined ? {} : { include: options.include }),
     ...(options.exclude === undefined ? {} : { exclude: options.exclude }),
     ...(options.metadata === undefined ? {} : { metadata: options.metadata }),
+    ...(options.cache === undefined ? {} : { cache: options.cache }),
+    ...(options.force === true ? { force: true } : {}),
   }
 }
 

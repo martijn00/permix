@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T22:09:10.183Z",
+  "generatedAt": "2026-08-28T22:18:59.021Z",
   "measurements": {
     "core": {
       "bytes": 3686,
@@ -86,8 +86,8 @@
       "gzipBytes": 1682
     },
     "next-config": {
-      "bytes": 98848,
-      "gzipBytes": 30677
+      "bytes": 16118,
+      "gzipBytes": 5605
     },
     "nuxt": {
       "bytes": 4549,
@@ -106,12 +106,12 @@
       "gzipBytes": 1973
     },
     "extractor": {
-      "bytes": 75380,
-      "gzipBytes": 22620
+      "bytes": 14640,
+      "gzipBytes": 5102
     },
     "extractor-cli": {
-      "bytes": 101527,
-      "gzipBytes": 31572
+      "bytes": 19230,
+      "gzipBytes": 6594
     }
   }
 }

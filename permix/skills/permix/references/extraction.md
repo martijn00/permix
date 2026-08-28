@@ -24,6 +24,8 @@ pnpm permix extract --watch
 pnpm permix extract --check
 ```
 
+The CLI and `withPermix` need optional peers `chokidar`, `oxc-parser`, and `tinyglobby`. Install them before extracting if they are not already in the project.
+
 The default outputs are `.permix/permissions.ts` and `.permix/permissions.json`. Use repeatable `--include` and `--exclude` flags for monorepos.
 
 ## Consume the generated definition

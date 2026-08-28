@@ -160,9 +160,9 @@
     "build": "node --import ./scripts/register-typescript6.mjs ./node_modules/tsdown/dist/run.mjs && pnpm run build:svelte",
     "build:svelte": "node --import ./scripts/register-typescript6.mjs ./node_modules/@sveltejs/package/src/cli.js -i src/svelte -o dist/svelte && node ./scripts/build-svelte.ts",
     "check-types": "tsc --build && node --import ./scripts/register-typescript6.mjs ./node_modules/svelte-check/bin/svelte-check --tsconfig ./tsconfig.svelte.json",
-    "type-check:compat:5.9": "pnpm run build && node ./node_modules/typescript59/bin/tsc --build && node ./node_modules/typescript59/bin/tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
-    "type-check:compat:6": "pnpm run build && node ./node_modules/typescript6/bin/tsc6 --build && node ./node_modules/typescript6/bin/tsc6 -p tsconfig.compat.json --stableTypeOrdering && node ./scripts/smoke-exports.ts",
-    "type-check:compat:7": "pnpm run build && tsc --build && tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
+    "type-check:compat:5.9": "node ./scripts/ensure-dist.mjs && node ./node_modules/typescript59/bin/tsc --build && node ./node_modules/typescript59/bin/tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
+    "type-check:compat:6": "node ./scripts/ensure-dist.mjs && node ./node_modules/typescript6/bin/tsc6 --build && node ./node_modules/typescript6/bin/tsc6 -p tsconfig.compat.json --stableTypeOrdering && node ./scripts/smoke-exports.ts",
+    "type-check:compat:7": "node ./scripts/ensure-dist.mjs && tsc --build && tsc -p tsconfig.compat.json && node ./scripts/smoke-exports.ts",
     "type-check:compat": "pnpm run type-check:compat:5.9 && pnpm run type-check:compat:6 && pnpm run type-check:compat:7",
     "prepublishOnly": "run-s check-types test build scripts:copy-readme skills:validate",
     "scripts:copy-readme": "node ./scripts/copy-readme.ts",
@@ -173,11 +173,6 @@
     "skills:stale": "intent stale skills",
     "skills:validate": "intent validate skills",
     "test": "vitest run"
-  },
-  "dependencies": {
-    "chokidar": "catalog:",
-    "oxc-parser": "catalog:",
-    "tinyglobby": "catalog:"
   },
   "devDependencies": {
     "@nestjs/common": "^11.2.3",
@@ -200,11 +195,13 @@
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
     "arktype": "^2.2.3",
+    "chokidar": "catalog:",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "esbuild": "catalog:",
     "h3": "^1.15.11",
     "happy-dom": "^20.9.0",
+    "oxc-parser": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "reflect-metadata": "^0.2.2",
@@ -212,6 +209,7 @@
     "supertest": "^7.2.2",
     "svelte": "^5.56.0",
     "svelte-check": "^4.5.0",
+    "tinyglobby": "catalog:",
     "tsdown": "^0.22.1",
     "typescript": "catalog:",
     "typescript59": "catalog:typescript-classic",
@@ -228,6 +226,7 @@
     "@orpc/server": ">=1",
     "@tanstack/react-start": ">=1",
     "@trpc/server": ">=11",
+    "chokidar": ">=5",
     "drizzle-orm": ">=0.30.0 || >=1.0.0-rc.3",
     "effect": ">=3",
     "elysia": ">=1",
@@ -235,12 +234,14 @@
     "fastify": ">=5",
     "fastify-plugin": ">=5",
     "h3": ">=1.13",
-    "hono": ">=4",
+    "hono": ">=4.12.25",
     "next": ">=15",
+    "oxc-parser": ">=0.147.0",
     "react": ">=18",
     "react-dom": ">=18",
     "solid-js": ">=1",
     "svelte": ">=5",
+    "tinyglobby": ">=0.2.17",
     "typescript": ">=5.9 <8",
     "vue": ">=3"
   },
@@ -282,6 +283,15 @@
       "optional": true
     },
     "hono": {
+      "optional": true
+    },
+    "chokidar": {
+      "optional": true
+    },
+    "oxc-parser": {
+      "optional": true
+    },
+    "tinyglobby": {
       "optional": true
     },
     "next": {

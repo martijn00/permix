@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parsePermissionFile } from './parse'
 
 describe(parsePermissionFile, () => {
-  it('extracts aliased and namespace markers with static metadata', () => {
+  it('extracts aliased and namespace markers with static metadata', async () => {
     const source = `import { permission as mark } from 'permix'
 import * as permix from 'permix'
 
@@ -17,7 +17,7 @@ export const update = mark({
 export const invite = permix.permission(\`workspace.members.invite\`)
 `
 
-    const result = parsePermissionFile('src/permissions.ts', source)
+    const result = await parsePermissionFile('src/permissions.ts', source)
 
     expect(result.diagnostics).toStrictEqual([])
     expect(result.permissions).toStrictEqual([
@@ -50,25 +50,27 @@ export const invite = permix.permission(\`workspace.members.invite\`)
     ])
   })
 
-  it('ignores unrelated functions named permission', () => {
+  it('ignores unrelated functions named permission', async () => {
     const source = `const permission = (key: string) => key
 permission(dynamicKey)
 `
 
-    expect(parsePermissionFile('src/unrelated.ts', source)).toStrictEqual({
+    await expect(
+      parsePermissionFile('src/unrelated.ts', source)
+    ).resolves.toStrictEqual({
       diagnostics: [],
       permissions: [],
     })
   })
 
-  it('rejects dynamic keys and metadata', () => {
+  it('rejects dynamic keys and metadata', async () => {
     const source = `import { permission } from 'permix'
 const key = 'projects.update'
 permission(key)
 permission({ key: 'projects.read', title: getTitle() })
 `
 
-    const result = parsePermissionFile('src/dynamic.ts', source)
+    const result = await parsePermissionFile('src/dynamic.ts', source)
 
     expect(result.permissions).toStrictEqual([])
     expect(result.diagnostics).toMatchObject([
@@ -85,13 +87,13 @@ permission({ key: 'projects.read', title: getTitle() })
     ])
   })
 
-  it('rejects invalid permission paths and marker properties', () => {
+  it('rejects invalid permission paths and marker properties', async () => {
     const source = `import { permission } from 'permix'
 permission('projects..update')
 permission({ key: 'projects.read', titel: 'Read project' })
 `
 
-    const result = parsePermissionFile('src/invalid.ts', source)
+    const result = await parsePermissionFile('src/invalid.ts', source)
 
     expect(result.permissions).toStrictEqual([])
     expect(result.diagnostics).toMatchObject([
@@ -100,14 +102,14 @@ permission({ key: 'projects.read', titel: 'Read project' })
     ])
   })
 
-  it('fails conservatively when the imported marker is shadowed', () => {
+  it('fails conservatively when the imported marker is shadowed', async () => {
     const source = `import { permission } from 'permix'
 function run(permission: (key: string) => string) {
   return permission('projects.update')
 }
 `
 
-    const result = parsePermissionFile('src/shadowed.ts', source)
+    const result = await parsePermissionFile('src/shadowed.ts', source)
 
     expect(result.permissions).toStrictEqual([])
     expect(result.diagnostics).toMatchObject([

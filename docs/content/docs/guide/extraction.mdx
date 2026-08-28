@@ -40,6 +40,8 @@ pnpm permix extract --watch
 pnpm permix extract --check
 ```
 
+The CLI and `withPermix` depend on `chokidar`, `oxc-parser`, and `tinyglobby`. Those packages are optional peers of `permix`, so a UI-only install does not download the native parser. Install them (or reinstall `permix` with optional dependencies enabled) before running extract.
+
 Use repeatable `--include` and `--exclude` options for monorepos:
 
 ```bash

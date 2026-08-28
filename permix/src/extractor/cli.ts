@@ -26,6 +26,7 @@ Options:
   --catalog-output <path>  Generated JSON catalog
   --check                  Exit non-zero when artifacts are stale
   --watch                  Regenerate after source changes
+  --force                  Rescan every file instead of using the parse cache
   --help                   Show this help
 `
 
@@ -41,58 +42,105 @@ function readValue(
   return value
 }
 
+interface ParsedFlags {
+  include: string[]
+  exclude: string[]
+  cwd?: string
+  moduleOutput?: string
+  catalogOutput?: string
+  check: boolean
+  help: boolean
+  watch: boolean
+  force: boolean
+}
+
+function applyFlag(
+  argument: string,
+  args: readonly string[],
+  index: number,
+  flags: ParsedFlags
+): number {
+  switch (argument) {
+    case '--cwd': {
+      flags.cwd = readValue(args, index, argument)
+      return index + 1
+    }
+    case '--include': {
+      flags.include.push(readValue(args, index, argument))
+      return index + 1
+    }
+    case '--exclude': {
+      flags.exclude.push(readValue(args, index, argument))
+      return index + 1
+    }
+    case '--module-output': {
+      flags.moduleOutput = readValue(args, index, argument)
+      return index + 1
+    }
+    case '--catalog-output': {
+      flags.catalogOutput = readValue(args, index, argument)
+      return index + 1
+    }
+    case '--check': {
+      flags.check = true
+      return index
+    }
+    case '--watch': {
+      flags.watch = true
+      return index
+    }
+    case '--force': {
+      flags.force = true
+      return index
+    }
+    case '--help':
+    case '-h': {
+      flags.help = true
+      return index
+    }
+    default: {
+      throw new Error(`Unknown argument: ${argument}`)
+    }
+  }
+}
+
 export function parseCliOptions(arguments_: readonly string[]): CliOptions {
   const args = arguments_[0] === 'extract' ? arguments_.slice(1) : arguments_
-  const include: string[] = []
-  const exclude: string[] = []
-  let cwd: string | undefined
-  let moduleOutput: string | undefined
-  let catalogOutput: string | undefined
-  let check = false
-  let help = false
-  let watch = false
+  const flags: ParsedFlags = {
+    include: [],
+    exclude: [],
+    check: false,
+    help: false,
+    watch: false,
+    force: false,
+  }
 
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]
-    if (argument === '--cwd') {
-      cwd = readValue(args, index, argument)
-      index += 1
-    } else if (argument === '--include') {
-      include.push(readValue(args, index, argument))
-      index += 1
-    } else if (argument === '--exclude') {
-      exclude.push(readValue(args, index, argument))
-      index += 1
-    } else if (argument === '--module-output') {
-      moduleOutput = readValue(args, index, argument)
-      index += 1
-    } else if (argument === '--catalog-output') {
-      catalogOutput = readValue(args, index, argument)
-      index += 1
-    } else if (argument === '--check') {
-      check = true
-    } else if (argument === '--watch') {
-      watch = true
-    } else if (argument === '--help' || argument === '-h') {
-      help = true
-    } else {
-      throw new Error(`Unknown argument: ${argument ?? ''}`)
+    if (argument === undefined) {
+      break
     }
+    index = applyFlag(argument, args, index, flags)
   }
 
-  if (check && watch) {
+  if (flags.check && flags.watch) {
     throw new Error('--check and --watch cannot be used together.')
   }
 
   return {
-    check,
-    help,
-    watch,
-    ...(cwd === undefined ? {} : { cwd }),
-    ...(include.length === 0 ? {} : { include }),
-    ...(exclude.length === 0 ? {} : { exclude }),
-    ...(moduleOutput === undefined ? {} : { moduleOutput }),
-    ...(catalogOutput === undefined ? {} : { catalogOutput }),
+    check: flags.check,
+    help: flags.help,
+    watch: flags.watch,
+    ...(flags.cwd === undefined ? {} : { cwd: flags.cwd }),
+    ...(flags.include.length === 0 ? {} : { include: flags.include }),
+    ...(flags.exclude.length === 0 ? {} : { exclude: flags.exclude }),
+    ...(flags.moduleOutput === undefined
+      ? {}
+      : { moduleOutput: flags.moduleOutput }),
+    ...(flags.catalogOutput === undefined
+      ? {}
+      : { catalogOutput: flags.catalogOutput }),
+    ...(flags.force ? { force: true } : {}),
   }
 }
 
@@ -107,6 +155,7 @@ function generationOptions(options: CliOptions): GeneratePermissionsOptions {
     ...(options.catalogOutput === undefined
       ? {}
       : { catalogOutput: options.catalogOutput }),
+    ...(options.force === true ? { force: true } : {}),
   }
 }
 

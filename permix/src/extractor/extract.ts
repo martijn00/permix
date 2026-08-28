@@ -1,13 +1,12 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
-
-import { glob } from 'tinyglobby'
 
 import type {
   JsonObject,
   JsonValue,
   PermissionMetadata,
 } from '../core/permission'
+import { importTinyglobby } from './deps'
 import { PermissionExtractionError } from './error'
 import { parsePermissionFile } from './parse'
 import type { ExtractedPermission } from './parse'
@@ -195,10 +194,90 @@ function buildCatalog(
   }
 }
 
+export interface PermissionFileCacheEntry {
+  readonly mtimeMs: number
+  readonly size: number
+  readonly diagnostics: readonly PermissionDiagnostic[]
+  readonly permissions: readonly ExtractedPermission[]
+}
+
+export interface PermissionFileCache {
+  hits: number
+  misses: number
+  clear: () => void
+  delete: (absoluteFile: string) => void
+  get: (absoluteFile: string) => PermissionFileCacheEntry | undefined
+  keys: () => IterableIterator<string>
+  set: (absoluteFile: string, entry: PermissionFileCacheEntry) => void
+}
+
+export function createPermissionFileCache(): PermissionFileCache {
+  const files = new Map<string, PermissionFileCacheEntry>()
+
+  return {
+    hits: 0,
+    misses: 0,
+    clear() {
+      files.clear()
+      this.hits = 0
+      this.misses = 0
+    },
+    delete(absoluteFile) {
+      files.delete(absoluteFile)
+    },
+    get(absoluteFile) {
+      return files.get(absoluteFile)
+    },
+    keys() {
+      return files.keys()
+    },
+    set(absoluteFile, entry) {
+      files.set(absoluteFile, entry)
+    },
+  }
+}
+
+async function parseCachedFile(
+  cache: PermissionFileCache,
+  cwd: string,
+  absoluteFile: string,
+  counters: { hits: number; misses: number }
+): Promise<PermissionFileCacheEntry> {
+  const stats = await stat(absoluteFile)
+  const cached = cache.get(absoluteFile)
+  if (
+    cached !== undefined &&
+    cached.mtimeMs === stats.mtimeMs &&
+    cached.size === stats.size
+  ) {
+    counters.hits += 1
+    return cached
+  }
+
+  counters.misses += 1
+  const source = await readFile(absoluteFile, 'utf-8')
+  const file = normalizePath(path.relative(cwd, absoluteFile))
+  const parsed = await parsePermissionFile(file, source)
+  const entry: PermissionFileCacheEntry = {
+    mtimeMs: stats.mtimeMs,
+    size: stats.size,
+    diagnostics: parsed.diagnostics,
+    permissions: parsed.permissions,
+  }
+  cache.set(absoluteFile, entry)
+  return entry
+}
+
 export async function extractPermissions(
   options: ExtractPermissionsOptions = {}
 ): Promise<PermissionCatalog> {
   const cwd = path.resolve(options.cwd ?? process.cwd())
+  const cache = options.cache ?? createPermissionFileCache()
+  if (options.force === true) {
+    cache.clear()
+  }
+
+  const { glob } = await importTinyglobby()
   const files = await glob(options.include ?? DEFAULT_INCLUDE, {
     absolute: true,
     cwd,
@@ -206,13 +285,24 @@ export async function extractPermissions(
     followSymbolicLinks: false,
     ignore: options.exclude ?? DEFAULT_EXCLUDE,
   })
+  const fileSet = new Set(files)
+  for (const cachedFile of cache.keys()) {
+    if (!fileSet.has(cachedFile)) {
+      cache.delete(cachedFile)
+    }
+  }
+
+  const counters = { hits: 0, misses: 0 }
   const parsedFiles = await Promise.all(
-    files.toSorted().map(async (absoluteFile) => {
-      const source = await readFile(absoluteFile, 'utf-8')
-      const file = normalizePath(path.relative(cwd, absoluteFile))
-      return parsePermissionFile(file, source)
-    })
+    files
+      .toSorted()
+      .map((absoluteFile) =>
+        parseCachedFile(cache, cwd, absoluteFile, counters)
+      )
   )
+  cache.hits = counters.hits
+  cache.misses = counters.misses
+
   const diagnostics: PermissionDiagnostic[] = parsedFiles.flatMap(
     ({ diagnostics: fileDiagnostics }) => fileDiagnostics
   )

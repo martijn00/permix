@@ -31,8 +31,40 @@ jobs:
       - name: Check types
         run: pnpm run check-types
 
+  build-dist:
+    name: Build dist
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter permix build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: permix-dist
+          path: permix/dist
+
   typescript-compatibility:
     name: TypeScript ${{ matrix.version }}
+    needs: build-dist
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -62,6 +94,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: permix-dist
+          path: permix/dist
 
       - name: Check source and published package
         run: pnpm --filter permix ${{ matrix.script }}

@@ -126,10 +126,10 @@
     "maxDeltaGzipBytes": 100
   },
   "next-config": {
-    "maxBytes": 111000,
-    "maxGzipBytes": 34500,
-    "maxDeltaBytes": 5000,
-    "maxDeltaGzipBytes": 1500
+    "maxBytes": 18100,
+    "maxGzipBytes": 6300,
+    "maxDeltaBytes": 500,
+    "maxDeltaGzipBytes": 150
   },
   "nuxt": {
     "maxBytes": 4950,
@@ -156,15 +156,15 @@
     "maxDeltaGzipBytes": 100
   },
   "extractor": {
-    "maxBytes": 84500,
-    "maxGzipBytes": 25200,
-    "maxDeltaBytes": 3500,
-    "maxDeltaGzipBytes": 1000
+    "maxBytes": 16500,
+    "maxGzipBytes": 5750,
+    "maxDeltaBytes": 500,
+    "maxDeltaGzipBytes": 150
   },
   "extractor-cli": {
-    "maxBytes": 114000,
-    "maxGzipBytes": 35300,
-    "maxDeltaBytes": 5000,
-    "maxDeltaGzipBytes": 1500
+    "maxBytes": 21600,
+    "maxGzipBytes": 7400,
+    "maxDeltaBytes": 500,
+    "maxDeltaGzipBytes": 150
   }
 }
