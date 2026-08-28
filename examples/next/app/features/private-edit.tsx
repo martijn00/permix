@@ -12,8 +12,9 @@ import { Providers } from '../providers'
 async function readPostUpdatePayload(postId: string) {
   'use cache: private'
   const session = await getSession()
-  const instance = createPermix<PermissionsDefinition>()
-  instance.setup(rulesForSession(session))
+  const instance = createPermix<PermissionsDefinition>().setup(
+    rulesForSession(session)
+  )
   const post = await getPost(postId)
   if (!post || !instance.check('post.update', post)) {
     return null

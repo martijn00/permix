@@ -35,9 +35,7 @@ describe('drizzle createPermix', () => {
   })
 
   it('produces a Permix instance that accepts rules for every detected table', () => {
-    const permix = createPermix(schema)
-
-    permix.setup({
+    const permix = createPermix(schema).setup({
       users: { create: true, read: true, update: false, delete: false },
       posts: { create: true, read: true, update: true, delete: false },
     })
@@ -49,9 +47,7 @@ describe('drizzle createPermix', () => {
   })
 
   it('infers leaf paths only for tables — relations are not part of the type', () => {
-    const permix = createPermix(schema)
-
-    permix.setup({
+    const permix = createPermix(schema).setup({
       users: { create: true, read: true, update: false, delete: false },
       posts: { create: true, read: true, update: true, delete: false },
     })

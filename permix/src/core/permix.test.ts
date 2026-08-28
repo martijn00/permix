@@ -9,9 +9,7 @@ import { createPermix } from './permix'
 
 describe(createPermix, () => {
   it('should init basic rules', () => {
-    const permix = createPermix<['read']>()
-
-    permix.setup({
+    const permix = createPermix<['read']>().setup({
       read: true,
     })
 
@@ -25,9 +23,7 @@ describe(createPermix, () => {
   })
 
   it('should throw if rule is not defined', () => {
-    const permix = createPermix<{ post: ['create', 'read'] }>()
-
-    permix.setup({
+    const permix = createPermix<{ post: ['create', 'read'] }>().setup({
       post: {
         create: true,
         read: true,
@@ -42,9 +38,7 @@ describe(createPermix, () => {
   })
 
   it('should throw when check path is deeper than a boolean leaf (setup)', () => {
-    const permix = createPermix<{ post: ['create', 'read'] }>()
-
-    permix.setup({
+    const permix = createPermix<{ post: ['create', 'read'] }>().setup({
       post: true,
     } as never)
 
@@ -57,9 +51,7 @@ describe(createPermix, () => {
   })
 
   it('should throw when check path is deeper than a boolean leaf (hydrate)', () => {
-    const permix = createPermix<{ post: ['create', 'read'] }>()
-
-    permix.hydrate({
+    const permix = createPermix<{ post: ['create', 'read'] }>().hydrate({
       // @ts-expect-error true is not a valid rule
       post: true,
     })
@@ -73,17 +65,15 @@ describe(createPermix, () => {
   })
 
   it('should allow check on a flat boolean leaf without extra path segments', () => {
-    const permix = createPermix<['read']>()
-
-    permix.setup({ read: true })
+    const permix = createPermix<['read']>().setup({ read: true })
 
     expect(permix.check('read')).toBe(true)
   })
 
   it('should tolerate explicit undefined data at runtime even though it is a type error', () => {
-    const permix = createPermix<{ post: ['create'] }>()
-
-    permix.setup({ post: { create: true } })
+    const permix = createPermix<{ post: ['create'] }>().setup({
+      post: { create: true },
+    })
 
     // @ts-expect-error undefined is not a valid data argument
     expect(permix.check('post.create', undefined)).toBe(true)
@@ -96,9 +86,7 @@ describe(createPermix, () => {
 
     const permix = createPermix<{
       post: ['read', { name: 'create'; type: Post }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         read: true,
         create: (post) => post?.authorId === '1',
@@ -117,9 +105,7 @@ describe(createPermix, () => {
 
     const permix = createPermix<{
       post: [{ name: 'create'; type: Post; required: true }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: (post) => post.authorId === '1',
       },
@@ -134,9 +120,7 @@ describe(createPermix, () => {
   it('should work without a per-action data type', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: true },
     })
 
@@ -155,9 +139,7 @@ describe(createPermix, () => {
 
     const permix = createPermix<{
       post: [PostActionName]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         [PostAction.Create]: true,
         [PostAction.Read]: true,
@@ -197,13 +179,15 @@ describe(createPermix, () => {
   })
 
   it('should resolve permissions once setup runs asynchronously', async () => {
-    const permix = createPermix<{
+    const factory = createPermix<{
       post: ['create']
     }>()
 
-    setTimeout(() => {
-      permix.setup({ post: { create: true } })
-    }, 10)
+    const permix = await new Promise<typeof factory>((resolve) => {
+      setTimeout(() => {
+        resolve(factory.setup({ post: { create: true } }))
+      }, 10)
+    })
 
     await permix.isReadyAsync()
     expect(permix.check('post.create')).toBe(true)
@@ -215,9 +199,7 @@ describe('check ~all / ~any', () => {
     const permix = createPermix<{
       post: ['create', 'read']
       comment: ['create', 'read', 'update']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: true, read: true },
       comment: { create: true, read: true, update: true },
     })
@@ -229,9 +211,7 @@ describe('check ~all / ~any', () => {
     const permix = createPermix<{
       post: ['create', 'read']
       comment: ['create', 'read', 'update']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: true, read: false },
       comment: { create: true, read: true, update: true },
     })
@@ -243,9 +223,7 @@ describe('check ~all / ~any', () => {
     const permix = createPermix<{
       post: ['create', 'read']
       comment: ['create', 'read', 'update']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: false, read: false },
       comment: { create: false, read: true, update: false },
     })
@@ -257,9 +235,7 @@ describe('check ~all / ~any', () => {
     const permix = createPermix<{
       post: ['create', 'read']
       comment: ['create', 'read', 'update']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: false, read: false },
       comment: { create: false, read: false, update: false },
     })
@@ -270,9 +246,7 @@ describe('check ~all / ~any', () => {
   it('should evaluate function rules with no data when aggregating', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => true,
         read: () => false,
@@ -287,9 +261,7 @@ describe('check ~all / ~any', () => {
     const permix = createPermix<{
       post: ['create', 'read']
       comment: ['create', 'read', 'update']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: true, read: true },
       comment: { create: false, read: true, update: false },
     })
@@ -307,9 +279,7 @@ describe('check ~all / ~any', () => {
         customer: ['create', 'delete']
         guest: ['read', 'write']
       }
-    }>()
-
-    permix.setup({
+    }>().setup({
       user: { write: true },
       workspace: {
         customer: { create: true, delete: true },
@@ -327,9 +297,7 @@ describe('check ~all / ~any', () => {
   it('should resolve function rules when aggregating a nested subtree', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => true,
         read: () => false,
@@ -343,9 +311,7 @@ describe('check ~all / ~any', () => {
   it('should deny empty-subtree ~all instead of vacuously allowing', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({} as never)
+    }>().setup({} as never)
     expect(permix.check('~all')).toBe(false)
     expect(permix.check('~any')).toBe(false)
   })
@@ -353,9 +319,7 @@ describe('check ~all / ~any', () => {
   it('should deny ~all on an empty nested subtree', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({ post: {} } as never)
+    }>().setup({ post: {} } as never)
     expect(permix.check('post.~all')).toBe(false)
     expect(permix.check('post.~any')).toBe(false)
   })
@@ -363,9 +327,7 @@ describe('check ~all / ~any', () => {
   it('should treat entity-required throws as deny under ~any / ~all', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; type: { id: string }; required: true }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (data) => data.id === '1',
       },
@@ -386,9 +348,7 @@ describe('deep rules', () => {
         customer: ['write']
         guest: ['write']
       }
-    }>()
-
-    permix.setup({
+    }>().setup({
       user: {
         write: true,
       },
@@ -416,9 +376,7 @@ describe('deep rules', () => {
         customer: ['write']
         guest: ['write']
       }
-    }>()
-
-    permix.setup({
+    }>().setup({
       user: {
         read: true,
         write: (data) => data.authorId === '1',
@@ -449,9 +407,7 @@ describe('deep rules', () => {
     it('should hydrate permissions from JSON state', () => {
       const permix = createPermix<{
         post: ['create', 'read']
-      }>()
-
-      permix.hydrate({
+      }>().hydrate({
         post: {
           create: true,
           read: false,
@@ -466,9 +422,7 @@ describe('deep rules', () => {
       const permix = createPermix<{
         post: ['create', 'read', 'update']
         comment: ['write', 'delete']
-      }>()
-
-      permix.hydrate({
+      }>().hydrate({
         post: {
           create: true,
           read: true,
@@ -489,9 +443,7 @@ describe('deep rules', () => {
     it('should dehydrate permissions to JSON state', () => {
       const permix = createPermix<{
         post: ['create', 'read']
-      }>()
-
-      permix.setup({
+      }>().setup({
         post: {
           create: true,
           read: false,
@@ -507,18 +459,16 @@ describe('deep rules', () => {
         },
       })
 
-      permix.hydrate(dehydratedState)
+      const hydrated = permix.hydrate(dehydratedState)
 
-      expect(permix.check('post.create')).toBe(true)
-      expect(permix.check('post.read')).toBe(false)
+      expect(hydrated.check('post.create')).toBe(true)
+      expect(hydrated.check('post.read')).toBe(false)
     })
 
     it('should evaluate function rules when dehydrating', () => {
       const permix = createPermix<{
         post: ['create', 'read']
-      }>()
-
-      permix.setup({
+      }>().setup({
         post: {
           create: () => true,
           read: () => false,
@@ -528,17 +478,15 @@ describe('deep rules', () => {
       const dehydrated = permix.dehydrate()
       expect(dehydrated).toStrictEqual({ post: { create: true, read: false } })
 
-      permix.hydrate(dehydrated)
-      expect(permix.check('post.create')).toBe(true)
-      expect(permix.check('post.read')).toBe(false)
+      const hydrated = permix.hydrate(dehydrated)
+      expect(hydrated.check('post.create')).toBe(true)
+      expect(hydrated.check('post.read')).toBe(false)
     })
 
     it('should evaluate data rules without check data when dehydrating', () => {
       const permix = createPermix<{
         user: [{ name: 'write'; type: { authorId: string }; required: true }]
-      }>()
-
-      permix.setup({
+      }>().setup({
         user: {
           write: (data) => data.authorId === '1',
         },
@@ -558,9 +506,7 @@ describe('deep rules', () => {
     it('should transfer state from server to client instance', () => {
       const permixServer = createPermix<{
         post: ['create', 'read']
-      }>()
-
-      permixServer.setup({
+      }>().setup({
         post: {
           create: true,
           read: false,
@@ -570,9 +516,7 @@ describe('deep rules', () => {
       const dehydrated = permixServer.dehydrate()
       const permixClient = createPermix<{
         post: ['create', 'read']
-      }>()
-
-      permixClient.hydrate(dehydrated)
+      }>().hydrate(dehydrated)
 
       expect(permixClient.check('post.create')).toBe(true)
       expect(permixClient.check('post.read')).toBe(false)
@@ -584,9 +528,7 @@ describe('deep rules', () => {
           guest: ['write']
           user: ['write2']
         }
-      }>()
-
-      permix.setup({
+      }>().setup({
         workspace: {
           guest: { write: false },
           user: { write2: true },
@@ -604,12 +546,12 @@ describe('deep rules', () => {
 
   describe('template', () => {
     it('should define static permissions with template', () => {
-      const permix = createPermix<{
+      const factory = createPermix<{
         post: ['create', 'read']
         comment: ['create', 'read', 'update']
       }>()
 
-      const adminPermissions = permix.template({
+      const adminPermissions = factory.template({
         post: {
           create: true,
           read: true,
@@ -626,28 +568,30 @@ describe('deep rules', () => {
         comment: { create: true, read: true, update: true },
       })
 
-      permix.setup(adminPermissions())
+      const permix = factory.setup(adminPermissions())
       expect(permix.check('post.create')).toBe(true)
     })
 
     it('should work with dynamic template function', () => {
-      const permix = createPermix<{
+      const factory = createPermix<{
         post: ['create', 'read']
       }>()
 
-      const rolePermissions = permix.template(({ role }: { role: string }) => ({
-        post: {
-          create: role === 'admin',
-          read: true,
-        },
-      }))
+      const rolePermissions = factory.template(
+        ({ role }: { role: string }) => ({
+          post: {
+            create: role === 'admin',
+            read: true,
+          },
+        })
+      )
 
-      permix.setup(rolePermissions({ role: 'admin' }))
-      expect(permix.check('post.create')).toBe(true)
+      const admin = factory.setup(rolePermissions({ role: 'admin' }))
+      expect(admin.check('post.create')).toBe(true)
 
-      permix.setup(rolePermissions({ role: 'viewer' }))
-      expect(permix.check('post.create')).toBe(false)
-      expect(permix.check('post.read')).toBe(true)
+      const viewer = factory.setup(rolePermissions({ role: 'viewer' }))
+      expect(viewer.check('post.create')).toBe(false)
+      expect(viewer.check('post.read')).toBe(true)
     })
   })
 
@@ -680,7 +624,7 @@ describe('deep rules', () => {
       expect(fn).toHaveBeenCalledOnce()
     })
 
-    it('should fire ready only on the first setup call', () => {
+    it('should fire ready on every setup with the new instance', () => {
       const permix = createPermix<{
         post: ['create', 'read']
       }>()
@@ -691,23 +635,21 @@ describe('deep rules', () => {
       permix.setup({ post: { create: true, read: true } })
       permix.setup({ post: { create: false, read: true } })
 
-      expect(fn).toHaveBeenCalledOnce()
+      expect(fn).toHaveBeenCalledTimes(2)
     })
 
     it('should ignore reserved hydrate keys and keep own denies', () => {
       const permix = createPermix<{
         post: ['create', 'read']
       }>()
-
-      permix.setup({
-        post: { create: false, read: false },
-      })
-
-      permix.hydrate(
-        JSON.parse(
-          '{"post":{"__proto__":{"create":true},"read":false}}'
-        ) as never
-      )
+        .setup({
+          post: { create: false, read: false },
+        })
+        .hydrate(
+          JSON.parse(
+            '{"post":{"__proto__":{"create":true},"read":false}}'
+          ) as never
+        )
 
       expect(() => permix.check('post.create')).toThrow(
         PermixRuleNotDefinedError
@@ -716,24 +658,25 @@ describe('deep rules', () => {
     })
 
     it('should not become ready on hydrate, only on setup', () => {
-      const permix = createPermix<{
+      const factory = createPermix<{
         post: ['create', 'read']
       }>()
 
       const fn = vi.fn()
-      permix.hook('ready', fn)
+      factory.hook('ready', fn)
 
-      permix.hydrate({ post: { create: true, read: false } })
+      const hydrated = factory.hydrate({ post: { create: true, read: false } })
 
       expect(fn).toHaveBeenCalledTimes(0)
-      expect(permix.isReady()).toBe(false)
+      expect(hydrated.isReady()).toBe(false)
+      expect(factory.isReady()).toBe(false)
       // check still works with hydrated booleans even though not ready
-      expect(permix.check('post.create')).toBe(true)
+      expect(hydrated.check('post.create')).toBe(true)
 
-      permix.setup({ post: { create: true, read: false } })
+      const ready = factory.setup({ post: { create: true, read: false } })
 
       expect(fn).toHaveBeenCalledOnce()
-      expect(permix.isReady()).toBe(true)
+      expect(ready.isReady()).toBe(true)
     })
 
     it('should return removal function from hook', () => {
@@ -753,13 +696,14 @@ describe('deep rules', () => {
     })
 
     it('should report isReady correctly', () => {
-      const permix = createPermix<{
+      const factory = createPermix<{
         post: ['create']
       }>()
 
-      expect(permix.isReady()).toBe(false)
-      permix.setup({ post: { create: true } })
+      expect(factory.isReady()).toBe(false)
+      const permix = factory.setup({ post: { create: true } })
       expect(permix.isReady()).toBe(true)
+      expect(factory.isReady()).toBe(false)
     })
 
     it('should call check hook with path and data', () => {
@@ -768,14 +712,12 @@ describe('deep rules', () => {
           'create',
           { name: 'edit'; type: { authorId: string }; required: true },
         ]
-      }>()
+      }>().setup({
+        post: { create: true, edit: (post) => post.authorId === '1' },
+      })
 
       const fn = vi.fn()
       permix.hook('check', fn)
-
-      permix.setup({
-        post: { create: true, edit: (post) => post.authorId === '1' },
-      })
 
       permix.check('post.create')
       expect(fn).toHaveBeenCalledWith({
@@ -796,12 +738,10 @@ describe('deep rules', () => {
     it('should call check hook with null path for callback form', () => {
       const permix = createPermix<{
         post: ['create', 'read']
-      }>()
+      }>().setup({ post: { create: true, read: false } })
 
       const fn = vi.fn()
       permix.hook('check', fn)
-
-      permix.setup({ post: { create: true, read: false } })
 
       permix.check((c) => c('post.create') && c('post.read'))
       expect(fn).toHaveBeenCalledWith({
@@ -819,15 +759,14 @@ describe('deep rules', () => {
       await expect(permix.isReadyAsync()).resolves.toBeUndefined()
     })
 
-    it('should resolve isReadyAsync once setup is called', async () => {
-      const permix = createPermix<{
+    it('should resolve isReadyAsync on the instance returned from setup', async () => {
+      const factory = createPermix<{
         post: ['create']
       }>()
 
-      const promise = permix.isReadyAsync()
-      permix.setup({ post: { create: true } })
+      const permix = factory.setup({ post: { create: true } })
 
-      await expect(promise).resolves.toBeUndefined()
+      await expect(permix.isReadyAsync()).resolves.toBeUndefined()
     })
   })
 })
@@ -836,9 +775,7 @@ describe('explain', () => {
   it('should keep check() as a boolean when a rule returns a decision', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: false, reason: 'not an author' }),
       },
@@ -850,9 +787,7 @@ describe('explain', () => {
   it('should return the denial reason from a closure', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: false, reason: 'not an author' }),
       },
@@ -868,16 +803,14 @@ describe('explain', () => {
   it('should fire the check hook with reasons after eval', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    const fn = vi.fn()
-    permix.hook('check', fn)
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: false, reason: 'not an author' }),
       },
     })
+
+    const fn = vi.fn()
+    permix.hook('check', fn)
 
     expect(permix.check('post.create')).toBe(false)
     expect(fn).toHaveBeenCalledWith({
@@ -890,9 +823,7 @@ describe('explain', () => {
   it('should aggregate denial reasons for ~all', () => {
     const permix = createPermix<{
       post: ['create', 'read', 'delete']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: false, reason: 'cannot create' }),
         read: true,
@@ -911,9 +842,7 @@ describe('explain', () => {
   it('should dehydrate function decisions to booleans without reasons', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: true, reason: 'ok' }),
         read: () => ({ allow: false, reason: 'nope' }),
@@ -938,14 +867,12 @@ describe('explain', () => {
 
 describe('frozen rules', () => {
   it('should ignore mutation of the object passed to setup', () => {
-    const permix = createPermix<{
-      post: ['create', 'read']
-    }>()
-
     const rules = {
       post: { create: false, read: false },
     }
-    permix.setup(rules)
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>().setup(rules)
     rules.post.create = true
 
     expect(permix.check('post.create')).toBe(false)
@@ -954,9 +881,7 @@ describe('frozen rules', () => {
   it('should ignore mutation of getRules()', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: false, read: false },
     })
 
@@ -969,20 +894,13 @@ describe('frozen rules', () => {
   })
 })
 
-describe('concurrent setup is not request-safe', () => {
-  // DIR-01 (immutable setup) will invert this: overlapping setup() on one
-  // instance currently last-write-wins. Adapters clone per request instead.
-  it('documents that overlapping setup() last-write-wins on a shared instance', async () => {
-    const permix = createPermix<{
-      post: ['create']
-    }>()
-
-    permix.setup({ post: { create: true } })
-
-    const pending = Promise.resolve().then(() => permix.check('post.create'))
-    permix.setup({ post: { create: false } })
-
-    await expect(pending).resolves.toBe(false)
-    expect(permix.check('post.create')).toBe(false)
+describe('overlapping setup is isolated', () => {
+  it('does not leak overlapping setup() into an earlier instance', async () => {
+    const factory = createPermix<{ post: ['create'] }>()
+    const a = factory.setup({ post: { create: true } })
+    const pending = Promise.resolve().then(() => a.check('post.create'))
+    factory.setup({ post: { create: false } })
+    await expect(pending).resolves.toBe(true)
+    expect(a.check('post.create')).toBe(true)
   })
 })

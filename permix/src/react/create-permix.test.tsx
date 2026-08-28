@@ -10,19 +10,18 @@ import { PermixProvider, usePermix } from './index'
 describe('react factory contexts', () => {
   it('creates a core instance and bound UI when called with a definition', () => {
     const {
-      permix,
       PermixProvider: BoundProvider,
       usePermix: useBoundPermix,
       Check,
-    } = createPermix<{
-      post: ['read']
-    }>()
-
-    permix.setup({
-      post: {
-        read: true,
-      },
-    })
+    } = createPermix(
+      createCore<{
+        post: ['read']
+      }>().setup({
+        post: {
+          read: true,
+        },
+      })
+    )
 
     function HookLabel() {
       const { check, isReady } = useBoundPermix()
@@ -47,9 +46,7 @@ describe('react factory contexts', () => {
   it('wraps an existing core instance', () => {
     const permix = createCore<{
       post: ['read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         read: true,
       },
@@ -74,23 +71,24 @@ describe('react factory contexts', () => {
   })
 
   it('keeps nested factory contexts independent', () => {
-    const postsUI = createPermix<{
-      post: ['read']
-    }>()
-    const commentsUI = createPermix<{
-      comment: ['read']
-    }>()
-
-    postsUI.permix.setup({
-      post: {
-        read: true,
-      },
-    })
-    commentsUI.permix.setup({
-      comment: {
-        read: false,
-      },
-    })
+    const postsUI = createPermix(
+      createCore<{
+        post: ['read']
+      }>().setup({
+        post: {
+          read: true,
+        },
+      })
+    )
+    const commentsUI = createPermix(
+      createCore<{
+        comment: ['read']
+      }>().setup({
+        comment: {
+          read: false,
+        },
+      })
+    )
 
     function Nested() {
       const postsState = postsUI.usePermix()
@@ -130,8 +128,7 @@ describe('react factory contexts', () => {
   it('hydrates through the factory overlay', async () => {
     const server = createCore<{
       post: ['create']
-    }>()
-    server.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -181,9 +178,7 @@ describe('react factory contexts', () => {
     }>()
     const other = createCore<{
       post: ['read']
-    }>()
-
-    provided.setup({
+    }>().setup({
       post: {
         read: true,
       },

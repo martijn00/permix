@@ -1,0 +1,60 @@
+---
+title: Migrate v4 to v5
+description: Breaking change — setup() and hydrate() return frozen instances
+icon: RiArrowUpCircleLine
+---
+
+## Overview
+
+Permix **v5** makes authorization instances immutable. `setup()` and `hydrate()` **return** a new frozen instance. They never mutate the factory.
+
+v4's in-place `setup()` is gone. There is no mutating alias.
+
+## Install
+
+```package-install
+permix@^5
+```
+
+## Quick reference
+
+| v4 | v5 |
+| --- | --- |
+| `const p = createPermix<D>(); p.setup(rules); p.check(...)` | `const p = createPermix<D>().setup(rules); p.check(...)` |
+| `p.setup(next)` mutates `p` | `const next = p.setup(rules)` — `p` is unchanged |
+| `p.hydrate(state)` mutates `p` | `const hydrated = p.hydrate(state)` |
+| Overlapping `setup()` last-write-wins | Each returned instance is isolated |
+| Next `cache()`: create then `setup()` then return | `return createPermix<D>().setup(await rules)` |
+
+## Capture the returned instance
+
+```ts
+// v4
+const permix = createPermix<{ post: ['create'] }>()
+permix.setup({ post: { create: true } })
+permix.check('post.create')
+
+// v5
+const permix = createPermix<{ post: ['create'] }>().setup({
+  post: { create: true },
+})
+permix.check('post.create')
+```
+
+On the server, keep using adapter `setupMiddleware` / `setupContext`. Those already stash the instance returned from `setup()`.
+
+Do not treat a module-level `createPermix()` factory as a request-scoped singleton you `setup()` in place.
+
+## Hydration
+
+```ts
+const dehydrated = server.dehydrate()
+const client = createPermix<D>().hydrate(dehydrated) // isReady() === false
+const ready = client.setup(clientRules) // isReady() === true
+```
+
+UI providers subscribe to the factory's `setup` / `ready` hooks and swap the current instance. Prefer calling `setup()` so the provider can track the returned instance.
+
+## `explain()` (from v4.x)
+
+`check()` is still boolean. Use `explain()` for `{ allowed, path, reasons }` when rule functions `return { allow, reason }`.

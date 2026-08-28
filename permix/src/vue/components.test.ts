@@ -10,9 +10,7 @@ describe('components', () => {
   it('should check hydration', () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -53,9 +51,7 @@ describe('components', () => {
   it('uses dehydrated rules on the first render', () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -95,9 +91,7 @@ describe('components', () => {
   it('should work with Check component', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -127,9 +121,7 @@ describe('components', () => {
   it('should work with Check component and data', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; type: { authorId: string } }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (post) => post?.authorId === '1',
       },
@@ -180,9 +172,7 @@ describe('components', () => {
   it('should work with Check component and DOM rerender', async () => {
     const permix = createPermix<{
       post: ['read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         read: false,
       },
@@ -221,9 +211,7 @@ describe('components', () => {
   it('should work with reverse prop', async () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -270,9 +258,7 @@ describe('components', () => {
   it("shouldn't accept invalid props", () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },

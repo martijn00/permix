@@ -8,9 +8,7 @@ describe('prototype-safe check walk', () => {
   it('should throw for inherited Object.prototype names', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: false, read: false },
     })
 

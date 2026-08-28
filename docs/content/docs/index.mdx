@@ -41,9 +41,7 @@ import { createPermix } from 'permix'
 
 const permix = createPermix<{
   post: ['read']
-}>()
-
-permix.setup({
+}>().setup({
   post: {
     read: true,
   },
@@ -52,7 +50,7 @@ permix.setup({
 const canReadPost = permix.check('post.read') // true
 ```
 
-Core `setup()` mutates that instance. It is fine in a SPA and **not** request-safe on a shared server singleton — overlapping requests would share rules. Use an adapter `setupMiddleware` (or `createPermix(rules)` per request) on the server.
+Core `setup()` returns a frozen instance and does not mutate the factory. It is fine to keep a factory at module scope in a SPA; on the server, stash the **returned** instance per request. Use an adapter `setupMiddleware` (or `createPermix<D>().setup(rules)` inside the request).
 
 It looks too simple, so here's a more interesting example:
 
@@ -140,14 +138,14 @@ async function setupPermix() {
     user: () => userPermissions(user),
   }
 
-  permix.setup(permissionsMap[user.role]())
+  return permix.setup(permissionsMap[user.role]())
 }
 
 // Call setupPermix where you need to setup permissions
-setupPermix()
+const instance = await setupPermix()
 
 // Check if a user has permission to do something
-const canCreatePost = permix.check('post.create')
+const canCreatePost = instance.check('post.create')
 
 async function getComment() {
   // Imagine that this function is fetching comment from database
@@ -160,7 +158,7 @@ async function getComment() {
 
 const comment = await getComment()
 
-const canUpdateComment = permix.check('comment.update', comment)
+const canUpdateComment = instance.check('comment.update', comment)
 ```
 
 ## Benefits

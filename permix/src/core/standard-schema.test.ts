@@ -22,9 +22,7 @@ describe('ActionSpec.schema', () => {
         'create',
         { name: 'edit'; schema: typeof postSchema; required: true },
       ]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
         edit: (post) => {
@@ -55,9 +53,7 @@ describe('ActionSpec.schema', () => {
           required: true
         },
       ]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (post) => post.ownerId === '1',
       },
@@ -70,9 +66,7 @@ describe('ActionSpec.schema', () => {
   it('does not parse check data at runtime', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; schema: typeof postSchema }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (post) => post?.authorId === '1',
       },
@@ -94,9 +88,7 @@ describe('action()', () => {
       post: ['create', action('edit', postSchema, { required: true })],
     } as const
 
-    const permix = createPermix<typeof definition>()
-
-    permix.setup({
+    const permix = createPermix<typeof definition>().setup({
       post: {
         create: true,
         edit: (post) => post.authorId === '1',
@@ -115,9 +107,7 @@ describe('action()', () => {
       post: [action('edit', postSchema)],
     } as const
 
-    const permix = createPermix<typeof definition>()
-
-    permix.setup({
+    const permix = createPermix<typeof definition>().setup({
       post: {
         edit: (post) => post?.authorId === '1',
       },
@@ -132,9 +122,7 @@ describe('ActionSpec.schema with Valibot', () => {
   it('infers entity data from a Valibot schema', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; schema: typeof valibotPostSchema; required: true }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (post) => {
           expectTypeOf(post).toEqualTypeOf<{ id: string; authorId: string }>()

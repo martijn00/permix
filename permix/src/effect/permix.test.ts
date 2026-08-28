@@ -273,13 +273,17 @@ describe(createPermix, () => {
     const program = Effect.gen(function* program() {
       const before = yield* permix.isReady()
 
-      yield* permix.setup({
+      const instance = yield* permix.setup({
         post: { create: true, read: true, update: false },
         user: { delete: false },
       })
 
-      const after = yield* permix.isReady()
-      const canCreate = yield* permix.check('post.create')
+      const { after, canCreate } = yield* Effect.gen(function* inner() {
+        return {
+          after: yield* permix.isReady(),
+          canCreate: yield* permix.check('post.create'),
+        }
+      }).pipe(Effect.provideService(permix.Tag, instance))
 
       return { before, after, canCreate }
     })
@@ -299,15 +303,17 @@ describe(createPermix, () => {
     const permix = createPermix<PermissionsDefinition>()
 
     const program = Effect.gen(function* program() {
-      yield* permix.hydrate({
+      const instance = yield* permix.hydrate({
         post: { create: true, read: false, update: true },
         user: { delete: false },
       })
 
-      return {
-        canCreate: yield* permix.check('post.create'),
-        canRead: yield* permix.check('post.read'),
-      }
+      return yield* Effect.gen(function* inner() {
+        return {
+          canCreate: yield* permix.check('post.create'),
+          canRead: yield* permix.check('post.read'),
+        }
+      }).pipe(Effect.provideService(permix.Tag, instance))
     })
 
     const result = await Effect.runPromise(
@@ -327,8 +333,10 @@ describe(createPermix, () => {
 
     const program = Effect.gen(function* program() {
       const empty = yield* permix.getRules()
-      yield* permix.setup(rules)
-      const current = yield* permix.getRules()
+      const instance = yield* permix.setup(rules)
+      const current = yield* permix
+        .getRules()
+        .pipe(Effect.provideService(permix.Tag, instance))
       return { empty, current }
     })
 
@@ -346,12 +354,16 @@ describe(createPermix, () => {
     const permix = createPermix<PermissionsDefinition>()
 
     const program = Effect.gen(function* program() {
-      yield* permix.setup({
+      const instance = yield* permix.setup({
         post: { create: true, read: true, update: true },
         user: { delete: true },
       })
-      yield* permix.isReadyAsync()
-      return yield* permix.check('post.create')
+      yield* permix
+        .isReadyAsync()
+        .pipe(Effect.provideService(permix.Tag, instance))
+      return yield* permix
+        .check('post.create')
+        .pipe(Effect.provideService(permix.Tag, instance))
     })
 
     const result = await Effect.runPromise(
@@ -361,10 +373,10 @@ describe(createPermix, () => {
     expect(result).toBe(true)
   })
 
-  it('should type the error channel of hydrate as PermixNotReadyError', () => {
+  it('should return a hydrated instance that is not ready', async () => {
     const permix = createPermix<PermissionsDefinition>()
 
-    const flipped = Effect.flip(
+    const instance = await Effect.runPromise(
       permix
         .hydrate({
           post: { create: true, read: false, update: false },
@@ -373,9 +385,9 @@ describe(createPermix, () => {
         .pipe(Effect.provide(permix.layer()))
     )
 
-    expectTypeOf(flipped).toMatchTypeOf<
-      Effect.Effect<PermixNotReadyError, void>
-    >()
+    expect(instance.isReady()).toBe(false)
+    expect(instance.check('post.create')).toBe(true)
+    expectTypeOf(instance.check).returns.toEqualTypeOf<boolean>()
   })
 
   it('should surface PermixNotReadyError when dehydrate is called before setup', async () => {

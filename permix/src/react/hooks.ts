@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import type { Definition, Permix, Rules } from '../core'
-import { runCheck, runExplain } from '../core'
+import { isSamePermixFamily, runCheck, runExplain } from '../core'
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>
@@ -70,7 +70,10 @@ export function usePermix<T extends Definition>(
     permix: provided,
   } = usePermixSelector(value, selectSnapshot)
 
-  if (process.env.NODE_ENV !== 'production' && provided !== permix) {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    !isSamePermixFamily(provided, permix)
+  ) {
     throw new Error(
       '[Permix]: usePermix must receive the same instance passed to <PermixProvider>'
     )

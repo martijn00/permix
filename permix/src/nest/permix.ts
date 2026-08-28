@@ -83,7 +83,7 @@ function buildPermix<D extends Definition>(
   }
 
   function attach(req: NestHttpRequest, rules: Rules<D>): PermixCore<D> {
-    const instance = createPermixCore<D>(rules)
+    const instance = createPermixCore<D>().setup(rules)
     instance.hook('check', (context) => {
       hooks.callHook('check', context)
     })

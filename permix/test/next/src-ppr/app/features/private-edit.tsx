@@ -7,8 +7,7 @@ import { rulesForUser } from '../../lib/permix'
 async function readPrivateEditPayload() {
   'use cache: private'
   const user = await getUser()
-  const permix = createPermix<PostDefinition>()
-  permix.setup(rulesForUser(user))
+  const permix = createPermix<PostDefinition>().setup(rulesForUser(user))
   if (!permix.check('post.update')) {
     return null
   }

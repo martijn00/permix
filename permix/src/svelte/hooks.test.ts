@@ -10,9 +10,7 @@ describe('permix svelte', () => {
   it('should work with custom hook', () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: (post) => post?.id === '1',
         read: false,
@@ -28,9 +26,7 @@ describe('permix svelte', () => {
   it('reads ready state on the first render when setup ran before subscribe', () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => true,
         read: true,
@@ -46,9 +42,7 @@ describe('permix svelte', () => {
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: (post) => post?.id === '1',
         read: false,

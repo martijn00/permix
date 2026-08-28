@@ -27,11 +27,15 @@ export function providePermix<T extends Definition>(permix: Permix<T>): void {
 
   setContext(PERMIX_CONTEXT_KEY, context)
 
-  const setup = permix.hook('setup', () => {
-    context.rules = permix.getRules()
+  const setup = permix.hook('setup', (instance) => {
+    context.permix = instance
+    context.rules = instance.getRules()
+    context.isReady = instance.isReady()
   })
-  const ready = permix.hook('ready', () => {
-    context.isReady = permix.isReady()
+  const ready = permix.hook('ready', (instance) => {
+    context.permix = instance
+    context.rules = instance.getRules()
+    context.isReady = instance.isReady()
   })
 
   onDestroy(() => {

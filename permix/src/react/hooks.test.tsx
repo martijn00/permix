@@ -10,9 +10,7 @@ describe('permix react', () => {
   it('should work with custom hook', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -34,9 +32,7 @@ describe('permix react', () => {
   it('rerenders full usePermix consumers when any rule changes', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -76,9 +72,7 @@ describe('permix react', () => {
   it('reads ready state on the first render when setup ran before subscribe', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -107,9 +101,7 @@ describe('permix react', () => {
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: (post) => post?.id === '1',
         read: false,
@@ -199,9 +191,7 @@ describe('permix react', () => {
   it('runs UI check through the instance so check hooks fire', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: { create: true },
     })
 
@@ -226,9 +216,7 @@ describe('permix react', () => {
   it('exposes explain() for UI denial reasons', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: () => ({ allow: false, reason: 'not an author' }),
       },

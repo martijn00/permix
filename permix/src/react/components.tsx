@@ -9,7 +9,7 @@ import type {
   Rules,
   RulesPaths,
 } from '../core'
-import { runCheck } from '../core'
+import { isSamePermixFamily, runCheck } from '../core'
 import type { PermixContext } from './hooks'
 import {
   Context,
@@ -51,8 +51,14 @@ function createProviderContext<D extends Definition>(
     rules: permix.getRules(),
   }))
   const subscribe = (onStoreChange: () => void) => {
-    const unsubSetup = permix.hook('setup', onStoreChange)
-    const unsubReady = permix.hook('ready', onStoreChange)
+    const unsubSetup = permix.hook('setup', (instance) => {
+      onStoreChange()
+      void instance
+    })
+    const unsubReady = permix.hook('ready', (instance) => {
+      onStoreChange()
+      void instance
+    })
     return () => {
       unsubSetup()
       unsubReady()
@@ -113,7 +119,18 @@ export function PermixProvider<D extends Definition>({
   context?: React.Context<PermixContext<D> | null>
 }) {
   const Ctx = context ?? (Context as React.Context<PermixContext<D> | null>)
-  const value = React.useMemo(() => createProviderContext(permix), [permix])
+  const [current, setCurrent] = React.useState(permix)
+
+  React.useEffect(() => {
+    const unsubSetup = permix.hook('setup', setCurrent)
+    const unsubReady = permix.hook('ready', setCurrent)
+    return () => {
+      unsubSetup()
+      unsubReady()
+    }
+  }, [permix])
+
+  const value = React.useMemo(() => createProviderContext(current), [current])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
@@ -171,7 +188,10 @@ export function createComponents<D extends Definition>(
   }: CheckProps<D, P>) {
     const value = usePermixContext(context)
 
-    if (process.env.NODE_ENV !== 'production' && value.permix !== permix) {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      !isSamePermixFamily(value.permix, permix)
+    ) {
       throw new Error(
         '[Permix]: usePermix must receive the same instance passed to <PermixProvider>'
       )

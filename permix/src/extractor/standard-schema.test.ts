@@ -36,9 +36,7 @@ describe('generated definition Standard Schema interop', () => {
       typeof extractedDefinition,
       typeof overlay
     >
-    const permix = createPermix<Definition>()
-
-    permix.setup({
+    const permix = createPermix<Definition>().setup({
       resource: {
         arktype: (data) => {
           expectTypeOf(data).toEqualTypeOf<{ id: string } | undefined>()

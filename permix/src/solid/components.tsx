@@ -4,6 +4,7 @@ import {
   createRenderEffect,
   createSignal,
   onCleanup,
+  untrack,
 } from 'solid-js'
 
 import type {
@@ -31,9 +32,12 @@ export function PermixProvider<D extends Definition>(props: {
 }): JSX.Element {
   const [isReady, setIsReady] = createSignal(props.permix.isReady())
   const [rules, setRules] = createSignal(props.permix.getRules())
+  const [instance, setInstance] = createSignal(props.permix)
 
   const context: PermixContext<D> = {
-    permix: props.permix,
+    get permix() {
+      return instance()
+    },
     get isReady() {
       return isReady()
     },
@@ -43,11 +47,15 @@ export function PermixProvider<D extends Definition>(props: {
   }
 
   createRenderEffect(() => {
-    const setup = props.permix.hook('setup', () => {
-      setRules(() => props.permix.getRules())
+    const setup = props.permix.hook('setup', (next) => {
+      setInstance(() => next)
+      setRules(() => next.getRules())
+      setIsReady(next.isReady())
     })
-    const ready = props.permix.hook('ready', () => {
-      setIsReady(props.permix.isReady())
+    const ready = props.permix.hook('ready', (next) => {
+      setInstance(() => next)
+      setRules(() => next.getRules())
+      setIsReady(next.isReady())
     })
 
     onCleanup(() => {
@@ -68,7 +76,10 @@ export function PermixHydrate(props: {
   const context = usePermixContext()
 
   createRenderEffect(() => {
-    context.permix.hydrate(props.state)
+    const next = props.state
+    untrack(() => {
+      context.permix.hydrate(next)
+    })
   })
 
   return props.children

@@ -28,9 +28,7 @@ describe('composables', () => {
   it('should work with custom hook', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -59,9 +57,7 @@ describe('composables', () => {
   it('reads ready state on the first render when setup ran before subscribe', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -83,9 +79,7 @@ describe('composables', () => {
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: (post) => post?.id === '1',
         read: false,

@@ -38,7 +38,7 @@ function buildPermix<D extends Definition, const Key extends string>(
   const plugin = os.$context<{ [P in Key]: PermixCore<D> }>()
 
   function setupContext(rules: Rules<D>): { [P in Key]: PermixCore<D> } {
-    const instance = createPermixCore<D>(rules)
+    const instance = createPermixCore<D>().setup(rules)
     instance.hook('check', (context) => {
       hooks.callHook('check', context)
     })

@@ -14,6 +14,7 @@ sources:
   - 'letstri/permix:docs/content/docs/guide/instance.mdx'
   - 'letstri/permix:docs/content/docs/guide/events.mdx'
   - 'letstri/permix:docs/content/docs/migration-v3-to-v4.mdx'
+  - 'letstri/permix:docs/content/docs/migration-v4-to-v5.mdx'
   - 'letstri/permix:docs/content/docs/integrations/standard-schema.mdx'
   - 'letstri/permix:permix/src/core/index.ts'
 ---
@@ -84,8 +85,13 @@ Every action you declare in `D` must appear in every `setup()` call (use `false`
 
 ## 2. Assign rules with `setup`
 
+`setup()` returns a **new frozen instance**. It does not mutate the factory.
+
 ```ts
-permix.setup({
+const permix = createPermix<{
+  post: ['create', 'read', 'update', 'delete']
+  comment: ['create', 'read']
+}>().setup({
   post: {
     create: true,
     read: true,
@@ -100,8 +106,9 @@ permix.setup({
 ```
 
 - Static leaf: `boolean`
-- Depends on resource at check time: `(data) => boolean` (see **permix** skill, `references/check.md`)
-- Call `setup` after login, on route change, or when the active user/tenant changes — it **replaces** previous rules.
+- Depends on resource at check time: `(data) => boolean` or `{ allow, reason }` (see **permix** skill, `references/check.md`)
+- Call `setup` after login, on route change, or when the active user/tenant changes. Use the **returned** instance. Overlapping `setup()` on one factory does not leak across instances.
+- On the server, stash the returned instance per request (`setupMiddleware`). Do not treat a module singleton `permix.setup(...)` as request-safe.
 
 ## 3. Optional: initial rules at construction
 

@@ -17,9 +17,7 @@ const overlay = definePermissionOverlay({
 
 type AppDefinition = Definition<typeof overlay>
 
-export const permix = createPermix<AppDefinition>()
-
-permix.setup({
+export const permix = createPermix<AppDefinition>().setup({
   tasks: {
     comment: ({ taskId }) => taskId.length > 0,
     delete: ({ taskId }) => taskId.length > 0,

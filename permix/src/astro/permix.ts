@@ -109,7 +109,7 @@ function buildPermix<D extends Definition>(
               next,
             })
           : callbackOrRules
-      const instance = createPermixCore<D>(rules)
+      const instance = createPermixCore<D>().setup(rules)
       instance.hook('check', (checkContext) => {
         hooks.callHook('check', checkContext)
       })

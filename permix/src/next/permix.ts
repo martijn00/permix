@@ -62,11 +62,9 @@ export type ResolveRules<D extends Definition> = () =>
 export function createPermix<D extends Definition>(
   resolveRules: ResolveRules<D>
 ) {
-  const getInitializedPermix = cache(async (): Promise<PermixCore<D>> => {
-    const permix = createPermixCore<D>()
-    permix.setup(await Promise.resolve(resolveRules()))
-    return permix
-  })
+  const getInitializedPermix = cache(async (): Promise<PermixCore<D>> =>
+    createPermixCore<D>().setup(await Promise.resolve(resolveRules()))
+  )
 
   function getPermix(): Promise<PermixCore<D>> {
     return getInitializedPermix()

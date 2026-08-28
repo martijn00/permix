@@ -357,7 +357,7 @@ describe('tanstack-start createPermix', () => {
 function createInstance(
   post: { create?: boolean; read?: boolean } = { create: true }
 ) {
-  const permix = createCorePermix<PermissionsDefinition>()
-  permix.setup({ post: { create: false, read: false, ...post } })
-  return permix
+  return createCorePermix<PermissionsDefinition>().setup({
+    post: { create: false, read: false, ...post },
+  })
 }

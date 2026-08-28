@@ -57,9 +57,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
       post: [action('update', schema)],
     } as const
 
-    const permix = createPermixCore<typeof definition>()
-
-    permix.setup({
+    const permix = createPermixCore<typeof definition>().setup({
       post: {
         update: isAuthor,
       },
@@ -70,9 +68,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
   })
 
   it('creates a factory instance and checks valid and denied entity data', () => {
-    const permix = createPermix({ post: schema })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }).setup({
       post: {
         create: true,
         read: true,
@@ -86,9 +82,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
   })
 
   it('does not parse check data unless validate is set', () => {
-    const permix = createPermix({ post: schema })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }).setup({
       post: {
         create: false,
         read: false,
@@ -101,9 +95,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
   })
 
   it('validate: deny returns false for invalid data', () => {
-    const permix = createPermix({ post: schema }, { validate: 'deny' })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }, { validate: 'deny' }).setup({
       post: {
         create: false,
         read: false,
@@ -117,9 +109,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
   })
 
   it('validate: throw raises PermixValidationError for invalid data', () => {
-    const permix = createPermix({ post: schema }, { validate: 'throw' })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }, { validate: 'throw' }).setup({
       post: {
         create: false,
         read: false,
@@ -137,9 +127,7 @@ describe.each(libraries)('$name Standard Schema', ({ schema }) => {
 
 describe('library type inference', () => {
   it('zod infers entity data from the schema output', () => {
-    const permix = createPermix({ post: zodPost })
-
-    permix.setup({
+    createPermix({ post: zodPost }).setup({
       post: {
         create: false,
         read: false,
@@ -155,9 +143,7 @@ describe('library type inference', () => {
   })
 
   it('valibot infers entity data from the schema output', () => {
-    const permix = createPermix({ post: valibotPost })
-
-    permix.setup({
+    createPermix({ post: valibotPost }).setup({
       post: {
         create: false,
         read: false,
@@ -173,9 +159,7 @@ describe('library type inference', () => {
   })
 
   it('arktype infers entity data from the schema output', () => {
-    const permix = createPermix({ post: arktypePost })
-
-    permix.setup({
+    createPermix({ post: arktypePost }).setup({
       post: {
         create: false,
         read: false,
@@ -191,9 +175,7 @@ describe('library type inference', () => {
   })
 
   it('effect infers entity data from the schema output', () => {
-    const permix = createPermix({ post: effectPost })
-
-    permix.setup({
+    createPermix({ post: effectPost }).setup({
       post: {
         create: false,
         read: false,
@@ -224,9 +206,7 @@ describe('factory validate option', () => {
       },
     }
 
-    const permix = createPermix({ post: schema }, { validate: 'throw' })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }, { validate: 'throw' }).setup({
       post: {
         create: false,
         read: false,
@@ -255,9 +235,7 @@ describe('factory validate option', () => {
         authorId: post.authorId.toUpperCase(),
       }))
 
-    const permix = createPermix({ post: schema }, { validate: 'deny' })
-
-    permix.setup({
+    const permix = createPermix({ post: schema }, { validate: 'deny' }).setup({
       post: {
         create: false,
         read: false,
@@ -272,9 +250,7 @@ describe('factory validate option', () => {
   })
 
   it('validates inside callback checks', () => {
-    const permix = createPermix({ post: zodPost }, { validate: 'deny' })
-
-    permix.setup({
+    const permix = createPermix({ post: zodPost }, { validate: 'deny' }).setup({
       post: {
         create: false,
         read: false,
@@ -297,16 +273,16 @@ describe('factory validate option', () => {
   })
 
   it('skips validation for ~any / ~all and checks without data', () => {
-    const permix = createPermix({ post: zodPost }, { validate: 'throw' })
-
-    permix.setup({
-      post: {
-        create: true,
-        read: false,
-        update: (post) => post?.authorId === '1',
-        delete: false,
-      },
-    })
+    const permix = createPermix({ post: zodPost }, { validate: 'throw' }).setup(
+      {
+        post: {
+          create: true,
+          read: false,
+          update: (post) => post?.authorId === '1',
+          delete: false,
+        },
+      }
+    )
 
     expect(permix.check('post.create')).toBe(true)
     expect(permix.check('post.update')).toBe(false)
@@ -321,9 +297,7 @@ describe('factory validate option', () => {
         dashboard: ['view'] as const,
       },
       { validate: 'throw' }
-    )
-
-    permix.setup({
+    ).setup({
       post: {
         create: false,
         read: false,
@@ -342,9 +316,7 @@ describe('factory validate option', () => {
         post: entity(zodPost, ['edit'] as const),
       },
       { validate: 'deny' }
-    )
-
-    permix.setup({
+    ).setup({
       post: {
         edit: (post) => post?.authorId === '1',
       },
@@ -363,9 +335,10 @@ describe('factory validate option', () => {
       },
     }
 
-    const permix = createPermix({ post: asyncSchema }, { validate: 'deny' })
-
-    permix.setup({
+    const permix = createPermix(
+      { post: asyncSchema },
+      { validate: 'deny' }
+    ).setup({
       post: {
         create: false,
         read: false,

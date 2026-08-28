@@ -27,8 +27,9 @@ export async function switchRole(formData: FormData) {
 }
 
 export async function createPost() {
-  const permix = createPermix<PermissionsDefinition>()
-  permix.setup(rulesForSession(await getSession()))
+  const permix = createPermix<PermissionsDefinition>().setup(
+    rulesForSession(await getSession())
+  )
 
   if (!permix.check('post.create')) {
     return { ok: false as const, error: 'Forbidden' }

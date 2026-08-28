@@ -87,29 +87,27 @@ export type CheckerFn<D extends Definition> = <P extends RulesPaths<D>>(
 ) => boolean
 
 export interface PermixHooks<D extends Definition = Definition> {
-  setup: () => void
-  ready: () => void
+  setup: (instance: Permix<D>) => void
+  ready: (instance: Permix<D>) => void
   check: (context: CheckContext<D>) => void
 }
 
 export interface Permix<D extends Definition> {
   /**
-   * Provide the rules for this Permix instance. Must be called before `check()`.
+   * Build a frozen instance with these rules. Does not mutate `this`.
    *
-   * The rules object mirrors the shape of `D`: every leaf action becomes either
-   * a `boolean` or a `(data) => boolean | { allow, reason }` validator.
+   * Overlapping `setup()` calls on one factory return isolated instances —
+   * later calls cannot change an earlier instance's `check()`.
    *
    * @example
    * ```ts
-   * permix.setup({
-   *   post: {
-   *     create: true,
-   *     edit: (post) => post.authorId === currentUserId,
-   *   },
+   * const permix = createPermix<{ post: ['create'] }>().setup({
+   *   post: { create: true },
    * })
+   * permix.check('post.create')
    * ```
    */
-  setup: (rules: Rules<D>) => void
+  setup: (rules: Rules<D>) => Permix<D>
 
   /**
    * Evaluate the current rules. Accepts one of three calling forms:
@@ -165,20 +163,19 @@ export interface Permix<D extends Definition> {
   /**
    * Restore rules from a value produced by `dehydrate()`.
    *
-   * Hydration restores only the serialized booleans and **does not** mark the
-   * instance as ready: `isReady()` stays `false` and `isReadyAsync()` stays
-   * pending until `setup()` is called. This is deliberate — dehydrated state
-   * loses function-based rules, so you must re-run `setup()` on the client to
-   * fully restore them. Gating on readiness surfaces a forgotten `setup()`
-   * instead of silently serving collapsed permissions.
+   * Returns a **new** frozen instance. Hydration restores only the serialized
+   * booleans and **does not** mark that instance as ready: `isReady()` stays
+   * `false` until you `setup()` (which returns a ready instance). Gating on
+   * readiness surfaces a forgotten `setup()` instead of silently serving
+   * collapsed permissions.
    *
    * @example
    * ```ts
-   * permix.hydrate(serverState) // isReady() === false
-   * permix.setup(clientRules)   // isReady() === true
+   * const client = permix.hydrate(serverState) // isReady() === false
+   * const ready = client.setup(clientRules)    // isReady() === true
    * ```
    */
-  hydrate: (state: DehydratedState<D>) => void
+  hydrate: (state: DehydratedState<D>) => Permix<D>
 
   /**
    * Define reusable permission rules separate from `setup()`.
@@ -282,63 +279,23 @@ export interface Permix<D extends Definition> {
 }
 
 /**
- * Create a type-safe Permix instance.
- *
- * @example Flat definition
- * ```ts
- * const permix = createPermix<['read', 'write']>()
- * permix.setup({ read: true, write: false })
- * permix.check('read') // true
- * ```
- *
- * @example Nested definition
- * ```ts
- * const permix = createPermix<{
- *   post: ['create', 'read']
- *   user: ['invite']
- * }>()
- * permix.setup({
- *   post: { create: true, read: true },
- *   user: { invite: false },
- * })
- * permix.check('post.create') // true
- * permix.check('user.invite') // false
- * ```
- *
- * @example Per-action data types
- * ```ts
- * const permix = createPermix<{
- *   post: [
- *     'create',
- *     'read',
- *     { name: 'edit', type: { authorId: string }, required: true },
- *   ]
- * }>()
- * permix.setup({
- *   post: {
- *     create: true,
- *     read: true,
- *     edit: post => post.authorId === me.id,
- *   },
- * })
- * permix.check('post.create')                // true
- * permix.check('post.edit', { authorId: '1' }) // true/false
- * ```
- *
- * @example Standard Schema (Zod, Valibot, …)
- * ```ts
- * const permix = createPermix<{
- *   post: [
- *     'create',
- *     { name: 'edit', schema: typeof postSchema, required: true },
- *   ]
- * }>()
- * ```
+ * Factory returned by `createPermix()`. `setup()` / `hydrate()` return
+ * {@link Permix} instances; they never mutate the factory.
  */
+export type PermixFactory<D extends Definition> = Permix<D>
+
+export type PermixInstance<D extends Definition> = Permix<D>
+
 const checkEmitters = new WeakMap<
   object,
   (args: CheckArgs<any>, allowed: boolean, error?: unknown) => void
 >()
+
+const permixFamilies = new WeakMap<object, object>()
+
+export function isSamePermixFamily(a: object, b: object): boolean {
+  return permixFamilies.get(a) === permixFamilies.get(b)
+}
 
 /**
  * Fire the `check` hook on an instance without evaluating rules.
@@ -353,18 +310,21 @@ export function notifyCheck(
   checkEmitters.get(instance)?.(args as CheckArgs<any>, allowed, error)
 }
 
-export function createPermix<D extends Definition>(
-  initialRules?: Rules<D>
-): Permix<D> {
-  let rules: Rules<D> | null = initialRules
-    ? createRules<D>(initialRules)
-    : null
-  let ready = !!initialRules
-  const hooks = createHooks<PermixHooks<D>>()
+interface PermixFamily<D extends Definition> {
+  lifecycle: ReturnType<
+    typeof createHooks<Pick<PermixHooks<D>, 'setup' | 'ready'>>
+  >
+}
 
-  const { promise: readyPromise, resolve: resolveReady } = ready
-    ? { promise: Promise.resolve(), resolve: () => undefined }
-    : Promise.withResolvers<void>()
+function createFrozenPermix<D extends Definition>(
+  family: PermixFamily<D>,
+  rules: Rules<D> | null,
+  ready: boolean
+): Permix<D> {
+  const checkHooks = createHooks<Pick<PermixHooks<D>, 'check'>>()
+  const readyPromise = ready
+    ? Promise.resolve()
+    : new Promise<void>(() => undefined)
 
   const explainFn = createExplain<D>(() => rules)
 
@@ -375,7 +335,7 @@ export function createPermix<D extends Definition>(
     reasons: readonly string[] = []
   ): void {
     const context = createCheckContext<D>(...args)
-    hooks.callHook(
+    checkHooks.callHook(
       'check',
       error === undefined
         ? { ...context, allowed, reasons }
@@ -385,13 +345,10 @@ export function createPermix<D extends Definition>(
 
   const permix: Permix<D> = {
     setup(r) {
-      rules = createRules<D>(r)
-      hooks.callHook('setup')
-      if (!ready) {
-        ready = true
-        resolveReady()
-        hooks.callHook('ready')
-      }
+      const next = createFrozenPermix(family, createRules<D>(r), true)
+      family.lifecycle.callHook('setup', next)
+      family.lifecycle.callHook('ready', next)
+      return next
     },
     check(...args: CheckArgs<D>): boolean {
       try {
@@ -413,14 +370,26 @@ export function createPermix<D extends Definition>(
       return dehydrateRules(rules) as DehydratedState<D>
     },
     hydrate(state) {
-      rules = hydrateRules(state)
-      hooks.callHook('setup')
+      const next = createFrozenPermix(family, hydrateRules(state), false)
+      family.lifecycle.callHook('setup', next)
+      return next
     },
-    template(rules) {
-      return createTemplate(rules)
+    template(templateRules) {
+      return createTemplate(templateRules)
     },
-    hook: hooks.hook,
-    hookOnce: hooks.hookOnce,
+    hook: (name, fn) => {
+      if (name === 'check') {
+        return checkHooks.hook('check', fn as PermixHooks<D>['check'])
+      }
+      return family.lifecycle.hook(name, fn as never)
+    },
+    hookOnce: (name, fn) => {
+      if (name === 'check') {
+        checkHooks.hookOnce('check', fn as PermixHooks<D>['check'])
+        return
+      }
+      family.lifecycle.hookOnce(name, fn as never)
+    },
     isReady: () => ready,
     isReadyAsync: () => readyPromise,
     getRules: () => rules,
@@ -431,5 +400,35 @@ export function createPermix<D extends Definition>(
   checkEmitters.set(permix, (args, allowed, error) => {
     emitCheck(args as CheckArgs<D>, allowed, error)
   })
-  return permix
+  permixFamilies.set(permix, family)
+
+  return Object.freeze(permix)
+}
+
+/**
+ * Create a type-safe Permix factory. `setup(rules)` and `hydrate(state)`
+ * return frozen instances and never mutate the factory.
+ *
+ * Passing initial rules is the same as `createPermix<D>().setup(rules)`.
+ *
+ * @example Flat definition
+ * ```ts
+ * const permix = createPermix<['read', 'write']>().setup({
+ *   read: true,
+ *   write: false,
+ * })
+ * permix.check('read') // true
+ * ```
+ */
+export function createPermix<D extends Definition>(
+  initialRules?: Rules<D>
+): Permix<D> {
+  const family: PermixFamily<D> = {
+    lifecycle: createHooks<Pick<PermixHooks<D>, 'setup' | 'ready'>>(),
+  }
+  const factory = createFrozenPermix<D>(family, null, false)
+  if (initialRules) {
+    return factory.setup(initialRules)
+  }
+  return factory
 }

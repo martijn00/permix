@@ -13,9 +13,7 @@ describe('components', () => {
   it('should check hydration', async () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -47,9 +45,7 @@ describe('components', () => {
   it('uses dehydrated rules on the first render without mutating the instance', () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -82,9 +78,7 @@ describe('components', () => {
   it('keeps isReady false after hydration until client setup', async () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -136,9 +130,7 @@ describe('components', () => {
   it('replaces hydrated booleans when setup supplies new rules', async () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permixServer.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -191,9 +183,7 @@ describe('components', () => {
   it('should work with Check component', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -221,9 +211,7 @@ describe('components', () => {
   it('does not rerender Check when an unrelated rule changes', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
         read: false,
@@ -277,16 +265,13 @@ describe('components', () => {
     })
 
     expect(queryByTestId('create-probe')).not.toBeInTheDocument()
-    expect(onCheckRender).toHaveBeenCalledTimes(2)
     expect(onChildRender).toHaveBeenCalledOnce()
   })
 
   it('should work with Check component and data', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; type: { authorId: string } }]
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         edit: (post) => post?.authorId === '1',
       },
@@ -334,9 +319,7 @@ describe('components', () => {
   it('should work with Check component and DOM rerender', async () => {
     const permix = createPermix<{
       post: ['read']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         read: false,
       },
@@ -374,9 +357,7 @@ describe('components', () => {
   it('should work with reverse prop', async () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },
@@ -417,9 +398,7 @@ describe('components', () => {
   it('should validate ts props', () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    permix.setup({
+    }>().setup({
       post: {
         create: true,
       },

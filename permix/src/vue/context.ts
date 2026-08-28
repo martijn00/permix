@@ -28,12 +28,20 @@ export function providePermixContext(permix: Permix<any>) {
 
   provide(PERMIX_CONTEXT_KEY, context)
 
-  const setup = permix.hook('setup', () => {
-    context.value.rules = permix.getRules()
+  const setup = permix.hook('setup', (instance) => {
+    context.value = {
+      permix: instance,
+      rules: instance.getRules(),
+      isReady: instance.isReady(),
+    }
   })
 
-  const ready = permix.hook('ready', () => {
-    context.value.isReady = permix.isReady()
+  const ready = permix.hook('ready', (instance) => {
+    context.value = {
+      permix: instance,
+      rules: instance.getRules(),
+      isReady: instance.isReady(),
+    }
   })
 
   return () => {

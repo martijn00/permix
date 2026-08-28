@@ -34,7 +34,7 @@ describe('standard-schema createPermix', () => {
     expect(permix.entities).toStrictEqual(['post', 'comment'])
     expect(permix.actions).toStrictEqual(['create', 'read', 'update', 'delete'])
 
-    permix.setup({
+    const ready = permix.setup({
       post: {
         create: true,
         read: true,
@@ -54,11 +54,11 @@ describe('standard-schema createPermix', () => {
       },
     })
 
-    expect(permix.check('post.create')).toBe(true)
-    expect(permix.check('post.delete')).toBe(false)
-    expect(permix.check('post.update', { id: 'p1', authorId: '1' })).toBe(true)
-    expect(permix.check('post.update', { id: 'p1', authorId: '2' })).toBe(false)
-    expect(permix.check('comment.read')).toBe(true)
+    expect(ready.check('post.create')).toBe(true)
+    expect(ready.check('post.delete')).toBe(false)
+    expect(ready.check('post.update', { id: 'p1', authorId: '1' })).toBe(true)
+    expect(ready.check('post.update', { id: 'p1', authorId: '2' })).toBe(false)
+    expect(ready.check('comment.read')).toBe(true)
   })
 
   it('supports a custom action set via the actions option', () => {
@@ -69,14 +69,14 @@ describe('standard-schema createPermix', () => {
 
     expect(permix.actions).toStrictEqual(['view', 'edit'])
 
-    permix.setup({
+    const ready = permix.setup({
       post: { view: true, edit: false },
     })
 
-    expect(permix.check('post.view')).toBe(true)
-    expect(permix.check('post.edit')).toBe(false)
+    expect(ready.check('post.view')).toBe(true)
+    expect(ready.check('post.edit')).toBe(false)
     // @ts-expect-error 'create' is not in the custom action set
-    expect(() => permix.check('post.create')).toThrow(PermixRuleNotDefinedError)
+    expect(() => ready.check('post.create')).toThrow(PermixRuleNotDefinedError)
   })
 
   it('lets entity() customise actions and require data per action', () => {
@@ -89,7 +89,7 @@ describe('standard-schema createPermix', () => {
       dashboard: ['view'] as const,
     })
 
-    permix.setup({
+    const ready = permix.setup({
       post: {
         create: true,
         read: true,
@@ -98,19 +98,19 @@ describe('standard-schema createPermix', () => {
       dashboard: { view: true },
     })
 
-    expect(permix.check('post.create')).toBe(true)
-    expect(permix.check('dashboard.view')).toBe(true)
-    expect(permix.check('post.publish', { id: 'p1', authorId: '1' })).toBe(true)
+    expect(ready.check('post.create')).toBe(true)
+    expect(ready.check('dashboard.view')).toBe(true)
+    expect(ready.check('post.publish', { id: 'p1', authorId: '1' })).toBe(true)
     // @ts-expect-error data is required
-    expect(() => permix.check('post.publish')).toThrow()
+    expect(() => ready.check('post.publish')).toThrow()
     // @ts-expect-error untyped action list has no entity data
-    expect(permix.check('dashboard.view', { id: 'x' })).toBe(true)
+    expect(ready.check('dashboard.view', { id: 'x' })).toBe(true)
   })
 
   it('accepts Valibot schemas in the map', () => {
     const permix = createPermix({ post: valibotPostSchema })
 
-    permix.setup({
+    const ready = permix.setup({
       post: {
         create: true,
         read: true,
@@ -119,7 +119,7 @@ describe('standard-schema createPermix', () => {
       },
     })
 
-    expect(permix.check('post.update', { id: 'p1', authorId: '1' })).toBe(true)
+    expect(ready.check('post.update', { id: 'p1', authorId: '1' })).toBe(true)
   })
 
   it('throws when actions is an empty array', () => {
@@ -158,8 +158,10 @@ describe('standard-schema createPermix', () => {
   })
 
   it('fires the check hook with allowed false when validate deny rejects data', () => {
-    const permix = createPermix({ post: postSchema }, { validate: 'deny' })
-    permix.setup({
+    const permix = createPermix(
+      { post: postSchema },
+      { validate: 'deny' }
+    ).setup({
       post: {
         create: true,
         read: true,
@@ -182,8 +184,10 @@ describe('standard-schema createPermix', () => {
   })
 
   it('denies explain() when validate deny rejects data', () => {
-    const permix = createPermix({ post: postSchema }, { validate: 'deny' })
-    permix.setup({
+    const permix = createPermix(
+      { post: postSchema },
+      { validate: 'deny' }
+    ).setup({
       post: {
         create: true,
         read: true,

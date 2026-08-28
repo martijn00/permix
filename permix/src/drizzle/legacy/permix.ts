@@ -118,9 +118,21 @@ export function createPermix<
 
   type D = DrizzleDefinition<S, Actions>
 
-  const permix = createPermixCore<D>()
+  function decorate(instance: PermixCore<D>): DrizzlePermix<S, Actions> {
+    return {
+      ...instance,
+      actions,
+      tables,
+      setup(rules) {
+        return decorate(instance.setup(rules))
+      },
+      hydrate(state) {
+        return decorate(instance.hydrate(state))
+      },
+    }
+  }
 
-  return Object.assign(permix, { actions, tables })
+  return decorate(createPermixCore<D>())
 }
 
 /** Return type of {@link createPermix}. */

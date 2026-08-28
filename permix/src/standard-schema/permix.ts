@@ -292,26 +292,49 @@ export function createPermix<
 
   type D = StandardSchemaDefinition<M, Actions>
 
-  const permix = createPermixCore<D>()
+  function decorate(instance: PermixCore<D>): StandardSchemaPermix<M, Actions> {
+    const originalSetup = instance.setup.bind(instance)
+    const originalHydrate = instance.hydrate.bind(instance)
+    const originalCheck = instance.check.bind(instance)
+    const originalExplain = instance.explain.bind(instance)
 
-  if (validate) {
-    const originalCheck = permix.check.bind(permix)
-    const originalExplain = permix.explain.bind(permix)
-    permix.check = (...args: Parameters<typeof permix.check>) =>
-      checkWithValidation(
-        originalCheck,
-        schemasByEntity,
-        validate,
-        args,
-        () => {
-          notifyCheck(permix, args, false)
-        }
-      )
-    permix.explain = (...args: Parameters<typeof permix.explain>) =>
-      explainWithValidation(originalExplain, schemasByEntity, validate, args)
+    const decorated: StandardSchemaPermix<M, Actions> = {
+      ...instance,
+      actions,
+      entities,
+      validate,
+      setup(rules) {
+        return decorate(originalSetup(rules))
+      },
+      hydrate(state) {
+        return decorate(originalHydrate(state))
+      },
+      check: validate
+        ? (...args: Parameters<typeof instance.check>) =>
+            checkWithValidation(
+              originalCheck,
+              schemasByEntity,
+              validate,
+              args,
+              () => {
+                notifyCheck(instance, args, false)
+              }
+            )
+        : originalCheck,
+      explain: validate
+        ? (...args: Parameters<typeof instance.explain>) =>
+            explainWithValidation(
+              originalExplain,
+              schemasByEntity,
+              validate,
+              args
+            )
+        : originalExplain,
+    }
+    return decorated
   }
 
-  return Object.assign(permix, { actions, entities, validate })
+  return decorate(createPermixCore<D>())
 }
 
 /** Return type of {@link createPermix}. */

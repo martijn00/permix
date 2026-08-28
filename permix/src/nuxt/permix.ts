@@ -104,8 +104,12 @@ export function createPermix<D extends Definition>() {
     return getOrCreate(resolved, key, () => createPermixCore<D>())
   }
 
-  function setup(rules: Rules<D>, event?: NuxtEvent): void {
-    getPermix(event).setup(rules)
+  function setup(rules: Rules<D>, event?: NuxtEvent): PermixCore<D> {
+    const resolved = resolveEvent(event, key)
+    const instance = createPermixCore<D>().setup(rules)
+    const context = resolved.context as Record<PropertyKey, unknown>
+    context[key] = instance
+    return instance
   }
 
   const check: PermixCore<D>['check'] = (...args) => getPermix().check(...args)

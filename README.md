@@ -17,9 +17,7 @@ import { createPermix } from 'permix'
 
 const permix = createPermix<{
   post: ['read']
-}>()
-
-permix.setup({
+}>().setup({
   post: {
     read: true,
   },
@@ -28,7 +26,7 @@ permix.setup({
 permix.check('post.read') // true
 ```
 
-On the server, do not call `setup()` on a module-level instance from concurrent requests — those calls share one mutable object. Use an adapter `setupMiddleware` (or `createPermix(rules)` per request) instead.
+`setup()` returns a frozen instance and does not mutate the factory. On the server, stash that returned instance per request (`setupMiddleware`, or `createPermix<D>().setup(rules)` inside the request). Do not share one instance across concurrent requests.
 
 Permix has other powerful features, so here's check out the [docs](https://permix.letstri.dev/docs) or the [examples](https://github.com/letstri/permix/tree/main/examples) directory.
 

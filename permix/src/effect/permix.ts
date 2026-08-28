@@ -38,20 +38,22 @@ export function createPermix<D extends Definition>(
   const Tag = Context.GenericTag<PermixCore<D>>(id)
 
   function layer(rules?: Rules<D>) {
-    return Layer.sync(Tag, () => createPermixCore<D>(rules))
+    return Layer.sync(Tag, () =>
+      rules === undefined
+        ? createPermixCore<D>()
+        : createPermixCore<D>().setup(rules)
+    )
   }
 
   function layerSetup<E, R>(rules: Effect.Effect<Rules<D>, E, R>) {
     return Layer.effect(
       Tag,
-      Effect.map(rules, (r) => createPermixCore<D>(r))
+      Effect.map(rules, (r) => createPermixCore<D>().setup(r))
     )
   }
 
   function setup(rules: Rules<D>) {
-    return Effect.map(Tag, (instance) => {
-      instance.setup(rules)
-    })
+    return Effect.map(Tag, (instance) => instance.setup(rules))
   }
 
   function check(...args: CheckArgs<D>) {
@@ -73,14 +75,7 @@ export function createPermix<D extends Definition>(
   }
 
   function hydrate(state: DehydratedState<D>) {
-    return Effect.flatMap(Tag, (instance) =>
-      Effect.try({
-        try: () => {
-          instance.hydrate(state)
-        },
-        catch: (e) => e as PermixNotReadyError,
-      })
-    )
+    return Effect.map(Tag, (instance) => instance.hydrate(state))
   }
 
   function isReady() {

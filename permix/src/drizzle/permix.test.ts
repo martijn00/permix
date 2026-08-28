@@ -38,9 +38,7 @@ describe('drizzle createPermix', () => {
   })
 
   it('accepts rules for every detected entity (tables + views)', () => {
-    const permix = createPermix(schema)
-
-    permix.setup({
+    const permix = createPermix(schema).setup({
       users: { create: true, read: true, update: false, delete: false },
       posts: { create: true, read: true, update: true, delete: false },
       activeUsers: { create: false, read: true, update: false, delete: false },
@@ -54,9 +52,7 @@ describe('drizzle createPermix', () => {
   })
 
   it('infers leaf paths only for schema entries — relations are not part of the type', () => {
-    const permix = createPermix(schema)
-
-    permix.setup({
+    const permix = createPermix(schema).setup({
       users: { create: true, read: true, update: false, delete: false },
       posts: { create: true, read: true, update: true, delete: false },
       activeUsers: { create: false, read: true, update: false, delete: false },
@@ -73,18 +69,16 @@ describe('drizzle createPermix', () => {
 
     expect(permix.actions).toStrictEqual(['view', 'edit'])
 
-    permix.setup({
+    const ready = permix.setup({
       users: { view: true, edit: false },
       posts: { view: true, edit: true },
       activeUsers: { view: true, edit: false },
     })
 
-    expect(permix.check('users.view')).toBe(true)
-    expect(permix.check('posts.edit')).toBe(true)
+    expect(ready.check('users.view')).toBe(true)
+    expect(ready.check('posts.edit')).toBe(true)
     // @ts-expect-error 'create' is not in the custom action set
-    expect(() => permix.check('users.create')).toThrow(
-      PermixRuleNotDefinedError
-    )
+    expect(() => ready.check('users.create')).toThrow(PermixRuleNotDefinedError)
   })
 
   it('throws when actions is an empty array', () => {

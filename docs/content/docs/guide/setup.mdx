@@ -5,7 +5,22 @@ description: Learn how to setup permissions in your project
 
 ## Overview
 
-After creating Permix instance, you need to define permissions with `setup` method. You can call `setup` in any time with any permissions and Permix will replace the previous permissions.
+After creating a Permix factory, call `setup()` to get a frozen instance. `setup()` does not mutate the factory — overlapping calls return isolated instances.
+
+```ts
+const permix = createPermix<{
+  post: ['create']
+  comment: ['create', 'update']
+}>().setup({
+  post: {
+    create: true,
+  },
+  comment: {
+    create: true,
+    update: true,
+  },
+})
+```
 
 <Callout type="warn">
   You always should describe all permissions in the `setup` method that was
@@ -23,9 +38,7 @@ After creating Permix instance, you need to define permissions with `setup` meth
 const permix = createPermix<{
   post: ['create']
   comment: ['create', 'update']
-}>()
-
-permix.setup({
+}>().setup({
   post: {
     create: true,
   },
