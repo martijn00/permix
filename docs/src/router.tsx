@@ -9,7 +9,10 @@ export function getRouter() {
     routeTree,
     defaultPreload: 'intent',
     scrollRestoration: true,
-    scrollToTopSelectors: ['#nd-sidebar [data-radix-scroll-area-viewport]'],
+    scrollToTopSelectors: [
+      '#nd-sidebar [data-slot="scroll-area-viewport"]',
+      '#nd-sidebar [data-base-ui-scroll-area-viewport]',
+    ],
     defaultNotFoundComponent: NotFound,
   })
 }

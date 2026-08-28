@@ -3,6 +3,9 @@
 @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-twoslash/twoslash.css';
 
+@source "../**/*.{ts,tsx}";
+@source "../../node_modules/fumadocs-ui/dist/**/*.js";
+
 html {
   scrollbar-gutter: stable;
 }
@@ -12,6 +15,7 @@ html > body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0px !important;
 }
 
-[data-radix-scroll-area-viewport] {
+[data-slot='scroll-area-viewport'],
+[data-base-ui-scroll-area-viewport] {
   overflow-y: auto !important;
 }
