@@ -48,7 +48,8 @@ jobs:
 
       - name: Install pinned Permix dependencies
         if: matrix.pin
-        run: pnpm install --filter permix --no-frozen-lockfile
+        # Catalog pin is workspace-wide; docs/fumadocs still declare React 19 peers.
+        run: pnpm install --filter permix --no-frozen-lockfile --config.strictPeerDependencies=false
 
       - name: Install dependencies
         if: ${{ !matrix.pin }}
