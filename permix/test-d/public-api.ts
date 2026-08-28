@@ -9,6 +9,11 @@ import { createPermix as createHonoPermix } from 'permix/hono'
 import { createPermix as createNextPermix } from 'permix/next'
 import { createPermix as createNodePermix } from 'permix/node'
 import { createPermix as createOrpcPermix } from 'permix/orpc'
+import {
+  createPdpClient,
+  createPdpHandler,
+  createPdpOpenApiDocument,
+} from 'permix/pdp'
 import { createPermix as createReactPermix } from 'permix/react'
 import { createPermix as createServerPermix } from 'permix/server'
 import { createPermix as createSolidPermix } from 'permix/solid'
@@ -44,6 +49,19 @@ const next = createNextPermix<PostDefinition>(() => ({
   },
 }))
 const tanstackStart = createTanstackStartPermix<PostDefinition>()
+const pdpClient = createPdpClient<PostDefinition>()
+const pdpHandler = createPdpHandler<PostDefinition, string, string>({
+  authenticateCaller: () => 'caller',
+  authenticateService: () => 'service',
+  resolveSubject: ({ subject }) => subject,
+  resolveRules: () => ({
+    post: {
+      create: true,
+      read: true,
+    },
+  }),
+})
+const pdpOpenApi = createPdpOpenApiDocument()
 
 core.setup({
   post: {
@@ -70,6 +88,9 @@ export {
   next,
   node,
   orpc,
+  pdpClient,
+  pdpHandler,
+  pdpOpenApi,
   reactFactory,
   reactStandalone,
   server,

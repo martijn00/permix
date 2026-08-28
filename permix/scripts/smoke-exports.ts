@@ -5,6 +5,11 @@ const entrypoints = [
     await import('permix/adapter'),
     ['createAdapter', 'serializeAdapterError'],
   ],
+  [
+    './pdp',
+    await import('permix/pdp'),
+    ['createPdpClient', 'createPdpHandler', 'createPdpOpenApiDocument'],
+  ],
   ['./trpc', await import('permix/trpc'), ['createPermix']],
   ['./orpc', await import('permix/orpc'), ['createPermix']],
   ['./express', await import('permix/express'), ['createPermix']],
