@@ -331,7 +331,9 @@ export interface Permix<D extends Definition> {
 export function createPermix<D extends Definition>(
   initialRules?: Rules<D>
 ): Permix<D> {
-  let rules: Rules<D> | null = initialRules ?? null
+  let rules: Rules<D> | null = initialRules
+    ? createRules<D>(initialRules)
+    : null
   let ready = !!initialRules
   const hooks = createHooks<PermixHooks<D>>()
 

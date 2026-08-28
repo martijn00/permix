@@ -337,7 +337,9 @@ describe(createPermix, () => {
     )
 
     expect(result.empty).toBeNull()
-    expect(result.current).toStrictEqual(rules)
+    // Frozen rules use a null prototype, so toStrictEqual would fail on constructor.
+    // oxlint-disable-next-line vitest/prefer-strict-equal
+    expect(result.current).toEqual(rules)
   })
 
   it('should resolve isReadyAsync once setup runs', async () => {

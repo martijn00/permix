@@ -101,7 +101,9 @@ describe('nuxt createPermix', () => {
         },
       })
 
-      expect(permix.getRules()).toStrictEqual({
+      // Frozen rules use a null prototype, so toStrictEqual would fail on constructor.
+      // oxlint-disable-next-line vitest/prefer-strict-equal
+      expect(permix.getRules()).toEqual({
         post: {
           create: true,
           read: false,

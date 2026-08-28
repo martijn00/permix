@@ -335,6 +335,43 @@ describe('check ~all / ~any', () => {
     expect(permix.check('post.~any')).toBe(true)
     expect(permix.check('post.~all')).toBe(false)
   })
+
+  it('should deny empty-subtree ~all instead of vacuously allowing', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({} as never)
+    expect(permix.check('~all')).toBe(false)
+    expect(permix.check('~any')).toBe(false)
+  })
+
+  it('should deny ~all on an empty nested subtree', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({ post: {} } as never)
+    expect(permix.check('post.~all')).toBe(false)
+    expect(permix.check('post.~any')).toBe(false)
+  })
+
+  it('should treat entity-required throws as deny under ~any / ~all', () => {
+    const permix = createPermix<{
+      post: [{ name: 'edit'; type: { id: string }; required: true }]
+    }>()
+
+    permix.setup({
+      post: {
+        edit: (data) => data.id === '1',
+      },
+    })
+
+    expect(permix.check('~any')).toBe(false)
+    expect(permix.check('~all')).toBe(false)
+    expect(permix.check('post.~any')).toBe(false)
+    expect(permix.check('post.~all')).toBe(false)
+  })
 })
 
 describe('deep rules', () => {
@@ -653,6 +690,27 @@ describe('deep rules', () => {
       expect(fn).toHaveBeenCalledOnce()
     })
 
+    it('should ignore reserved hydrate keys and keep own denies', () => {
+      const permix = createPermix<{
+        post: ['create', 'read']
+      }>()
+
+      permix.setup({
+        post: { create: false, read: false },
+      })
+
+      permix.hydrate(
+        JSON.parse(
+          '{"post":{"__proto__":{"create":true},"read":false}}'
+        ) as never
+      )
+
+      expect(() => permix.check('post.create')).toThrow(
+        PermixRuleNotDefinedError
+      )
+      expect(permix.check('post.read')).toBe(false)
+    })
+
     it('should not become ready on hydrate, only on setup', () => {
       const permix = createPermix<{
         post: ['create', 'read']
@@ -757,5 +815,38 @@ describe('deep rules', () => {
 
       await expect(promise).resolves.toBeUndefined()
     })
+  })
+})
+
+describe('frozen rules', () => {
+  it('should ignore mutation of the object passed to setup', () => {
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    const rules = {
+      post: { create: false, read: false },
+    }
+    permix.setup(rules)
+    rules.post.create = true
+
+    expect(permix.check('post.create')).toBe(false)
+  })
+
+  it('should ignore mutation of getRules()', () => {
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permix.setup({
+      post: { create: false, read: false },
+    })
+
+    const live = permix.getRules()
+    expect(live).not.toBeNull()
+    expect(() => {
+      live!.post.create = true
+    }).toThrow()
+    expect(permix.check('post.create')).toBe(false)
   })
 })

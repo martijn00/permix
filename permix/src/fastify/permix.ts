@@ -110,6 +110,9 @@ function buildPermix<D extends Definition>(
 
       if (!allowed) {
         await onForbidden({ request, reply, ...createCheckContext(...args) })
+        if (!reply.sent) {
+          reply.status(403).send({ error: 'Forbidden' })
+        }
       }
     }
 

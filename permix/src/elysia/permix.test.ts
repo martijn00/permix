@@ -322,6 +322,31 @@ describe('checkMiddleware without setupMiddleware', () => {
   })
 })
 
+describe('fail closed after deny', () => {
+  it('should not run the route body when onForbidden is a no-op', async () => {
+    const permix = createPermix<PermissionsDefinition>({
+      onForbidden: () => undefined,
+    })
+
+    const app = new Elysia()
+      .onBeforeHandle(
+        permix.setupMiddleware(() => ({
+          post: { create: false, read: false, update: false },
+          user: { delete: false },
+        }))
+      )
+      .post('/posts', () => ({ success: true }), {
+        beforeHandle: permix.checkMiddleware('post.create'),
+      })
+
+    const res = await app.handle(
+      new Request('http://localhost/posts', { method: 'POST' })
+    )
+    expect(res.status).toBe(403)
+    await expect(res.json()).resolves.toStrictEqual({ error: 'Forbidden' })
+  })
+})
+
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
     const permix =

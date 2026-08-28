@@ -63,6 +63,28 @@ describe('permission artifacts', () => {
       expect(source).toContain('createPermissionOverlay<ExtractedDefinition>()')
     })
 
+    it('rejects reserved generated property segments', () => {
+      for (const segment of [
+        '__proto__',
+        'constructor',
+        'prototype',
+      ] as const) {
+        const catalog: PermissionCatalog = {
+          schemaVersion: 1,
+          permissions: [
+            {
+              key: `post.${segment}`,
+              references: [],
+            },
+          ],
+        }
+
+        expect(() => renderPermissionModule(catalog)).toThrow(
+          PermissionExtractionError
+        )
+      }
+    })
+
     it('rejects paths that cannot form one Permix definition tree', () => {
       const catalog: PermissionCatalog = {
         schemaVersion: 1,

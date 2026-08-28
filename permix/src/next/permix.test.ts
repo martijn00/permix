@@ -88,7 +88,9 @@ describe('next createPermix', () => {
       },
     }))
 
-    await expect(permix.getRules()).resolves.toStrictEqual({
+    // Frozen rules use a null prototype, so toStrictEqual would fail on constructor.
+    // oxlint-disable-next-line vitest/prefer-strict-equal
+    await expect(permix.getRules()).resolves.toEqual({
       post: {
         create: true,
         read: false,

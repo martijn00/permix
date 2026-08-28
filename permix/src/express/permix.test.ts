@@ -485,6 +485,30 @@ describe('onForbidden receives next', () => {
   })
 })
 
+describe('async middleware errors', () => {
+  it('should forward a rejecting setup callback to error middleware', async () => {
+    const permix = createPermix<PermissionsDefinition>()
+
+    const app = express()
+    app.use(
+      permix.setupMiddleware(async () => {
+        throw new Error('setup failed')
+      })
+    )
+    app.post('/posts', (req, res) => {
+      res.json({ success: true })
+    })
+    const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+      res.status(500).json({ error: err.message })
+    }
+    app.use(errorHandler)
+
+    const response = await request(app).post('/posts')
+    expect(response.status).toBe(500)
+    expect(response.body).toStrictEqual({ error: 'setup failed' })
+  })
+})
+
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
     const permix =

@@ -42,6 +42,13 @@ export function callRuleWithoutData(rule: () => unknown): boolean {
   }
 }
 
+function ownChild(parent: object, key: string): Rule | undefined {
+  if (!Object.hasOwn(parent, key)) {
+    return undefined
+  }
+  return (parent as Record<string, Rule>)[key]
+}
+
 function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
   let args = inputArgs
   const first = args[0]
@@ -55,10 +62,14 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
       for (let i = 0; i < parts.length - 1; i++) {
         const segment = parts[i]
         if (segment === undefined) {
+          subtree = undefined
           break
         }
         if (subtree && typeof subtree === 'object') {
-          subtree = (subtree as Record<string, Rule>)[segment]
+          subtree = ownChild(subtree, segment)
+        } else {
+          subtree = undefined
+          break
         }
       }
 
@@ -75,14 +86,17 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
         if (typeof rule === 'function') {
           return void out.push(callRuleWithoutData(rule))
         }
-        for (const key in rule) {
-          const child = rule[key]
+        for (const key of Object.keys(rule)) {
+          const child = ownChild(rule, key)
           if (child !== undefined) {
             visit(child)
           }
         }
       }
       visit(subtree)
+      if (out.length === 0) {
+        return false
+      }
       return last === '~all' ? out.every(Boolean) : out.some(Boolean)
     }
 
@@ -98,7 +112,7 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
     if (typeof arg !== 'string') {
       break
     }
-    rule = (rule as Record<string, Rule>)[arg]
+    rule = ownChild(rule, arg)
   }
 
   if (typeof rule === 'boolean') {

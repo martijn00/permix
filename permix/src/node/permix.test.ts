@@ -354,6 +354,25 @@ describe('onForbidden receives next', () => {
   })
 })
 
+describe('async middleware errors', () => {
+  it('should forward a rejecting setup callback to next(err)', async () => {
+    const permix = createPermix<PermissionsDefinition>()
+
+    const req = createMockRequest()
+    const res = createMockResponse()
+    const next = createMockNext()
+
+    await permix.setupMiddleware(async () => {
+      throw new Error('setup failed')
+    })(req, res, next)
+
+    expect(next).toHaveBeenCalledOnce()
+    const setupError = next.mock.calls[0]?.[0]
+    expect(setupError).toBeInstanceOf(Error)
+    expect(setupError).toHaveProperty('message', 'setup failed')
+  })
+})
+
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
     const permix =

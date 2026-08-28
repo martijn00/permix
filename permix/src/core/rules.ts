@@ -30,12 +30,35 @@ export type DehydratedState<D extends Definition> = D extends readonly Action[]
     }
 
 /**
- * Recursively collapse a rules tree into its JSON-safe {@link DehydratedState}.
- *
- * Function-based rules are invoked once with no data; entity-required
- * validators that throw on `undefined` are treated as `false`.
+ * Property names that must never become rule keys. Assigning `__proto__` on a
+ * plain object can install a prototype; `constructor` / `prototype` are the
+ * same class of inherited lookup. The extractor rejects these segments too.
  */
-export function dehydrateRules(node: unknown): unknown {
+export const RESERVED_RULE_KEYS = new Set([
+  '__proto__',
+  'constructor',
+  'prototype',
+])
+
+function cloneRuleNode(node: unknown, freeze: boolean): unknown {
+  if (typeof node === 'boolean' || typeof node === 'function') {
+    return node
+  }
+  if (node && typeof node === 'object') {
+    const source = node as Record<string, unknown>
+    const result: Record<string, unknown> = Object.create(null)
+    for (const key of Object.keys(source)) {
+      if (RESERVED_RULE_KEYS.has(key)) {
+        continue
+      }
+      result[key] = cloneRuleNode(source[key], freeze)
+    }
+    return freeze ? Object.freeze(result) : result
+  }
+  return node
+}
+
+function dehydrateNode(node: unknown): unknown {
   if (typeof node === 'boolean') {
     return node
   }
@@ -43,13 +66,39 @@ export function dehydrateRules(node: unknown): unknown {
     return callRuleWithoutData(node as () => unknown)
   }
   if (node && typeof node === 'object') {
-    const result: Record<string, unknown> = {}
-    for (const key in node as Record<string, unknown>) {
-      result[key] = dehydrateRules((node as Record<string, unknown>)[key])
+    const source = node as Record<string, unknown>
+    const result: Record<string, unknown> = Object.create(null)
+    for (const key of Object.keys(source)) {
+      if (RESERVED_RULE_KEYS.has(key)) {
+        continue
+      }
+      result[key] = dehydrateNode(source[key])
     }
     return result
   }
   return node
+}
+
+function toJsonObject(node: unknown): unknown {
+  if (!node || typeof node !== 'object') {
+    return node
+  }
+  const source = node as Record<string, unknown>
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(source)) {
+    result[key] = toJsonObject(source[key])
+  }
+  return result
+}
+
+/**
+ * Recursively collapse a rules tree into its JSON-safe {@link DehydratedState}.
+ *
+ * Function-based rules are invoked once with no data; entity-required
+ * validators that throw on `undefined` are treated as `false`.
+ */
+export function dehydrateRules(node: unknown): unknown {
+  return toJsonObject(dehydrateNode(node))
 }
 
 /**
@@ -59,22 +108,14 @@ export function dehydrateRules(node: unknown): unknown {
 export function hydrateRules<D extends Definition>(
   state: DehydratedState<D>
 ): Rules<D> {
-  const result: Record<string, unknown> = {}
-  for (const key in state as Record<string, unknown>) {
-    const value = (state as Record<string, unknown>)[key]
-    result[key] =
-      typeof value === 'boolean'
-        ? value
-        : hydrateRules(value as DehydratedState<Definition>)
-  }
-  return result as Rules<D>
+  return cloneRuleNode(state, true) as Rules<D>
 }
 
 /**
  * Build a typed {@link Rules} object for a given {@link Definition}.
  *
- * Returns the input unchanged — useful for declaring rules in a separate
- * location with full type inference.
+ * Copies the tree onto a null-prototype object and deep-freezes it so later
+ * mutation of the input (or of `getRules()`) cannot change authorization.
  *
  * @example
  * ```ts
@@ -86,5 +127,5 @@ export function hydrateRules<D extends Definition>(
  * ```
  */
 export function createRules<D extends Definition>(rules: Rules<D>): Rules<D> {
-  return rules
+  return cloneRuleNode(rules, true) as Rules<D>
 }

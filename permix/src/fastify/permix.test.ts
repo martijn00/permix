@@ -373,6 +373,35 @@ describe('checkMiddleware without setupMiddleware', () => {
   })
 })
 
+describe('fail closed after deny', () => {
+  it('should not run the route body when onForbidden is a no-op', async () => {
+    const permix = createPermix<PermissionsDefinition>({
+      onForbidden: () => undefined,
+    })
+
+    const app = Fastify()
+
+    await app.register(
+      permix.setupMiddleware(() => ({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      }))
+    )
+
+    app.post(
+      '/posts',
+      { preHandler: permix.checkMiddleware('post.create') },
+      (req, reply) => {
+        reply.send({ success: true })
+      }
+    )
+
+    const response = await app.inject({ method: 'POST', url: '/posts' })
+    expect(response.statusCode).toBe(403)
+    expect(response.json()).toStrictEqual({ error: 'Forbidden' })
+  })
+})
+
 describe('key exposure', () => {
   it('should expose the key on the factory return', () => {
     const permix =
