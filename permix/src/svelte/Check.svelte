@@ -1,7 +1,7 @@
 <script lang="ts" generics="D extends Definition, P extends RulesPaths<D>">
 import type { Snippet } from 'svelte'
-import type { CheckArgs, DataAtPath, Definition, Rules, RulesPaths } from '../core'
-import { createCheck } from '../core'
+import type { CheckArgs, DataAtPath, Definition, RulesPaths } from '../core'
+import { runCheck } from '../core'
 import { usePermixContext } from './context.svelte'
 
 const {
@@ -21,7 +21,9 @@ const {
 const context = usePermixContext<D>()
 
 const hasPermission = $derived.by(() =>
-  createCheck<D>(() => (context.rules ?? context.permix.getRules()) as Rules<D> | null)(
+  runCheck(
+    context.permix,
+    context.rules,
     ...([path, data] as unknown as CheckArgs<D>),
   ),
 )

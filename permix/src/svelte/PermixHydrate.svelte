@@ -8,7 +8,12 @@ const { state, children }: { state: DehydratedState<any>, children: Snippet } = 
 
 const context = usePermixContext()
 
-untrack(() => context.permix.hydrate(state))
+$effect.pre(() => {
+  const next = state
+  untrack(() => {
+    context.permix.hydrate(next)
+  })
+})
 </script>
 
 {@render children()}

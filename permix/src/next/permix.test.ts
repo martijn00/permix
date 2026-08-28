@@ -38,6 +38,10 @@ describe('next createPermix', () => {
     resetRequestCache()
   })
 
+  // Unit tests below encode the mock `cache()` contract in
+  // `request-cache-mock.ts`, not React/Next ALS. Request isolation is
+  // proven in Playwright `permix/test/next/tests/compat.spec.ts`.
+
   it('initializes from a sync resolver and checks permissions', async () => {
     const permix = createPermix<{
       post: ['create', 'read']

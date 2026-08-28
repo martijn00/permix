@@ -214,7 +214,7 @@ describe('tanstack-start createPermix', () => {
 
       expect(onCheck).toHaveBeenCalledWith({
         path: 'post.create',
-        data: undefined,
+        allowed: true,
       })
     })
   })

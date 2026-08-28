@@ -1,5 +1,5 @@
 import type { PropType, SetupContext, SlotsType, VNode } from 'vue'
-import { defineComponent, onUnmounted, watch } from 'vue'
+import { computed, defineComponent, onUnmounted, watch } from 'vue'
 
 import type { CheckArgs, Definition, DehydratedState, Permix } from '../core'
 import { usePermix } from './composables'
@@ -78,39 +78,45 @@ export const PermixHydrate = defineComponent({
 export function createComponents<D extends Definition>(
   permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
-  function Check(props: CheckProps<D>, context: CheckContext) {
-    const { check } = usePermix(permix)
+  const Check = defineComponent({
+    name: 'Check',
+    inheritAttrs: false,
+    props: {
+      path: {
+        type: String,
+        required: true,
+      },
+      data: {
+        type: Object,
+        required: false,
+      },
+      reverse: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
+    setup(props, { slots }) {
+      const { check } = usePermix(permix)
 
-    const hasPermission = check(
-      ...([props.path, props.data] as unknown as CheckArgs<D>)
-    )
-    return props.reverse
-      ? hasPermission
-        ? context.slots.otherwise?.()
-        : context.slots.default?.()
-      : hasPermission
-        ? context.slots.default?.()
-        : context.slots.otherwise?.()
-  }
+      const hasPermission = computed(() =>
+        check(...([props.path, props.data] as unknown as CheckArgs<D>))
+      )
 
-  Check.inheritAttrs = false
-  Check.props = {
-    path: {
-      type: String,
-      required: true,
+      return () => {
+        const allowed = hasPermission.value
+        return props.reverse
+          ? allowed
+            ? slots.otherwise?.()
+            : slots.default?.()
+          : allowed
+            ? slots.default?.()
+            : slots.otherwise?.()
+      }
     },
-    data: {
-      type: Object,
-      required: false,
-    },
-    reverse: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-  }
+  })
 
   return {
-    Check,
+    Check: Check as unknown as PermixComponents<D>['Check'],
   }
 }

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 
-import type { Definition, Permix, Rules } from '../core'
-import { createCheck } from '../core'
+import type { Definition, Permix } from '../core'
+import { runCheck } from '../core'
 import { usePermixContext } from './context'
 
 /**
@@ -10,13 +10,12 @@ import { usePermixContext } from './context'
  * @link https://permix.letstri.dev/docs/integrations/vue
  */
 export function usePermix<T extends Definition>(
-  permix: Pick<Permix<T>, 'getRules' | 'check'>
+  _permix: Pick<Permix<T>, 'getRules' | 'check'>
 ) {
   const context = usePermixContext()
 
-  const check: Permix<T>['check'] = createCheck<T>(
-    () => (context.value.rules ?? permix.getRules()) as Rules<T> | null
-  )
+  const check: Permix<T>['check'] = (...args) =>
+    runCheck(context.value.permix, context.value.rules, ...args)
 
   return { check, isReady: computed(() => context.value.isReady) }
 }

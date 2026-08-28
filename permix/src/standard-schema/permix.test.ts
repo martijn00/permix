@@ -1,5 +1,5 @@
 import * as v from 'valibot'
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { z } from 'zod'
 
 import { PermixRuleNotDefinedError } from '../core/errors'
@@ -155,5 +155,28 @@ describe('standard-schema createPermix', () => {
   it('records the validate option on the instance', () => {
     const permix = createPermix({ post: postSchema }, { validate: 'deny' })
     expect(permix.validate).toBe('deny')
+  })
+
+  it('fires the check hook with allowed false when validate deny rejects data', () => {
+    const permix = createPermix({ post: postSchema }, { validate: 'deny' })
+    permix.setup({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+        delete: false,
+      },
+    })
+
+    const onCheck = vi.fn()
+    permix.hook('check', onCheck)
+
+    expect(permix.check('post.update', { id: 1 } as never)).toBe(false)
+    expect(onCheck).toHaveBeenCalledOnce()
+    expect(onCheck).toHaveBeenCalledWith({
+      path: 'post.update',
+      data: { id: 1 },
+      allowed: false,
+    })
   })
 })

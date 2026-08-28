@@ -52,6 +52,8 @@ permix.setup({
 const canReadPost = permix.check('post.read') // true
 ```
 
+Core `setup()` mutates that instance. It is fine in a SPA and **not** request-safe on a shared server singleton — overlapping requests would share rules. Use an adapter `setupMiddleware` (or `createPermix(rules)` per request) on the server.
+
 It looks too simple, so here's a more interesting example:
 
 ```ts twoslash

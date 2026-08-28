@@ -1,6 +1,10 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createRenderEffect, onCleanup } from 'solid-js'
-import { createStore } from 'solid-js/store'
+import {
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  onCleanup,
+} from 'solid-js'
 
 import type {
   CheckArgs,
@@ -16,24 +20,34 @@ import { Context, usePermix, usePermixContext } from './hooks'
 /**
  * Provides Permix context to the Solid component tree.
  *
+ * Frozen rule snapshots cannot live in a Solid store (deep unwrap loops),
+ * so readiness and rules are signals with getters on the context object.
+ *
  * @link https://permix.letstri.dev/docs/integrations/solid
  */
 export function PermixProvider<D extends Definition>(props: {
   children: JSX.Element
   permix: Permix<D>
 }): JSX.Element {
-  const [context, setContext] = createStore<PermixContext<D>>({
+  const [isReady, setIsReady] = createSignal(props.permix.isReady())
+  const [rules, setRules] = createSignal(props.permix.getRules())
+
+  const context: PermixContext<D> = {
     permix: props.permix,
-    isReady: props.permix.isReady(),
-    rules: props.permix.getRules(),
-  })
+    get isReady() {
+      return isReady()
+    },
+    get rules() {
+      return rules()
+    },
+  }
 
   createRenderEffect(() => {
     const setup = props.permix.hook('setup', () => {
-      setContext('rules', props.permix.getRules())
+      setRules(() => props.permix.getRules())
     })
     const ready = props.permix.hook('ready', () => {
-      setContext('isReady', props.permix.isReady())
+      setIsReady(props.permix.isReady())
     })
 
     onCleanup(() => {
@@ -42,6 +56,8 @@ export function PermixProvider<D extends Definition>(props: {
     })
   })
 
+  // Solid setup runs once; getters read signals so this object is stable.
+  // oxlint-disable-next-line react/jsx-no-constructed-context-values
   return <Context.Provider value={context}>{props.children}</Context.Provider>
 }
 

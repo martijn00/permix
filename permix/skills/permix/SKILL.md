@@ -51,4 +51,5 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 - **Authorization must run on the server.** Client-side `check` (React/Vue/Solid/Svelte) is UX only — mirror every path with `checkMiddleware` in [references/server.md](references/server.md).
 - **Use the same schema and path strings** (`post.update`, not ad-hoc strings) across client hooks and server middleware, or types and behavior drift apart.
 - **`check` before `isReady`** throws `PermixNotReadyError` — gate UI with `isReady`/`isReadyAsync`, and call `setupMiddleware` before `checkMiddleware` on the server.
+- **Core `setup()` is not request-safe** on a module singleton shared across concurrent requests. Use adapter `setupMiddleware` (or `createPermix(rules)` per request) on the server.
 - **SSR `hydrate` alone is not enough.** It only restores booleans; call `setup` again on the client for function-based/ReBAC rules — see the SSR section of [references/frontend.md](references/frontend.md).

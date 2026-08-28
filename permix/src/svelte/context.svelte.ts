@@ -1,7 +1,7 @@
 import { getContext, onDestroy, setContext } from 'svelte'
 
 import type { Definition, Permix, Rules } from '../core'
-import { createCheck } from '../core'
+import { runCheck } from '../core'
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>
@@ -58,12 +58,12 @@ export function usePermixContext<T extends Definition>(): PermixContext<T> {
  * @link https://permix.letstri.dev/docs/integrations/svelte
  */
 export function usePermix<T extends Definition>(
-  permix: Pick<Permix<T>, 'getRules' | 'check'>
+  _permix: Pick<Permix<T>, 'getRules' | 'check'>
 ) {
   const context = usePermixContext<T>()
 
   const check: Permix<T>['check'] = (...args) =>
-    createCheck<T>(() => context.rules ?? permix.getRules())(...args)
+    runCheck(context.permix, context.rules, ...args)
 
   return {
     check,

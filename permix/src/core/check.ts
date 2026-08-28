@@ -148,9 +148,32 @@ export function createCheck<D extends Definition>(
   }
 }
 
+/**
+ * Evaluate a check against overlay rules when the instance has none yet
+ * (hydrate first paint), otherwise go through `instance.check` so hooks and
+ * Standard Schema `validate` run.
+ */
+export function runCheck(
+  instance: {
+    check: (...args: any[]) => boolean
+    getRules: () => Rules<any> | null
+  },
+  overlay: Rules<any> | null | undefined,
+  ...args: any[]
+): boolean {
+  if (instance.getRules() === null && overlay) {
+    return (createCheck(overlay as never) as (...next: any[]) => boolean)(
+      ...args
+    )
+  }
+  return instance.check(...args)
+}
+
 export interface CheckContext<D extends Definition> {
   path: RulesPaths<D> | SpecialPath<D> | null
   data?: unknown
+  allowed?: boolean
+  error?: unknown
 }
 
 export function createCheckContext<D extends Definition>(

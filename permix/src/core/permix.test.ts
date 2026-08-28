@@ -774,12 +774,13 @@ describe('deep rules', () => {
       })
 
       permix.check('post.create')
-      expect(fn).toHaveBeenCalledWith({ path: 'post.create' })
+      expect(fn).toHaveBeenCalledWith({ path: 'post.create', allowed: true })
 
       permix.check('post.edit', { authorId: '1' })
       expect(fn).toHaveBeenCalledWith({
         path: 'post.edit',
         data: { authorId: '1' },
+        allowed: true,
       })
     })
 
@@ -794,7 +795,7 @@ describe('deep rules', () => {
       permix.setup({ post: { create: true, read: false } })
 
       permix.check((c) => c('post.create') && c('post.read'))
-      expect(fn).toHaveBeenCalledWith({ path: null })
+      expect(fn).toHaveBeenCalledWith({ path: null, allowed: false })
     })
 
     it('should resolve isReadyAsync immediately if already ready', async () => {
@@ -847,6 +848,24 @@ describe('frozen rules', () => {
     expect(() => {
       live!.post.create = true
     }).toThrow()
+    expect(permix.check('post.create')).toBe(false)
+  })
+})
+
+describe('concurrent setup is not request-safe', () => {
+  // DIR-01 (immutable setup) will invert this: overlapping setup() on one
+  // instance currently last-write-wins. Adapters clone per request instead.
+  it('documents that overlapping setup() last-write-wins on a shared instance', async () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({ post: { create: true } })
+
+    const pending = Promise.resolve().then(() => permix.check('post.create'))
+    permix.setup({ post: { create: false } })
+
+    await expect(pending).resolves.toBe(false)
     expect(permix.check('post.create')).toBe(false)
   })
 })

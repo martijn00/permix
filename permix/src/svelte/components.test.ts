@@ -35,7 +35,7 @@ describe('components', () => {
     expect(getByTestId('create')).toHaveTextContent('true')
   })
 
-  it('uses dehydrated rules on the first render', () => {
+  it('uses dehydrated rules on the first render and rehydrates when state changes', async () => {
     const permixServer = createPermix<{
       post: ['create', 'read']
     }>()
@@ -52,12 +52,19 @@ describe('components', () => {
       post: ['create', 'read']
     }>()
 
-    const { getByTestId } = render(HydrateApp, {
+    const { getByTestId, rerender } = render(HydrateApp, {
       props: { permix: permixClient, state: dehydrated },
     })
 
     expect(getByTestId('create')).toHaveTextContent('true')
     expect(getByTestId('ready')).toHaveTextContent('false')
+
+    await rerender({
+      permix: permixClient,
+      state: { post: { create: false, read: false } },
+    })
+
+    expect(getByTestId('create')).toHaveTextContent('false')
   })
 
   it('should work with Check component', () => {

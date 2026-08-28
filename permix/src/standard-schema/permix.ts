@@ -1,5 +1,5 @@
 import type { Permix as PermixCore } from '../core'
-import { createPermix as createPermixCore } from '../core'
+import { createPermix as createPermixCore, notifyCheck } from '../core'
 import type { Action } from '../core/definitions'
 import type {
   InferStandardSchemaOutput,
@@ -297,7 +297,15 @@ export function createPermix<
   if (validate) {
     const originalCheck = permix.check.bind(permix)
     permix.check = (...args: Parameters<typeof permix.check>) =>
-      checkWithValidation(originalCheck, schemasByEntity, validate, args)
+      checkWithValidation(
+        originalCheck,
+        schemasByEntity,
+        validate,
+        args,
+        () => {
+          notifyCheck(permix, args, false)
+        }
+      )
   }
 
   return Object.assign(permix, { actions, entities, validate })

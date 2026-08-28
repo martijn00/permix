@@ -328,6 +328,24 @@ export interface Permix<D extends Definition> {
  * }>()
  * ```
  */
+const checkEmitters = new WeakMap<
+  object,
+  (args: CheckArgs<any>, allowed: boolean, error?: unknown) => void
+>()
+
+/**
+ * Fire the `check` hook on an instance without evaluating rules.
+ * Used when Standard Schema `validate: 'deny'` rejects the payload.
+ */
+export function notifyCheck(
+  instance: object,
+  args: readonly unknown[],
+  allowed: boolean,
+  error?: unknown
+): void {
+  checkEmitters.get(instance)?.(args as CheckArgs<any>, allowed, error)
+}
+
 export function createPermix<D extends Definition>(
   initialRules?: Rules<D>
 ): Permix<D> {
@@ -343,7 +361,21 @@ export function createPermix<D extends Definition>(
 
   const checkFn = createCheck<D>(() => rules)
 
-  return {
+  function emitCheck(
+    args: CheckArgs<D>,
+    allowed: boolean,
+    error?: unknown
+  ): void {
+    const context = createCheckContext<D>(...args)
+    hooks.callHook(
+      'check',
+      error === undefined
+        ? { ...context, allowed }
+        : { ...context, allowed, error }
+    )
+  }
+
+  const permix: Permix<D> = {
     setup(r) {
       rules = createRules<D>(r)
       hooks.callHook('setup')
@@ -354,9 +386,14 @@ export function createPermix<D extends Definition>(
       }
     },
     check(...args: CheckArgs<D>): boolean {
-      const context = createCheckContext<D>(...args)
-      hooks.callHook('check', context)
-      return checkFn(...args)
+      try {
+        const allowed = checkFn(...args)
+        emitCheck(args, allowed)
+        return allowed
+      } catch (error) {
+        emitCheck(args, false, error)
+        throw error
+      }
     },
     dehydrate() {
       if (!rules) {
@@ -379,4 +416,9 @@ export function createPermix<D extends Definition>(
     $inferDefinition: undefined as unknown as D,
     $inferPath: undefined as unknown as RulesPaths<D>,
   }
+
+  checkEmitters.set(permix, (args, allowed, error) => {
+    emitCheck(args as CheckArgs<D>, allowed, error)
+  })
+  return permix
 }

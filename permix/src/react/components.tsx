@@ -9,7 +9,7 @@ import type {
   Rules,
   RulesPaths,
 } from '../core'
-import { createCheck } from '../core'
+import { runCheck } from '../core'
 import type { PermixContext } from './hooks'
 import {
   Context,
@@ -178,7 +178,9 @@ export function createComponents<D extends Definition>(
     }
 
     const hasPermission = usePermixSelector(value, (snapshot) =>
-      createCheck<D>(snapshot.rules ?? permix.getRules())(
+      runCheck(
+        value.permix,
+        snapshot.rules,
         ...([path, data] as unknown as CheckArgs<D>)
       )
     )

@@ -195,4 +195,30 @@ describe('permix react', () => {
 
     expect(() => render(<TestComponent />)).toThrow()
   })
+
+  it('runs UI check through the instance so check hooks fire', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: { create: true },
+    })
+
+    const onCheck = vi.fn()
+    permix.hook('check', onCheck)
+
+    const { result } = renderHook(() => usePermix(permix), {
+      wrapper: ({ children }) => (
+        <PermixProvider permix={permix}>{children}</PermixProvider>
+      ),
+    })
+
+    expect(result.current.check('post.create')).toBe(true)
+    expect(onCheck).toHaveBeenCalledOnce()
+    expect(onCheck).toHaveBeenCalledWith({
+      path: 'post.create',
+      allowed: true,
+    })
+  })
 })

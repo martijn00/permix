@@ -17,7 +17,7 @@ pnpm check-types
 pnpm verify
 ```
 
-`pnpm verify` is the closest local equivalent of the main CI quality gate (format, lint, tests, types, and the library build).
+`pnpm verify` is the closest local equivalent of the main CI quality gate (format, lint, tests, types, and the library build). CI also runs `pnpm test` and `pnpm test:next` as separate jobs. Use `pnpm verify:full` to run `verify` plus the Next Playwright suite locally.
 
 Use focused branches. Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/):
 

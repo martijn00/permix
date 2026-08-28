@@ -58,7 +58,8 @@ export function checkWithValidation<D extends Definition>(
   check: (...args: CheckArgs<D>) => boolean,
   schemas: Map<string, StandardSchemaV1>,
   mode: ValidateMode,
-  args: CheckArgs<D>
+  args: CheckArgs<D>,
+  onDeny?: () => void
 ): boolean {
   const first = args[0]
 
@@ -82,6 +83,7 @@ export function checkWithValidation<D extends Definition>(
 
   const prepared = prepareCheckData(schemas, mode, first, args[1])
   if (prepared === DENY) {
+    onDeny?.()
     return false
   }
   if (prepared === SKIP) {
