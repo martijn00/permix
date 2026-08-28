@@ -289,4 +289,9 @@ There is no `setup`, `hook`, or `hookOnce` on the Next facade. Initialization is
 
 ## TanStack Start and other frameworks
 
-The client layer (`permix/react`) is framework-agnostic. For TanStack Start use [`permix/tanstack-start`](/docs/integrations/tanstack-start). For Nuxt, use [`permix/nuxt`](/docs/integrations/nuxt) on the server and `permix/vue` on the client. For other servers, create a core instance per request or use [`permix/node`](/docs/integrations/node), [`permix/express`](/docs/integrations/express), or [`permix/hono`](/docs/integrations/hono).
+The client layer (`permix/react`) is framework-agnostic. If you're using TanStack Start, React Router 7, or a custom React SSR setup, you can still use `permix/react` on the client. For the server side, either:
+
+- Use the dedicated [`permix/tanstack-start`](/docs/integrations/tanstack-start) or [`permix/react-router`](/docs/integrations/react-router) integration, which follow the same shape as `permix/next`, or
+- For Nuxt, use [`permix/nuxt`](/docs/integrations/nuxt) on the server and `permix/vue` on the client, or
+- Create a core Permix instance per request manually (see [Hydration guide](/docs/guide/hydration)), or
+- Use an existing server integration like [`permix/node`](/docs/integrations/node), [`permix/express`](/docs/integrations/express), or [`permix/hono`](/docs/integrations/hono) when applicable.

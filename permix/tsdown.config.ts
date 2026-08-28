@@ -25,6 +25,7 @@ export default defineConfig({
     './src/nuxt/index.ts',
     './src/tanstack-start/index.ts',
     './src/nest/index.ts',
+    './src/react-router/index.ts',
   ],
   dts: {
     build: true,

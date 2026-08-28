@@ -196,9 +196,9 @@ function App({
 
 Run client `permix.setup(...)` where you restore the session (e.g. after `PermixHydrate` mounts or in the same auth effect). `PermixHydrate` supplies dehydrated booleans on the first render without mutating the instance during render; the instance hydrates after commit. `isReady` stays `false` until client `setup()`.
 
-### Next.js / TanStack Start / Nuxt
+### Next.js / TanStack Start / Nuxt / React Router
 
-Use framework helpers from `permix/next`, `permix/tanstack-start`, or `permix/nuxt` when available — they wire dehydrate/hydrate into the framework data flow. Nuxt hydrates the client with `PermixProvider` / `PermixHydrate` from `permix/vue`.
+Use framework helpers from `permix/next`, `permix/tanstack-start`, `permix/nuxt`, or `permix/react-router` when available — they wire dehydrate/hydrate into the framework data flow. Nuxt hydrates the client with `PermixProvider` / `PermixHydrate` from `permix/vue`. React Router 7 covers Remix; there is no `permix/remix` export.
 
 **Next.js App Router (`permix/next`)** — `createPermix(resolveRules)` caches one initialized instance per request. Async Server Components `await getPermix()` / `await check()`. Non-async Server Components call `usePermix()` (React `use()`); `check()` is sync at the call site. Keep layouts/pages synchronous; put async permission/data work in feature components behind page-owned Suspense. Cookie/session checks stay out of the shared App Shell. `"use cache"` / `next/root-params` belong in the **app** resolver, not inside Permix. `"use cache: private"` payloads should check permission before loading data and return `null` when denied; `notFound()`/`redirect()` stay uncached. Client `check` is a UI hint. Route Handlers and Server Actions must `createPermix()` + `setup()` a core instance per invocation — they do not share RSC `cache()`.
 
@@ -211,6 +211,7 @@ Docs:
 - https://permix.letstri.dev/docs/integrations/next
 - https://permix.letstri.dev/docs/integrations/tanstack-start
 - https://permix.letstri.dev/docs/integrations/nuxt
+- https://permix.letstri.dev/docs/integrations/react-router
 
 ### Flow diagram
 
@@ -237,5 +238,6 @@ For static-only permissions (all booleans), dehydrate + hydrate + `setup` with t
 - Svelte: https://github.com/letstri/permix/tree/main/examples/svelte
 - Next.js (SSR): https://github.com/letstri/permix/tree/main/examples/next
 - Nuxt (SSR): https://github.com/letstri/permix/tree/main/examples/nuxt
+- React Router 7 (SSR): https://github.com/letstri/permix/tree/main/examples/react-router
 - Role templates: https://github.com/letstri/permix/tree/main/examples/role-based
 - ReBAC: https://github.com/letstri/permix/tree/main/examples/rebac

@@ -39,7 +39,8 @@ domains:
   - name: 'SSR and hydration'
     slug: ssr
     description: >
-      dehydrate/hydrate snapshots, PermixHydrate, Next.js, TanStack Start, and Nuxt wiring.
+      dehydrate/hydrate snapshots, PermixHydrate, Next.js, TanStack Start, Nuxt,
+      and React Router wiring.
 
 skills:
   - name: 'Getting started'
@@ -77,9 +78,9 @@ skills:
       Everything past initial setup: dot-path check, callback combinators,
       ~all/~any, entity-aware ReBAC rules, isReady/isReadyAsync;
       PermixProvider/usePermix/createComponents and SSR dehydrate/hydrate for
-      React, Vue, Solid, Svelte, Next.js, TanStack Start, Nuxt; setupMiddleware and
-      checkMiddleware for Express, Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia,
-      Astro.
+      React, Vue, Solid, Svelte, Next.js, TanStack Start, Nuxt, React Router;
+      setupMiddleware and checkMiddleware for Express, Hono, Fastify, NestJS,
+      tRPC, oRPC, Node, Elysia, Astro.
       Single skill with a thin SKILL.md router and three reference files
       loaded on demand.
     type: core
@@ -93,6 +94,7 @@ skills:
       - next
       - tanstack-start
       - nuxt
+      - react-router
       - express
       - hono
       - fastify
@@ -123,7 +125,7 @@ skills:
       - 'Wrap the app tree and hide actions based on permissions'
       - 'Integrate permix/react, permix/vue, permix/solid, or permix/svelte'
       - 'Pass permission booleans from server render to client'
-      - 'Wire permix/next, permix/tanstack-start, or permix/nuxt'
+      - 'Wire permix/next, permix/tanstack-start, permix/nuxt, or permix/react-router'
       - 'Protect HTTP or RPC routes on the server'
       - 'Derive rules from authenticated request context'
     references:
@@ -142,6 +144,7 @@ skills:
       - 'letstri/permix:docs/content/docs/integrations/next.mdx'
       - 'letstri/permix:docs/content/docs/integrations/tanstack-start.mdx'
       - 'letstri/permix:docs/content/docs/integrations/nuxt.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/react-router.mdx'
       - 'letstri/permix:docs/content/docs/integrations/express.mdx'
       - 'letstri/permix:docs/content/docs/integrations/hono.mdx'
       - 'letstri/permix:docs/content/docs/integrations/fastify.mdx'
@@ -162,6 +165,7 @@ coverage:
     - tanstack-start
     - nuxt
     - astro
+    - react-router
 
 failure_modes:
   - mistake: 'Using v3 { action, dataType } schema shape'
