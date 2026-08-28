@@ -1,8 +1,10 @@
+import type { InjectionKey, Ref } from 'vue'
 import { computed } from 'vue'
 
 import type { Definition, Permix } from '../core'
 import { runCheck, runExplain } from '../core'
-import { usePermixContext } from './context'
+import type { PermixContext } from './context'
+import { PERMIX_CONTEXT_KEY, usePermixContext } from './context'
 
 /**
  * Access Permix check and readiness state inside a Vue component.
@@ -10,9 +12,10 @@ import { usePermixContext } from './context'
  * @link https://permix.letstri.dev/docs/integrations/vue
  */
 export function usePermix<T extends Definition>(
-  _permix: Pick<Permix<T>, 'getRules' | 'check'>
+  _permix?: Pick<Permix<T>, 'getRules' | 'check'>,
+  key: InjectionKey<Ref<PermixContext<T>>> = PERMIX_CONTEXT_KEY
 ) {
-  const context = usePermixContext()
+  const context = usePermixContext(key)
 
   const check: Permix<T>['check'] = (...args) =>
     runCheck(context.value.permix, context.value.rules, ...args)

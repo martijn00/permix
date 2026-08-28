@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'solid-js'
+import type { Context as SolidContext } from 'solid-js'
 
 import type { Definition, Permix, Rules } from '../core'
 import { runCheck, runExplain } from '../core'
@@ -9,18 +10,26 @@ export interface PermixContext<T extends Definition> {
   readonly rules: Rules<T> | null
 }
 
+export function createPermixContext<D extends Definition>() {
+  return createContext<PermixContext<D> | null>(null)
+}
+
 export const Context = createContext<PermixContext<any>>(null!)
 
-export function usePermixContext() {
-  const context = useContext(Context)
+export function usePermixContext<D extends Definition = Definition>(
+  context?: SolidContext<PermixContext<D> | null>
+) {
+  const value = useContext(
+    context ?? (Context as SolidContext<PermixContext<D> | null>)
+  )
 
-  if (!context) {
+  if (!value) {
     throw new Error(
       '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
     )
   }
 
-  return context
+  return value
 }
 
 /**
@@ -29,15 +38,16 @@ export function usePermixContext() {
  * @link https://permix.letstri.dev/docs/integrations/solid
  */
 export function usePermix<T extends Definition>(
-  _permix: Pick<Permix<T>, 'getRules' | 'check'>
+  _permix?: Pick<Permix<T>, 'getRules' | 'check'>,
+  context?: SolidContext<PermixContext<T> | null>
 ) {
-  const context = usePermixContext()
+  const value = usePermixContext(context)
 
   const check: Permix<T>['check'] = (...args) =>
-    runCheck(context.permix, context.rules, ...args)
+    runCheck(value.permix, value.rules, ...args)
 
   const explain: Permix<T>['explain'] = (...args) =>
-    runExplain(context.permix, context.rules, ...args)
+    runExplain(value.permix, value.rules, ...args)
 
-  return { check, explain, isReady: () => context.isReady }
+  return { check, explain, isReady: () => value.isReady }
 }

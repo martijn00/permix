@@ -34,7 +34,9 @@ pnpm add permix
 
 ## 1. Define the permission schema (once)
 
-Create a shared module (e.g. `lib/permix.ts`). The generic on `createPermix<D>()` is the source of truth for all paths and rules.
+Prefer a generated catalog: mark paths with `permission()`, run `pnpm permix extract`, then `createPermix<Definition>()`. See the **permix** skill, `references/extraction.md`.
+
+Manual generics remain the escape hatch for dynamic keys. Create a shared module (e.g. `lib/permix.ts`).
 
 **Nested resources** (most common):
 

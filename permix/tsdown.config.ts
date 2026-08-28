@@ -22,7 +22,6 @@ export default defineConfig({
     './src/solid/index.ts',
     './src/effect/index.ts',
     './src/drizzle/index.ts',
-    './src/drizzle/legacy/index.ts',
     './src/standard-schema/index.ts',
     './src/next/index.ts',
     './src/nuxt/index.ts',

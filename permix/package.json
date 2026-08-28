@@ -115,10 +115,6 @@
       "types": "./dist/drizzle/index.d.mts",
       "import": "./dist/drizzle/index.mjs"
     },
-    "./drizzle/legacy": {
-      "types": "./dist/drizzle/legacy/index.d.mts",
-      "import": "./dist/drizzle/legacy/index.mjs"
-    },
     "./standard-schema": {
       "types": "./dist/standard-schema/index.d.mts",
       "import": "./dist/standard-schema/index.mjs"

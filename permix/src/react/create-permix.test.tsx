@@ -5,7 +5,6 @@ import '@testing-library/jest-dom/vitest'
 
 import { createPermix as createCore } from '../core'
 import { createPermix } from './create-permix'
-import { PermixProvider, usePermix } from './index'
 
 describe('react factory contexts', () => {
   it('creates a core instance and bound UI when called with a definition', () => {
@@ -170,31 +169,5 @@ describe('react factory contexts', () => {
     await waitFor(() => {
       expect(getByTestId('hydrate')).toHaveTextContent('true:true')
     })
-  })
-
-  it('throws in development when the singleton hook receives a different instance', () => {
-    const provided = createCore<{
-      post: ['read']
-    }>()
-    const other = createCore<{
-      post: ['read']
-    }>().setup({
-      post: {
-        read: true,
-      },
-    })
-
-    function Mismatch() {
-      const { check } = usePermix(other)
-      return <span>{check('post.read').toString()}</span>
-    }
-
-    expect(() =>
-      render(
-        <PermixProvider permix={provided}>
-          <Mismatch />
-        </PermixProvider>
-      )
-    ).toThrow(/same instance/)
   })
 })

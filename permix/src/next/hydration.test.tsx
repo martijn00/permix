@@ -2,7 +2,7 @@ import { render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createPermix as createCorePermix } from '../core'
-import { PermixHydrate, PermixProvider, usePermix } from '../react'
+import { createPermix as createReactPermix } from '../react'
 import { createPermix as createNextPermix } from './permix'
 import { resetRequestCache } from './request-cache-mock'
 import '@testing-library/jest-dom/vitest'
@@ -37,8 +37,11 @@ describe('next → react hydration round-trip', () => {
       post: ['create', 'read']
     }>()
 
+    const { PermixProvider, PermixHydrate, usePermix } =
+      createReactPermix(permixClient)
+
     function PostStatus() {
-      const { check } = usePermix(permixClient)
+      const { check } = usePermix()
       return (
         <div>
           <span data-testid="create">{String(check('post.create'))}</span>
@@ -48,7 +51,7 @@ describe('next → react hydration round-trip', () => {
     }
 
     const { getByTestId } = render(
-      <PermixProvider permix={permixClient}>
+      <PermixProvider>
         <PermixHydrate state={state}>
           <PostStatus />
         </PermixHydrate>

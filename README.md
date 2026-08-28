@@ -13,18 +13,30 @@ You can find the documentation [here](https://permix.letstri.dev).
 To quick start you only need to write the following code:
 
 ```ts
-import { createPermix } from 'permix'
+import { permission } from 'permix'
 
-const permix = createPermix<{
-  post: ['read']
-}>().setup({
-  post: {
-    read: true,
-  },
+export const canReadPost = permission({
+  key: 'post.read',
+  title: 'Read posts',
+})
+```
+
+```bash
+pnpm permix extract
+```
+
+```ts
+import { createPermix } from 'permix'
+import { type Definition, permissions } from './.permix/permissions'
+
+const permix = createPermix<Definition>().setup({
+  post: { read: true },
 })
 
-permix.check('post.read') // true
+permix.check(permissions.post.read) // true
 ```
+
+Mark paths with `permission()`, generate a typed catalog with `permix extract`, then pass `Definition` to `createPermix`. Manual generics (`createPermix<{ post: ['read'] }>()`) remain the escape hatch for dynamic keys.
 
 `setup()` returns a frozen instance and does not mutate the factory. On the server, stash that returned instance per request (`setupMiddleware`, or `createPermix<D>().setup(rules)` inside the request). Do not share one instance across concurrent requests.
 

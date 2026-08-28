@@ -36,6 +36,34 @@ When creating Permix, the goal was to simplify DX as much as possible without lo
 
 That is why you only need to write the following code to get started:
 
+```ts
+import { permission } from 'permix'
+
+export const canReadPost = permission({
+  key: 'post.read',
+  title: 'Read posts',
+})
+```
+
+```bash
+pnpm permix extract
+```
+
+```ts
+import { createPermix } from 'permix'
+import { type Definition, permissions } from './.permix/permissions'
+
+const permix = createPermix<Definition>().setup({
+  post: {
+    read: true,
+  },
+})
+
+const canRead = permix.check(permissions.post.read) // true
+```
+
+Mark paths with `permission()`, generate a typed catalog with `permix extract`, then pass `Definition` to `createPermix`. Manual generics stay as the escape hatch when keys are dynamic:
+
 ```ts twoslash
 import { createPermix } from 'permix'
 

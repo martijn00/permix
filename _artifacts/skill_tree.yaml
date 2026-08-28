@@ -39,8 +39,8 @@ skills:
     package: permix
     description: >
       check() dot paths, callbacks, ~all/~any, entity-aware ReBAC rules,
-      isReady/isReadyAsync; PermixProvider/usePermix/createComponents and SSR
-      dehydrate/hydrate for React, Vue, Solid, Svelte, Next.js, TanStack
+      isReady/isReadyAsync; factory createPermix from permix/react (vue/solid/svelte)
+      with bound Provider/usePermix/Check and SSR dehydrate/hydrate/install for React, Vue, Solid, Svelte, Next.js, TanStack
       Start, Nuxt, React Router; setupMiddleware/checkMiddleware for Express,
       Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia, Astro. Thin router with
       references loaded on demand.

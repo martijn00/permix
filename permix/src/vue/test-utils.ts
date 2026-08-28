@@ -2,7 +2,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
 
 import type { Permix } from '../core'
-import { PermixProvider } from './components'
+import { PermixProvider } from './provider'
 
 export function mountWithPermix(
   component: Parameters<typeof mount>[0],

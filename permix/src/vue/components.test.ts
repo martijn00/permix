@@ -2,8 +2,9 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import { createPermix, PermixRuleNotDefinedError } from '../core'
-import { createComponents, PermixHydrate, PermixProvider } from './components'
+import { createComponents } from './components'
 import { usePermix } from './composables'
+import { PermixHydrate, PermixProvider } from './provider'
 import { mountWithPermix } from './test-utils'
 
 describe('components', () => {

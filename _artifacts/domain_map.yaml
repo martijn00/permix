@@ -79,7 +79,7 @@ skills:
     description: >
       Everything past initial setup: dot-path check, callback combinators,
       ~all/~any, entity-aware ReBAC rules, isReady/isReadyAsync;
-      PermixProvider/usePermix/createComponents and SSR dehydrate/hydrate for
+      PermixProvider/usePermix/Check from createPermix() in permix/react (or vue/solid/svelte) and SSR dehydrate/hydrate/install for
       React, Vue, Solid, Svelte, Next.js, TanStack Start, Nuxt, React Router;
       setupMiddleware and checkMiddleware for Express, Hono, Fastify, NestJS,
       tRPC, oRPC, Node, Elysia, Astro.
@@ -113,10 +113,10 @@ skills:
       - "'~all' / '~any'"
       - PermixProvider
       - usePermix
-      - createComponents
       - Check component
       - dehydrate
       - hydrate
+      - install
       - PermixHydrate
       - setupMiddleware
       - checkMiddleware
@@ -197,8 +197,7 @@ failure_modes:
   - mistake: 'Relying on dehydrate alone for dynamic rules'
     impact: 'Function-based ReBAC checks wrong after SSR hydrate'
     correct_pattern: |
-      permix.hydrate(state)
-      permix.setup(clientRulesForUser)
+      permix.install({ dehydrated: state, rules: clientRulesForUser })
     source: 'letstri/permix:docs/content/docs/guide/hydration.mdx'
     priority: CRITICAL
     status: active

@@ -1,4 +1,4 @@
-export { createComponents, PermixHydrate, PermixProvider } from './components'
+export { createPermix } from './create-permix'
+export type { CreatePermixResult } from './create-permix'
 export type { CheckProps, PermixComponents } from './components'
-export { usePermix } from './composables'
 export type { PermixContext } from './context'

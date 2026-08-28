@@ -58,7 +58,9 @@ permix
 
 ### Create an instance
 
-To create a base instance, you need to provide a schema as a generic type to `createPermix` function that defines your permissions:
+Prefer a generated catalog: mark paths with `permission()`, run `pnpm permix extract`, then `createPermix<Definition>()`. See [Permission extraction](/docs/guide/extraction).
+
+Manual generics remain the escape hatch for dynamic keys:
 
 ```ts title="/lib/permix.ts"
 import { createPermix } from 'permix'

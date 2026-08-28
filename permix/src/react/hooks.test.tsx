@@ -3,7 +3,8 @@ import * as React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createPermix } from '../core'
-import { PermixProvider, usePermix } from './index'
+import { PermixProvider } from './components'
+import { usePermix } from './hooks'
 import '@testing-library/jest-dom/vitest'
 
 describe('permix react', () => {

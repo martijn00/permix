@@ -1,109 +1,101 @@
 {
-  "generatedAt": "2026-08-28T23:00:23.061Z",
+  "generatedAt": "2026-08-28T23:33:20.775Z",
   "measurements": {
     "core": {
-      "bytes": 4718,
-      "gzipBytes": 1867
-    },
-    "react-classic": {
-      "bytes": 6181,
-      "gzipBytes": 2422
+      "bytes": 4941,
+      "gzipBytes": 1937
     },
     "react-factory": {
-      "bytes": 7445,
-      "gzipBytes": 2805
+      "bytes": 7668,
+      "gzipBytes": 2876
     },
     "react-check": {
-      "bytes": 6107,
-      "gzipBytes": 2437
+      "bytes": 7697,
+      "gzipBytes": 2889
     },
     "vue": {
-      "bytes": 6455,
-      "gzipBytes": 2452
+      "bytes": 6950,
+      "gzipBytes": 2607
     },
     "solid": {
-      "bytes": 6014,
-      "gzipBytes": 2355
+      "bytes": 6667,
+      "gzipBytes": 2534
     },
     "svelte": {
-      "bytes": 5790,
-      "gzipBytes": 2283
+      "bytes": 7482,
+      "gzipBytes": 2759
     },
     "trpc": {
-      "bytes": 5764,
-      "gzipBytes": 2283
+      "bytes": 5987,
+      "gzipBytes": 2354
     },
     "orpc": {
-      "bytes": 5749,
-      "gzipBytes": 2275
+      "bytes": 5972,
+      "gzipBytes": 2346
     },
     "express": {
-      "bytes": 5872,
-      "gzipBytes": 2288
+      "bytes": 6521,
+      "gzipBytes": 2470
     },
     "hono": {
-      "bytes": 5852,
-      "gzipBytes": 2285
+      "bytes": 6402,
+      "gzipBytes": 2445
     },
     "node": {
-      "bytes": 5939,
-      "gzipBytes": 2332
+      "bytes": 6588,
+      "gzipBytes": 2515
     },
     "server": {
-      "bytes": 5885,
-      "gzipBytes": 2311
+      "bytes": 6534,
+      "gzipBytes": 2492
     },
     "astro": {
-      "bytes": 6095,
-      "gzipBytes": 2379
+      "bytes": 6318,
+      "gzipBytes": 2449
     },
     "elysia": {
-      "bytes": 5854,
-      "gzipBytes": 2262
+      "bytes": 6077,
+      "gzipBytes": 2332
     },
     "fastify": {
-      "bytes": 6045,
-      "gzipBytes": 2392
+      "bytes": 6268,
+      "gzipBytes": 2464
     },
     "drizzle": {
-      "bytes": 5172,
-      "gzipBytes": 2067
-    },
-    "drizzle-legacy": {
-      "bytes": 5199,
-      "gzipBytes": 2084
+      "bytes": 5430,
+      "gzipBytes": 2145
     },
     "standard-schema": {
-      "bytes": 7400,
-      "gzipBytes": 2786
+      "bytes": 7670,
+      "gzipBytes": 2873
     },
     "effect": {
-      "bytes": 5696,
-      "gzipBytes": 2202
+      "bytes": 5975,
+      "gzipBytes": 2289
     },
     "next": {
-      "bytes": 5140,
-      "gzipBytes": 1984
+      "bytes": 5363,
+      "gzipBytes": 2056
     },
     "next-config": {
       "bytes": 16118,
       "gzipBytes": 5605
     },
     "nuxt": {
-      "bytes": 5623,
-      "gzipBytes": 2177
+      "bytes": 5846,
+      "gzipBytes": 2250
     },
     "tanstack-start": {
-      "bytes": 6214,
-      "gzipBytes": 2393
+      "bytes": 6437,
+      "gzipBytes": 2462
     },
     "nest": {
-      "bytes": 6006,
-      "gzipBytes": 2365
+      "bytes": 6229,
+      "gzipBytes": 2436
     },
     "react-router": {
-      "bytes": 5963,
-      "gzipBytes": 2328
+      "bytes": 6186,
+      "gzipBytes": 2396
     },
     "extractor": {
       "bytes": 14640,

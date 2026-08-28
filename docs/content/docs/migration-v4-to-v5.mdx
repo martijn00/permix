@@ -50,10 +50,14 @@ Do not treat a module-level `createPermix()` factory as a request-scoped singlet
 ```ts
 const dehydrated = server.dehydrate()
 const client = createPermix<D>().hydrate(dehydrated) // isReady() === false
-const ready = client.setup(clientRules) // isReady() === true
+const ready = client.install({ rules: clientRules }) // isReady() === true
 ```
 
-UI providers subscribe to the factory's `setup` / `ready` hooks and swap the current instance. Prefer calling `setup()` so the provider can track the returned instance.
+`hydrate()` does **not** fire the `setup` hook. UI providers subscribe to `setup` / `ready` for function rules. Prefer `install({ dehydrated, rules })` as the client entry, with `PermixHydrate` for first-paint booleans.
+
+Vue, Solid, and Svelte use the same factory as React (`createPermix` from `permix/vue` etc.). Classic `usePermix(instance)` / `createComponents` / provider-from-raw-instance are gone.
+
+`permix/drizzle/legacy` is removed; use `permix/drizzle` with Drizzle v1.
 
 ## `explain()` (from v4.x)
 

@@ -78,6 +78,13 @@ export function createPermix<D extends Definition>(
     return Effect.map(Tag, (instance) => instance.hydrate(state))
   }
 
+  function install(options: {
+    dehydrated?: DehydratedState<D>
+    rules?: Rules<D>
+  }) {
+    return Effect.map(Tag, (instance) => instance.install(options))
+  }
+
   function isReady() {
     return Effect.map(Tag, (instance) => instance.isReady())
   }
@@ -120,6 +127,7 @@ export function createPermix<D extends Definition>(
     check,
     dehydrate,
     hydrate,
+    install,
     isReady,
     isReadyAsync,
     getRules,

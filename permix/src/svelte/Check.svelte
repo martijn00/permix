@@ -2,7 +2,7 @@
 import type { Snippet } from 'svelte'
 import type { CheckArgs, DataAtPath, Definition, RulesPaths } from '../core'
 import { runCheck } from '../core'
-import { usePermixContext } from './context.svelte'
+import { PERMIX_CONTEXT_KEY, usePermixContext } from './context.svelte'
 
 const {
   path,
@@ -10,15 +10,17 @@ const {
   reverse = false,
   children,
   otherwise,
+  contextKey = PERMIX_CONTEXT_KEY,
 }: {
   path: P
   data?: DataAtPath<D, P>[0]
   reverse?: boolean
   children: Snippet
   otherwise?: Snippet
+  contextKey?: symbol
 } = $props()
 
-const context = usePermixContext<D>()
+const context = usePermixContext<D>(contextKey)
 
 const hasPermission = $derived.by(() =>
   runCheck(

@@ -9,11 +9,18 @@ export interface PermixContext<T extends Definition> {
   rules: Rules<T> | null
 }
 
-const PERMIX_CONTEXT_KEY = Symbol('vue-permix') as InjectionKey<
+export const PERMIX_CONTEXT_KEY = Symbol('vue-permix') as InjectionKey<
   Ref<PermixContext<any>>
 >
 
-export function providePermixContext(permix: Permix<any>) {
+export function createPermixInjectionKey<D extends Definition>() {
+  return Symbol('vue-permix') as InjectionKey<Ref<PermixContext<D>>>
+}
+
+export function providePermixContext(
+  permix: Permix<any>,
+  key: InjectionKey<Ref<PermixContext<any>>> = PERMIX_CONTEXT_KEY
+) {
   if (!permix) {
     throw new Error(
       '[Permix]: Looks like you forgot to provide the permix instance to PermixProvider'
@@ -26,7 +33,7 @@ export function providePermixContext(permix: Permix<any>) {
     isReady: permix.isReady(),
   })
 
-  provide(PERMIX_CONTEXT_KEY, context)
+  provide(key, context)
 
   const setup = permix.hook('setup', (instance) => {
     context.value = {
@@ -50,8 +57,10 @@ export function providePermixContext(permix: Permix<any>) {
   }
 }
 
-export function usePermixContext<T extends Definition = any>() {
-  const context = inject(PERMIX_CONTEXT_KEY)
+export function usePermixContext<T extends Definition = any>(
+  key: InjectionKey<Ref<PermixContext<T>>> = PERMIX_CONTEXT_KEY
+) {
+  const context = inject(key)
 
   if (!context) {
     throw new Error(
@@ -59,5 +68,5 @@ export function usePermixContext<T extends Definition = any>() {
     )
   }
 
-  return context as Ref<PermixContext<T>>
+  return context
 }

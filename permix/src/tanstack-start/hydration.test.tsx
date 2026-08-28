@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ValidateDefinition } from '../core'
 import { createPermix as createCorePermix } from '../core'
-import { PermixHydrate, PermixProvider, usePermix } from '../react'
+import { createPermix as createReactPermix } from '../react'
 import { createPermix as createStartPermix } from './permix'
 import '@testing-library/jest-dom/vitest'
 
@@ -38,8 +38,11 @@ describe('tanstack-start → react hydration round-trip', () => {
     // Client: separate singleton + hydrate via the react integration.
     const permixClient = createCorePermix<PermissionsDefinition>()
 
+    const { PermixProvider, PermixHydrate, usePermix } =
+      createReactPermix(permixClient)
+
     function PostStatus() {
-      const { check } = usePermix(permixClient)
+      const { check } = usePermix()
       return (
         <div>
           <span data-testid="create">{String(check('post.create'))}</span>
@@ -49,7 +52,7 @@ describe('tanstack-start → react hydration round-trip', () => {
     }
 
     const { getByTestId } = render(
-      <PermixProvider permix={permixClient}>
+      <PermixProvider>
         <PermixHydrate state={state}>
           <PostStatus />
         </PermixHydrate>

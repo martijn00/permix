@@ -2,7 +2,8 @@ import { render, renderHook, waitFor } from '@solidjs/testing-library'
 import { describe, expect, it } from 'vitest'
 
 import { createPermix } from '../core'
-import { PermixProvider, usePermix } from './index'
+import { usePermix } from './hooks'
+import { PermixProvider } from './provider'
 import '@testing-library/jest-dom/vitest'
 
 describe('permix solid', () => {

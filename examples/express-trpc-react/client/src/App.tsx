@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react'
 import { getRules } from '@/shared/permix'
 import type { RouterOutput } from '@/shared/trpc'
 
-import { Check } from './components/permix'
 import { usePermissions } from './hooks/use-permissions'
-import { permix } from './permix'
+import { Check, permix } from './permix'
 import { trpc } from './trpc'
 
 export default function App() {

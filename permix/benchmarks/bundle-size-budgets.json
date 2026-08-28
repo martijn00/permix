@@ -5,12 +5,6 @@
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
-  "react-classic": {
-    "maxBytes": 6550,
-    "maxGzipBytes": 2650,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
-  },
   "react-factory": {
     "maxBytes": 8000,
     "maxGzipBytes": 3100,
@@ -18,28 +12,28 @@
     "maxDeltaGzipBytes": 150
   },
   "react-check": {
-    "maxBytes": 6500,
-    "maxGzipBytes": 2650,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
+    "maxBytes": 8900,
+    "maxGzipBytes": 3350,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
   },
   "vue": {
-    "maxBytes": 6950,
-    "maxGzipBytes": 2750,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
+    "maxBytes": 8000,
+    "maxGzipBytes": 3000,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
   },
   "solid": {
-    "maxBytes": 6450,
-    "maxGzipBytes": 2600,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
+    "maxBytes": 7700,
+    "maxGzipBytes": 2950,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
   },
   "svelte": {
-    "maxBytes": 6200,
-    "maxGzipBytes": 2550,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
+    "maxBytes": 8650,
+    "maxGzipBytes": 3200,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
   },
   "trpc": {
     "maxBytes": 6250,
@@ -54,26 +48,26 @@
     "maxDeltaGzipBytes": 100
   },
   "express": {
-    "maxBytes": 6350,
-    "maxGzipBytes": 2550,
+    "maxBytes": 7500,
+    "maxGzipBytes": 2850,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "hono": {
-    "maxBytes": 6350,
-    "maxGzipBytes": 2550,
+    "maxBytes": 7400,
+    "maxGzipBytes": 2850,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "node": {
-    "maxBytes": 6450,
-    "maxGzipBytes": 2600,
+    "maxBytes": 7600,
+    "maxGzipBytes": 2900,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "server": {
-    "maxBytes": 6350,
-    "maxGzipBytes": 2550,
+    "maxBytes": 7550,
+    "maxGzipBytes": 2900,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
@@ -96,12 +90,6 @@
     "maxDeltaGzipBytes": 100
   },
   "drizzle": {
-    "maxBytes": 5500,
-    "maxGzipBytes": 2300,
-    "maxDeltaBytes": 250,
-    "maxDeltaGzipBytes": 100
-  },
-  "drizzle-legacy": {
     "maxBytes": 5500,
     "maxGzipBytes": 2300,
     "maxDeltaBytes": 250,

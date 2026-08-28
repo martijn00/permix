@@ -1,15 +1,10 @@
 import type { Permix as PermixCore } from '../core'
-import {
-  createHooks,
-  createPermix as createPermixCore,
-  createTemplate,
-  PermixNotFoundError,
-  withDenialReasons,
-} from '../core'
+import { PermixNotFoundError, withDenialReasons } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+import type { Rules } from '../core/permix'
 import type { MaybePromise } from '../utils'
+import { createRequestKernel, propertyBagStore, withContextKey } from './kernel'
 
 export type NextFunction = () => MaybePromise<Response>
 
@@ -35,99 +30,6 @@ export interface PermixOptions<D extends Definition> {
   onForbidden?: (
     params: CheckContext<D> & MiddlewareContext
   ) => MaybePromise<Response>
-}
-
-function buildPermix<D extends Definition>(
-  resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {}
-) {
-  const onForbidden =
-    options.onForbidden ??
-    (() =>
-      new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      }))
-
-  const hooks = createHooks<PermixHooks<D>>()
-
-  function get(req: Request): PermixCore<D> | null {
-    const instance = (req as any)[resolveKey()] as PermixCore<D> | undefined
-    return instance ?? null
-  }
-
-  function getOrThrow(req: Request): PermixCore<D> {
-    const instance = get(req)
-    if (!instance) {
-      throw new PermixNotFoundError(resolveKey())
-    }
-    return instance
-  }
-
-  function setupMiddleware(
-    callbackOrRules:
-      | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
-      | Rules<D>
-  ): Middleware {
-    return async (req, next) => {
-      const rules =
-        typeof callbackOrRules === 'function'
-          ? await callbackOrRules({ req, next })
-          : callbackOrRules
-      const instance = createPermixCore<D>().setup(rules)
-      instance.hook('check', (context) => {
-        hooks.callHook('check', context)
-      })
-      ;(req as any)[resolveKey()] = instance
-      return await next()
-    }
-  }
-
-  const checkMiddleware: (...args: CheckArgs<D>) => Middleware =
-    (...args) =>
-    async (req, next) => {
-      const permix = get(req)
-
-      if (!permix) {
-        throw new PermixNotFoundError(resolveKey())
-      }
-
-      const allowed = permix.check(...args)
-
-      if (!allowed) {
-        return await onForbidden({
-          req,
-          next,
-          ...withDenialReasons(permix, args),
-        })
-      }
-
-      return await next()
-    }
-
-  function getRules(req: Request): Rules<D> | null {
-    return get(req)?.getRules() ?? null
-  }
-
-  function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules)
-  }
-
-  return {
-    setupMiddleware,
-    checkMiddleware,
-    template,
-    get,
-    getOrThrow,
-    getRules,
-    hook: hooks.hook,
-    hookOnce: hooks.hookOnce,
-    get key() {
-      return resolveKey()
-    },
-    $inferDefinition: undefined as unknown as D,
-    $inferPath: undefined as unknown as RulesPaths<D>,
-  }
 }
 
 /**
@@ -165,14 +67,84 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol('permix')
-  const permix = buildPermix<D>(() => key, options)
+  const onForbidden =
+    options.onForbidden ??
+    (() =>
+      new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      }))
 
-  return Object.assign(permix, {
-    contextKey(newKey: string | symbol) {
-      key = newKey
-      return permix
-    },
+  return withContextKey((resolveKey) => {
+    const kernel = createRequestKernel<D, Request>(
+      resolveKey,
+      propertyBagStore(resolveKey)
+    )
+
+    function get(req: Request): PermixCore<D> | null {
+      return kernel.get(req)
+    }
+
+    function getOrThrow(req: Request): PermixCore<D> {
+      return kernel.getOrThrow(req)
+    }
+
+    function getRules(req: Request): Rules<D> | null {
+      return kernel.getRules(req)
+    }
+
+    function setupMiddleware(
+      callbackOrRules:
+        | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
+        | Rules<D>
+    ): Middleware {
+      return async (req, next) => {
+        const rules =
+          typeof callbackOrRules === 'function'
+            ? await callbackOrRules({ req, next })
+            : callbackOrRules
+        kernel.attach(req, rules)
+        return await next()
+      }
+    }
+
+    const checkMiddleware: (...args: CheckArgs<D>) => Middleware =
+      (...args) =>
+      async (req, next) => {
+        const permix = get(req)
+
+        if (!permix) {
+          throw new PermixNotFoundError(resolveKey())
+        }
+
+        const allowed = permix.check(...args)
+
+        if (!allowed) {
+          return await onForbidden({
+            req,
+            next,
+            ...withDenialReasons(permix, args),
+          })
+        }
+
+        return await next()
+      }
+
+    return {
+      setupMiddleware,
+      checkMiddleware,
+      template: kernel.template,
+      get,
+      getOrThrow,
+      getRules,
+      hook: kernel.hook,
+      hookOnce: kernel.hookOnce,
+      get key() {
+        return kernel.key
+      },
+      $inferDefinition: kernel.$inferDefinition,
+      $inferPath: kernel.$inferPath,
+    }
   })
 }
 

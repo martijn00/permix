@@ -76,8 +76,7 @@ export interface DrizzlePermix<
  * `defineRelations(...)` objects, plain helpers, and other non-entity exports
  * are skipped automatically — pass `import * as schema` as-is.
  *
- * If you're still on Drizzle v0 (`drizzle-orm@<1`), import from
- * `permix/drizzle/legacy` instead.
+ * Requires Drizzle ORM v1 (`extractTablesFromSchema`).
  *
  * @example
  * ```ts
@@ -131,6 +130,9 @@ export function createPermix<
       },
       hydrate(state) {
         return decorate(instance.hydrate(state))
+      },
+      install(options) {
+        return decorate(instance.install(options))
       },
     }
   }

@@ -7,14 +7,7 @@ description: Auto-generate a Permix definition and CRUD rules from your Drizzle 
 
 Permix ships with a Drizzle integration that takes your existing Drizzle schema and produces a fully type-safe Permix instance with one permission entity per table. By default each table receives the four CRUD actions (`create`, `read`, `update`, `delete`), but the action list can be customised.
 
-Two entry points are exposed so you can choose the one that matches your installed Drizzle version:
-
-| Import path | Drizzle version | Notes |
-| --- | --- | --- |
-| `permix/drizzle` | **v1** (`>=1.0.0-rc`) | Uses Drizzle's official `extractTablesFromSchema` helper. Detects tables and views. |
-| `permix/drizzle/legacy` | **v0** (`>=0.30 <1`) | Detects tables only via `is(value, Table)`. |
-
-Both entry points expose the same API surface, so migrating between them is a one-line import change once you upgrade Drizzle.
+Import from `permix/drizzle`. It requires Drizzle ORM **v1** (`extractTablesFromSchema`) and detects tables and views.
 
 <Callout>
   Before getting started with the Drizzle integration, make sure you've
@@ -30,9 +23,7 @@ Both entry points expose the same API surface, so migrating between them is a on
 
 Define your Drizzle schema as usual, then create a Permix instance from it.
 
-### Drizzle v1
-
-```ts twoslash title="/lib/drizzle-v1.ts"
+```ts twoslash title="/lib/drizzle.ts"
 import { defineRelations } from 'drizzle-orm'
 import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { createPermix } from 'permix/drizzle'
@@ -67,44 +58,7 @@ permix.check('users.read') // true
 permix.check('posts.delete') // false
 ```
 
-### Drizzle v0
-
-```ts twoslash title="/lib/drizzle-legacy.ts"
-import { relations } from 'drizzle-orm/_relations'
-import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
-import { createPermix } from 'permix/drizzle/legacy'
-
-const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-})
-
-const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
-  title: text('title').notNull(),
-  authorId: integer('author_id')
-    .notNull()
-    .references(() => users.id),
-})
-
-const usersRelations = relations(users, ({ many }) => ({
-  posts: many(posts),
-}))
-
-const schema = { users, posts, usersRelations }
-
-const permix = createPermix(schema)
-
-permix.setup({
-  users: { create: true, read: true, update: false, delete: false },
-  posts: { create: true, read: true, update: true, delete: false },
-})
-
-permix.check('users.read') // true
-permix.check('posts.delete') // false
-```
-
-The returned instance is a regular Permix object, so every API you already know — `check`, `setup`, `template`, `dehydrate`, `hydrate`, `hook`, `isReady`, etc. — is available unchanged.
+The returned instance is a regular Permix object, so every API you already know — `check`, `setup`, `template`, `dehydrate`, `hydrate`, `install`, `hook`, `isReady`, etc. — is available unchanged.
 
 </Step>
 
@@ -149,8 +103,8 @@ permix.actions // readonly ['create', 'read', 'update', 'delete']
 
 ## Notes
 
-- **v1** detects both tables **and views** (via Drizzle's `extractTablesFromSchema`). **v0** detects tables only.
-- Both versions skip non-entity exports automatically, so `import * as schema` works as-is. In v1 a `defineRelations(...)` object is filtered out; in v0 the same is true of `relations(...)` calls.
+- Detects both tables **and views** via Drizzle's `extractTablesFromSchema`.
+- Non-entity exports are skipped automatically, so `import * as schema` works as-is (`defineRelations(...)` objects are filtered out).
 - Tables from any Drizzle dialect (`drizzle-orm/pg-core`, `drizzle-orm/mysql-core`, `drizzle-orm/sqlite-core`) are detected, so a single schema can mix dialects if needed.
-- Drizzle is declared as an optional peer dependency. You only need to install it if you plan to use a `permix/drizzle*` entry point.
+- Drizzle is declared as an optional peer dependency. You only need to install it if you plan to use `permix/drizzle`.
 - The permission keys default to the **schema export names**, not the SQL table names. If you exported `pgTable('app_users', { ... })` as `users`, you check `users.read`, not `app_users.read`.

@@ -1,10 +1,4 @@
-import { createPermix } from 'permix'
-import { createComponents } from 'permix/vue'
+import { createPermix } from 'permix/vue'
 
-export { PermixProvider, usePermix } from 'permix/vue'
-
-const permissions = createPermix<{ post: ['read'] }>({
-  post: { read: true },
-})
-
-export const components = createComponents(permissions)
+export const bindings = createPermix<{ post: ['read'] }>()
+bindings.permix.setup({ post: { read: true } })

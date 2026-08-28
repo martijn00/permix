@@ -1,14 +1,12 @@
 # Permix — frontend (React / Vue / Solid / Svelte)
 
-Pick the package subpath for your framework. Pattern is the same: one shared `permix` instance, call `setup` when the user is known, wrap the tree, check in components.
+Pick the package subpath for your framework. Pattern is the same: `createPermix` from `permix/<framework>` returns a factory plus bound Provider, `usePermix()`, `Check`, and `PermixHydrate`. Call `setup` / `install` when the user is known.
 
 Docs: https://permix.letstri.dev/docs/integrations/react
 
 ## React
 
-### Factory (recommended)
-
-Call `createPermix` from `permix/react` once at module scope — same name as `permix/next` and `permix/express`. It returns a Permix instance plus bound Provider, `usePermix`, `Check`, and `PermixHydrate` with an isolated context. Nested factories do not share state.
+Call `createPermix` from `permix/react` once at module scope — same name as `permix/next` and `permix/express`. Nested factories do not share state.
 
 ```ts
 import { createPermix } from 'permix/react'
@@ -50,87 +48,63 @@ Supports React 18 and React 19. Native `useEffectEvent` is used on React 19.2+; 
 ### Setup after auth
 
 ```ts
-// e.g. after session loads
 await loadUser()
-permix.setup(roleRulesFor(user))
-```
-
-### Compatible alternative
-
-`PermixProvider` with a `permix` prop, `usePermix(permix)`, and `createComponents(permix)` still work. Pass the **same** `permix` instance to the provider and the hook — in development a mismatch throws.
-
-```tsx
-import { PermixProvider, usePermix } from 'permix/react'
-import { permix } from './lib/permix'
-
-export function App() {
-  return (
-    <PermixProvider permix={permix}>
-      <Routes />
-    </PermixProvider>
-  )
-}
-
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
-
-```ts
-import { createComponents } from 'permix/react'
-
-export const { Check } = createComponents(permix)
+permix.install({ rules: roleRulesFor(user) })
 ```
 
 ### SSR
 
-Use `PermixHydrate` + call `setup` again on the client for function rules — see **SSR and hydration** below.
+Use `PermixHydrate` for first-paint booleans, then `install({ rules })` on the client for function rules — see **SSR and hydration** below.
 
 ## Vue
 
 Docs: https://permix.letstri.dev/docs/integrations/vue
 
-```vue
-<script setup lang="ts">
-import { PermixProvider } from 'permix/vue'
-import { permix } from './lib/permix'
-</script>
+```ts
+import { createPermix } from 'permix/vue'
 
-<template>
-  <PermixProvider :permix="permix">
-    <YourApp />
-  </PermixProvider>
-</template>
+export const { permix, PermixProvider, usePermix, Check } = createPermix<{
+  post: ['create', 'read']
+}>()
 ```
 
-Use `usePermix` from `permix/vue` (same `setup` / `check` / `isReady` flow as React).
+```ts
+import { PermixProvider } from './lib/permix'
+
+createApp({
+  components: { PermixProvider, App },
+  template: '<PermixProvider><App /></PermixProvider>',
+}).mount('#app')
+```
+
+`usePermix()` takes no instance argument. `isReady` is a computed ref.
 
 ## Solid
 
 Docs: https://permix.letstri.dev/docs/integrations/solid
 
-Provider + hooks from `permix/solid`; mirror the React steps above.
+Same factory from `permix/solid`. `isReady` is a function (`isReady()`).
 
 ## Svelte
 
 Docs: https://permix.letstri.dev/docs/integrations/svelte
 
-Requires Svelte 5. Provider + hooks from `permix/svelte`; mirror the React steps above.
+Requires Svelte 5. Same factory from `permix/svelte`.
 
 ```svelte
 <script lang="ts">
-  import { PermixProvider } from 'permix/svelte'
-  import { permix } from './lib/permix'
+  import { PermixProvider, usePermix } from '$lib/permix'
 
   let { children } = $props()
+  const permissions = usePermix()
 </script>
 
-<PermixProvider {permix}>
+<PermixProvider>
   {@render children()}
 </PermixProvider>
 ```
 
-`usePermix(permix)` returns `{ check, explain, isReady }` where `isReady` is a reactive getter — access it as `permissions.isReady` (don't destructure). `createComponents(permix)` returns a typed `Check` component that uses `children` / `otherwise` snippets.
+`isReady` is a reactive getter — access it as `permissions.isReady` (don't destructure).
 
 ## UX guidelines
 
@@ -164,14 +138,14 @@ permix.hydrate(state)
 
 Function-based rules are **lost** in JSON (dehydration calls functions with no data; missing required data → `false`).
 
-**Always call `setup` again on the client** with full rules (including closures):
+**Always call `install({ rules })` (or `setup`) again on the client** with full rules (including closures):
 
 ```ts
-permix.hydrate(serverState)
-permix.setup(clientRulesForUser) // restores functions + sets ready
+permix.hydrate(serverState) // booleans; does not fire setup
+permix.install({ rules: clientRulesForUser }) // restores functions + sets ready
 ```
 
-Skipping client `setup` after hydrate leaves dynamic/ReBAC checks wrong.
+Skipping client `install`/`setup` after hydrate leaves dynamic/ReBAC checks wrong. `hydrate()` does **not** fire the `setup` hook.
 
 ### React
 
@@ -194,7 +168,7 @@ function App({
 }
 ```
 
-Run client `permix.setup(...)` where you restore the session (e.g. after `PermixHydrate` mounts or in the same auth effect). `PermixHydrate` supplies dehydrated booleans on the first render without mutating the instance during render; the instance hydrates after commit. `isReady` stays `false` until client `setup()`.
+Run client `permix.install({ rules })` where you restore the session. `PermixHydrate` supplies dehydrated booleans on the first render. `isReady` stays `false` until client `setup()` / `install({ rules })`.
 
 ### Next.js / TanStack Start / Nuxt / React Router
 
@@ -217,18 +191,18 @@ Docs:
 
 ```text
 Server: setup(rules) → dehydrate() → send state
-Client: hydrate(state) → setup(fullRules) → isReady() → check() / usePermix
+Client: hydrate(state) → install({ rules: fullRules }) → isReady() → check() / usePermix
 ```
 
 ### Pitfalls
 
 | Issue | Cause |
 | --- | --- |
-| UI stuck not ready | `hydrate` without follow-up `setup` |
+| UI stuck not ready | `hydrate` without follow-up `install({ rules })` / `setup` |
 | Wrong dynamic checks | Relying on dehydrated booleans only |
 | Mismatch server/client | Different schemas or missing actions in client `setup` |
 
-For static-only permissions (all booleans), dehydrate + hydrate + `setup` with the same booleans is enough; still call `setup` to mark ready.
+For static-only permissions (all booleans), dehydrate + hydrate + `install({ rules })` with the same booleans is enough; still call `install`/`setup` to mark ready.
 
 ## Examples in the Permix repo
 

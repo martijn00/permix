@@ -92,6 +92,15 @@ export interface PermixHooks<D extends Definition = Definition> {
   check: (context: CheckContext<D>) => void
 }
 
+/**
+ * Options for {@link Permix.install}. At least one of `dehydrated` or
+ * `rules` is required.
+ */
+export interface InstallOptions<D extends Definition> {
+  dehydrated?: DehydratedState<D>
+  rules?: Rules<D>
+}
+
 export interface Permix<D extends Definition> {
   /**
    * Build a frozen instance with these rules. Does not mutate `this`.
@@ -165,17 +174,29 @@ export interface Permix<D extends Definition> {
    *
    * Returns a **new** frozen instance. Hydration restores only the serialized
    * booleans and **does not** mark that instance as ready: `isReady()` stays
-   * `false` until you `setup()` (which returns a ready instance). Gating on
-   * readiness surfaces a forgotten `setup()` instead of silently serving
-   * collapsed permissions.
+   * `false` until you `setup()` or `install({ rules })`. Boolean `check()`
+   * works on the returned instance (no `PermixNotReadyError`). Hydrate does
+   * **not** fire the `setup` hook — that is reserved for function rules.
    *
    * @example
    * ```ts
    * const client = permix.hydrate(serverState) // isReady() === false
-   * const ready = client.setup(clientRules)    // isReady() === true
+   * const ready = client.install({ rules: clientRules })
    * ```
    */
   hydrate: (state: DehydratedState<D>) => Permix<D>
+
+  /**
+   * One-shot client entry: attach dehydrated booleans and/or function rules.
+   *
+   * - `{ dehydrated }` — same as {@link Permix.hydrate} (`isReady()` stays false)
+   * - `{ rules }` — same as {@link Permix.setup} (ready instance)
+   * - `{ dehydrated, rules }` — function rules win; hydrate (or a UI
+   *   `PermixHydrate`) still supplies first-paint booleans
+   *
+   * Does not mutate `this`.
+   */
+  install: (options: InstallOptions<D>) => Permix<D>
 
   /**
    * Define reusable permission rules separate from `setup()`.
@@ -370,9 +391,29 @@ function createFrozenPermix<D extends Definition>(
       return dehydrateRules(rules) as DehydratedState<D>
     },
     hydrate(state) {
-      const next = createFrozenPermix(family, hydrateRules(state), false)
-      family.lifecycle.callHook('setup', next)
-      return next
+      return createFrozenPermix(family, hydrateRules(state), false)
+    },
+    install(options) {
+      if (options.rules !== undefined) {
+        const next = createFrozenPermix(
+          family,
+          createRules<D>(options.rules),
+          true
+        )
+        family.lifecycle.callHook('setup', next)
+        family.lifecycle.callHook('ready', next)
+        return next
+      }
+      if (options.dehydrated !== undefined) {
+        return createFrozenPermix(
+          family,
+          hydrateRules(options.dehydrated),
+          false
+        )
+      }
+      throw new TypeError(
+        '[Permix]: install() requires dehydrated and/or rules'
+      )
     },
     template(templateRules) {
       return createTemplate(templateRules)
@@ -406,8 +447,9 @@ function createFrozenPermix<D extends Definition>(
 }
 
 /**
- * Create a type-safe Permix factory. `setup(rules)` and `hydrate(state)`
- * return frozen instances and never mutate the factory.
+ * Create a type-safe Permix factory. `setup(rules)`, `hydrate(state)`, and
+ * `install({ dehydrated, rules })` return frozen instances and never mutate
+ * the factory.
  *
  * Passing initial rules is the same as `createPermix<D>().setup(rules)`.
  *

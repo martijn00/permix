@@ -46,10 +46,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootComponent() {
-  const { permix, state, session } = Route.useRouteContext()
+  const { state, session } = Route.useRouteContext()
 
   return (
-    <Providers permix={permix} state={state} session={session}>
+    <Providers state={state} session={session}>
       <Outlet />
     </Providers>
   )

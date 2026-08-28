@@ -9,17 +9,18 @@ Hydration is the process of converting server-side state into client-side state.
 
 <Callout type="warn">
   Note that function-based permissions will be converted to `false` during
-  dehydration since functions cannot be serialized to JSON. You should call
-  `setup` method on the client side after hydration to fully restore
-  function-based permissions.
+  dehydration since functions cannot be serialized to JSON. Call `install(
+  {rules})` (or `setup()`) on the client after hydration to restore
+  function-based permissions. `hydrate()` does not fire the `setup` hook.
 </Callout>
 
 ## Usage
 
-Permix provides two instance methods for handling hydration:
+Permix provides `dehydrate()`, `hydrate()`, and `install()`:
 
 - `dehydrate()` - Converts the current permissions state into a JSON-serializable format
-- `hydrate(state)` - Restores permissions from a previously dehydrated state
+- `hydrate(state)` - Restores booleans from a previously dehydrated state (`isReady()` stays false; no `setup` hook)
+- `install({ dehydrated, rules })` - One-shot client entry: dehydrated booleans and/or function rules
 
 ```ts twoslash
 import { createPermix } from 'permix'

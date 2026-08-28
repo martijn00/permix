@@ -43,7 +43,7 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 | --- | --- |
 | `permix.check()` paths, callbacks, `~all`/`~any`, `explain()`, ReBAC/ABAC with entity data, `isReady` | [references/check.md](references/check.md) |
 | Generate typed permission constants, metadata, and a `Definition` from source markers | [references/extraction.md](references/extraction.md) |
-| React, Vue, Solid, or Svelte UI — `createPermix` from `permix/react` (or `PermixProvider` / `usePermix` / `createComponents`), SSR `dehydrate`/`hydrate` for Next.js / TanStack Start / Nuxt / React Router | [references/frontend.md](references/frontend.md) |
+| React, Vue, Solid, or Svelte UI — `createPermix` from `permix/react` (or vue/solid/svelte); factory-bound Provider / `usePermix()` / `Check`; SSR `dehydrate`/`hydrate`/`install` for Next.js / TanStack Start / Nuxt / React Router | [references/frontend.md](references/frontend.md) |
 | Protecting Express, Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia, or Astro routes — `setupMiddleware`, `checkMiddleware`, or Nest `guard` / `@Check` | [references/server.md](references/server.md) |
 
 ## Rules that apply everywhere
@@ -52,4 +52,4 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 - **Use the same schema and path strings** (`post.update`, not ad-hoc strings) across client hooks and server middleware, or types and behavior drift apart.
 - **`check` before `isReady`** throws `PermixNotReadyError` — gate UI with `isReady`/`isReadyAsync`, and call `setupMiddleware` before `checkMiddleware` on the server.
 - **`setup()` / `hydrate()` return frozen instances.** They never mutate the factory. Stash the returned instance. Core `setup()` on a module singleton is not how you isolate requests — use adapter `setupMiddleware` (or `createPermix<D>().setup(rules)` per request).
-- **SSR `hydrate` alone is not enough.** It only restores booleans; call `setup` again on the client for function-based/ReBAC rules — see the SSR section of [references/frontend.md](references/frontend.md).
+- **SSR `hydrate` alone is not enough.** It only restores booleans and does **not** fire the `setup` hook. Call `install({ rules })` (or `setup`) on the client for function-based/ReBAC rules — see the SSR section of [references/frontend.md](references/frontend.md).

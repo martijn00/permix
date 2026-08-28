@@ -8,9 +8,9 @@ description: Learn how to use the `isReady()` method to check if permissions are
 Sometimes you need to know when permissions are ready to use. For example, you might want to wait for permissions to be ready before rendering a component. That's where the `isReady()` and `isReadyAsync()` methods come in.
 
 <Callout type="warn">
-  `hydrate()` alone does **not** make the instance ready. You must call
-  `setup()` after hydration to restore function-based rules and mark the
-  instance as ready.
+  `hydrate()` alone does **not** make the instance ready. Call `install({rules}
+  )` or `setup()` after hydration to restore function-based rules and mark the
+  instance as ready. Boolean `check()` still works on a hydrated instance.
 </Callout>
 
 ## Usage
@@ -91,18 +91,18 @@ const clientPermix = createPermix<{
 clientPermix.hydrate(state)
 
 console.log(clientPermix.isReady()) // false
-// Boolean rules from hydration work immediately:
 console.log(clientPermix.check('post.read')) // false
 
-// Restore function-based rules and mark the instance ready
-clientPermix.setup({
-  post: {
-    read: (post) => !!post?.isPublic,
+const ready = clientPermix.install({
+  rules: {
+    post: {
+      read: (post) => !!post?.isPublic,
+    },
   },
 })
 
-console.log(clientPermix.isReady()) // true
-console.log(clientPermix.check('post.read', { isPublic: true })) // true
+console.log(ready.isReady()) // true
+console.log(ready.check('post.read', { isPublic: true })) // true
 ```
 
 <Callout>

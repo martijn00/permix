@@ -110,7 +110,7 @@ app.get('/posts/:id', (req, res) => {
 | Astro | `permix/astro` |
 | Elysia | `permix/elysia` |
 | Effect | `permix/effect` — see integration docs |
-| Drizzle ORM | `permix/drizzle` (and `permix/drizzle/legacy`) — see integration docs |
+| Drizzle ORM | `permix/drizzle` — see integration docs |
 | Standard Schema | `permix/standard-schema` — Zod/Valibot entity types; see integration docs |
 
 Use the same `D` schema shape as the client instance.

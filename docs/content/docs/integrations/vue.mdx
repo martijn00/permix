@@ -5,7 +5,7 @@ description: Learn how to use Permix with Vue applications
 
 ## Overview
 
-Permix provides official Vue integration through the `PermixProvider` component and `usePermix` composable. This allows you to manage permissions reactively in your Vue app.
+Permix provides official Vue integration through `createPermix` from `permix/vue`. Same factory name as `permix/react` and `permix/express`: it returns a Permix instance plus isolated `PermixProvider`, `usePermix`, `Check`, and `PermixHydrate` bindings.
 
 <Callout>
   Before getting started with Vue integration, make sure you've completed the
@@ -18,43 +18,31 @@ Permix provides official Vue integration through the `PermixProvider` component 
 
 ## Setup
 
-First, wrap your application with the `PermixProvider`:
+Call `createPermix` once at module scope:
 
-```vue title="App.vue"
-<script setup lang="ts">
-import { PermixProvider } from 'permix/vue'
-import { permix } from './lib/permix'
-import YourApp from './YourApp.vue'
-</script>
+```ts title="lib/permix.ts"
+import { createPermix } from 'permix/vue'
 
-<template>
-  <PermixProvider :permix="permix">
-    <YourApp />
-  </PermixProvider>
-</template>
+export const { permix, PermixProvider, PermixHydrate, usePermix, Check } =
+  createPermix<{
+    post: ['create', 'read', { name: 'edit'; type: Post }]
+  }>()
 ```
 
-You can also register the provider from `main.ts`:
+Wrap the tree with the bound provider. It does not take a `permix` prop:
 
 ```ts title="main.ts"
 import { createApp } from 'vue'
-import { PermixProvider } from 'permix/vue'
-import { permix } from './lib/permix'
 import App from './App.vue'
+import { PermixProvider } from './lib/permix'
 
 createApp({
   components: { PermixProvider, App },
-  template: '<PermixProvider :permix="permix"><App /></PermixProvider>',
-  setup() {
-    return { permix }
-  },
+  template: '<PermixProvider><App /></PermixProvider>',
 }).mount('#app')
 ```
 
-<Callout>
-  Remember to always pass the same Permix instance to both the `PermixProvider`
-  and `usePermix` composable to maintain type safety.
-</Callout>
+Each `createPermix` call gets its own Vue inject key, so nested factories stay independent.
 
 </Step>
 
@@ -62,84 +50,22 @@ createApp({
 
 ## Composable
 
-For checking permissions in your components, you can use the `usePermix` composable. And to avoid importing the composable and Permix instance in every component, you can create a custom composable:
-
-```ts title="composables/use-permissions.ts"
-import { usePermix } from 'permix/vue'
-import { permix } from './lib/permix'
-
-export function usePermissions() {
-  return usePermix(permix)
-}
-```
-
-</Step>
-
-<Step>
-
-## Components
-
-If you prefer using components, you can import the `createComponents` function from `permix/vue` and create checking components:
-
-```ts title="lib/permix.ts"
-import { createComponents } from 'permix/vue'
-
-// ...
-
-export const { Check } = createComponents(permix)
-```
-
-And then you can use the `Check` component in your templates:
-
-```vue title="page.vue"
-<template>
-  <!--
-    reverse: Will flip the logic of the permission check
-    otherwise: Will show this if a user doesn't have permission
-  -->
-  <Check path="entity.action" :data="data" reverse>
-    Will show this if a user has permission
-    <template #otherwise>
-      Will show this if a user doesn't have permission
-    </template>
-  </Check>
-</template>
-```
-
-</Step>
-
-<Step>
-
-## Usage
-
-Use the `usePermix` composable in your components to check permissions:
+`usePermix()` from the factory does not take an instance argument:
 
 ```vue title="page.vue"
 <script setup lang="ts">
-import { usePermix } from 'permix/vue'
-import { permix, Check } from './lib/permix'
+import { usePermix, Check } from './lib/permix'
 
-const props = defineProps<{
-  post: Post
-}>()
+const post = usePost()
+const { check, explain, isReady } = usePermix()
 
-const { check, explain, isReady } = usePermix(permix)
+const canEdit = check('post.edit', post)
 </script>
 
 <template>
-  <div>
-    <div v-if="!isReady">Loading permissions...</div>
-    <template v-else>
-      <button v-if="check('post.edit', props.post)">Edit Post</button>
-      <p v-else>You don't have permission to edit this post</p>
-    </template>
-    <Check path="post.edit" :data="props.post">
-      Can I edit this post?
-      <template #otherwise>
-        You don't have permission to edit this post
-      </template>
-    </Check>
-  </div>
+  <div v-if="!isReady">Loading permissions...</div>
+  <button v-else-if="canEdit">Edit Post</button>
+  <Check path="post.create">Can I create a post?</Check>
 </template>
 ```
 
@@ -149,35 +75,31 @@ const { check, explain, isReady } = usePermix(permix)
 
 ## Hydration
 
-For SSR applications, use `PermixHydrate` to restore dehydrated server state on the client. `hydrate()` does not mark the instance ready and cannot restore function-based rules — call `setup()` on the client with the full rule set (usually in the same place you restore the session):
+For SSR, use the bound `PermixHydrate` for first-paint booleans, then `install({ rules })` (or `setup()`) on the client to attach function rules:
 
 ```vue title="App.vue"
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import type { DehydratedState } from 'permix'
-import { PermixHydrate, PermixProvider } from 'permix/vue'
-import { permix } from './lib/permix'
+import { permix, PermixHydrate, PermixProvider } from './lib/permix'
 import { getClientRules } from './lib/permissions'
 
-const props = defineProps<{
-  dehydratedState: DehydratedState<any>
-}>()
+const { dehydratedState } = defineProps<{ dehydratedState: unknown }>()
 
 onMounted(() => {
-  permix.setup(getClientRules())
+  permix.install({ rules: getClientRules() })
 })
 </script>
 
 <template>
-  <PermixProvider :permix="permix">
+  <PermixProvider>
     <PermixHydrate :state="dehydratedState">
-      <YourApp />
+      <slot />
     </PermixHydrate>
   </PermixProvider>
 </template>
 ```
 
-See the [Hydration guide](/docs/guide/hydration).
+See the [Hydration guide](/docs/guide/hydration). `isReady` stays `false` until you call `setup()` / `install({ rules })`.
 
 </Step>
 

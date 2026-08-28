@@ -1,10 +1,6 @@
-import { createPermix } from 'permix'
-import { createComponents } from 'permix/react'
+import { createPermix } from 'permix/react'
 
-export { PermixProvider } from 'permix/react'
+export const bindings = createPermix<{ post: ['read'] }>()
+bindings.permix.setup({ post: { read: true } })
 
-const permissions = createPermix<{ post: ['read'] }>({
-  post: { read: true },
-})
-
-export const { Check } = createComponents(permissions)
+export const { Check } = bindings

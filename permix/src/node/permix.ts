@@ -1,16 +1,15 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import type { Permix as PermixCore } from '../core'
-import {
-  createHooks,
-  createPermix as createPermixCore,
-  createTemplate,
-  PermixNotFoundError,
-  withDenialReasons,
-} from '../core'
+import { PermixNotFoundError, withDenialReasons } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
-import type { PermixHooks, Rules, RulesPaths } from '../core/permix'
+import type { Rules } from '../core/permix'
+import {
+  createRequestKernel,
+  propertyBagStore,
+  withContextKey,
+} from '../server/kernel'
 import type { MaybePromise } from '../utils'
 
 type NextFunction = (err?: unknown) => void
@@ -35,110 +34,6 @@ export interface PermixOptions<D extends Definition> {
   onForbidden?: (
     params: CheckContext<D> & MiddlewareContext
   ) => MaybePromise<void>
-}
-
-function buildPermix<D extends Definition>(
-  resolveKey: () => string | symbol,
-  options: PermixOptions<D> = {}
-) {
-  const onForbidden =
-    options.onForbidden ??
-    (({ res }) => {
-      res.statusCode = 403
-      res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify({ error: 'Forbidden' }))
-    })
-
-  const hooks = createHooks<PermixHooks<D>>()
-
-  function get(req: IncomingMessage): PermixCore<D> | null {
-    const instance = (req as any)[resolveKey()] as PermixCore<D> | undefined
-    return instance ?? null
-  }
-
-  function getOrThrow(req: IncomingMessage): PermixCore<D> {
-    const instance = get(req)
-    if (!instance) {
-      throw new PermixNotFoundError(resolveKey())
-    }
-    return instance
-  }
-
-  function setupMiddleware(
-    callbackOrRules:
-      | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
-      | Rules<D>
-  ): Handler {
-    return async (req, res, next) => {
-      try {
-        const rules =
-          typeof callbackOrRules === 'function'
-            ? await callbackOrRules({ req, res, next })
-            : callbackOrRules
-        const instance = createPermixCore<D>().setup(rules)
-        instance.hook('check', (context) => {
-          hooks.callHook('check', context)
-        })
-        ;(req as any)[resolveKey()] = instance
-        next()
-      } catch (error) {
-        next(error)
-      }
-    }
-  }
-
-  const checkMiddleware: (...args: CheckArgs<D>) => Handler =
-    (...args) =>
-    async (req, res, next) => {
-      try {
-        const permix = get(req)
-
-        if (!permix) {
-          next(new PermixNotFoundError(resolveKey()))
-          return
-        }
-
-        const allowed = permix.check(...args)
-
-        if (!allowed) {
-          await onForbidden({
-            req,
-            res,
-            next,
-            ...withDenialReasons(permix, args),
-          })
-          return
-        }
-
-        next()
-      } catch (error) {
-        next(error)
-      }
-    }
-
-  function getRules(req: IncomingMessage): Rules<D> | null {
-    return get(req)?.getRules() ?? null
-  }
-
-  function template<T = void>(rules: Rules<D> | ((param: T) => Rules<D>)) {
-    return createTemplate<D, T>(rules)
-  }
-
-  return {
-    setupMiddleware,
-    checkMiddleware,
-    template,
-    get,
-    getOrThrow,
-    getRules,
-    hook: hooks.hook,
-    hookOnce: hooks.hookOnce,
-    get key() {
-      return resolveKey()
-    },
-    $inferDefinition: undefined as unknown as D,
-    $inferPath: undefined as unknown as RulesPaths<D>,
-  }
 }
 
 /**
@@ -172,14 +67,95 @@ function buildPermix<D extends Definition>(
 export function createPermix<D extends Definition>(
   options: PermixOptions<D> = {}
 ) {
-  let key: string | symbol = Symbol('permix')
-  const permix = buildPermix<D>(() => key, options)
+  const onForbidden =
+    options.onForbidden ??
+    (({ res }) => {
+      res.statusCode = 403
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: 'Forbidden' }))
+    })
 
-  return Object.assign(permix, {
-    contextKey(newKey: string | symbol) {
-      key = newKey
-      return permix
-    },
+  return withContextKey((resolveKey) => {
+    const kernel = createRequestKernel<D, IncomingMessage>(
+      resolveKey,
+      propertyBagStore(resolveKey)
+    )
+
+    function get(req: IncomingMessage): PermixCore<D> | null {
+      return kernel.get(req)
+    }
+
+    function getOrThrow(req: IncomingMessage): PermixCore<D> {
+      return kernel.getOrThrow(req)
+    }
+
+    function getRules(req: IncomingMessage): Rules<D> | null {
+      return kernel.getRules(req)
+    }
+
+    function setupMiddleware(
+      callbackOrRules:
+        | ((context: MiddlewareContext) => MaybePromise<Rules<D>>)
+        | Rules<D>
+    ): Handler {
+      return async (req, res, next) => {
+        try {
+          const rules =
+            typeof callbackOrRules === 'function'
+              ? await callbackOrRules({ req, res, next })
+              : callbackOrRules
+          kernel.attach(req, rules)
+          next()
+        } catch (error) {
+          next(error)
+        }
+      }
+    }
+
+    const checkMiddleware: (...args: CheckArgs<D>) => Handler =
+      (...args) =>
+      async (req, res, next) => {
+        try {
+          const permix = get(req)
+
+          if (!permix) {
+            next(new PermixNotFoundError(resolveKey()))
+            return
+          }
+
+          const allowed = permix.check(...args)
+
+          if (!allowed) {
+            await onForbidden({
+              req,
+              res,
+              next,
+              ...withDenialReasons(permix, args),
+            })
+            return
+          }
+
+          next()
+        } catch (error) {
+          next(error)
+        }
+      }
+
+    return {
+      setupMiddleware,
+      checkMiddleware,
+      template: kernel.template,
+      get,
+      getOrThrow,
+      getRules,
+      hook: kernel.hook,
+      hookOnce: kernel.hookOnce,
+      get key() {
+        return kernel.key
+      },
+      $inferDefinition: kernel.$inferDefinition,
+      $inferPath: kernel.$inferPath,
+    }
   })
 }
 

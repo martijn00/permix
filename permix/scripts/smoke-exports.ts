@@ -5,11 +5,14 @@ const entrypoints = [
   ['./express', await import('permix/express'), ['createPermix']],
   ['./hono', await import('permix/hono'), ['createPermix']],
   ['./node', await import('permix/node'), ['createPermix']],
-  ['./server', await import('permix/server'), ['createPermix']],
+  [
+    './server',
+    await import('permix/server'),
+    ['createPermix', 'createRequestKernel'],
+  ],
   ['./elysia', await import('permix/elysia'), ['createPermix']],
   ['./fastify', await import('permix/fastify'), ['createPermix']],
   ['./drizzle', await import('permix/drizzle'), ['createPermix']],
-  ['./drizzle/legacy', await import('permix/drizzle/legacy'), ['createPermix']],
   ['./effect', await import('permix/effect'), ['createPermix']],
   [
     './extractor',

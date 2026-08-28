@@ -42,12 +42,6 @@ export interface PackageManifest {
 export const BUNDLE_CASES: readonly BundleCase[] = [
   { name: 'core', subpath: '.', platform: 'browser', fixture: 'core.ts' },
   {
-    name: 'react-classic',
-    subpath: './react',
-    platform: 'browser',
-    fixture: 'react-classic.ts',
-  },
-  {
     name: 'react-factory',
     subpath: './react',
     platform: 'browser',
@@ -106,12 +100,6 @@ export const BUNDLE_CASES: readonly BundleCase[] = [
     subpath: './drizzle',
     platform: 'node',
     fixture: 'drizzle.ts',
-  },
-  {
-    name: 'drizzle-legacy',
-    subpath: './drizzle/legacy',
-    platform: 'node',
-    fixture: 'drizzle-legacy.ts',
   },
   {
     name: 'standard-schema',

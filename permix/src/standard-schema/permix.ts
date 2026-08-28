@@ -295,6 +295,7 @@ export function createPermix<
   function decorate(instance: PermixCore<D>): StandardSchemaPermix<M, Actions> {
     const originalSetup = instance.setup.bind(instance)
     const originalHydrate = instance.hydrate.bind(instance)
+    const originalInstall = instance.install.bind(instance)
     const originalCheck = instance.check.bind(instance)
     const originalExplain = instance.explain.bind(instance)
 
@@ -308,6 +309,9 @@ export function createPermix<
       },
       hydrate(state) {
         return decorate(originalHydrate(state))
+      },
+      install(options) {
+        return decorate(originalInstall(options))
       },
       check: validate
         ? (...args: Parameters<typeof instance.check>) =>

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import { createPermix } from '../core'
-import { PermixProvider } from './components'
+import { PermixProvider } from './provider'
 
 describe('permix vue provider', () => {
   it('should throw an error if permix instance is not provided', () => {

@@ -2,8 +2,9 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, it } from 'vitest'
 
 import { createPermix, PermixRuleNotDefinedError } from '../core'
-import { createComponents, PermixHydrate, PermixProvider } from './components'
+import { createComponents } from './components'
 import { usePermix } from './hooks'
+import { PermixHydrate, PermixProvider } from './provider'
 import '@testing-library/jest-dom/vitest'
 
 describe('components', () => {

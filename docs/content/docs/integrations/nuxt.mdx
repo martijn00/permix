@@ -124,20 +124,20 @@ You can also reach the underlying core instance through `permix.get(event)` if y
 
 Use `dehydrate()` to serialize the request's permissions and hand them to a client provider. The server cannot send the Permix instance itself across the boundary — only the JSON state.
 
-`permix/nuxt` is **server-only**. Create a client singleton with core `permix` and wrap the app with `PermixProvider` + `PermixHydrate` from `permix/vue`. Dehydrate in a server plugin so the client bundle never imports `h3`:
+`permix/nuxt` is **server-only**. Create a client factory with `permix/vue` and wrap the app with the bound `PermixProvider` + `PermixHydrate`. Dehydrate in a server plugin so the client bundle never imports `h3`:
 
 ```ts title="lib/permix-client.ts"
-import { createPermix } from 'permix'
+import { createPermix } from 'permix/vue'
 
-// One singleton per browser tab. The same type definition as on the server.
-export const permix = createPermix<{
-  post: [
-    { name: 'create'; type: { id: string; authorId: string } },
-    { name: 'read'; type: { id: string; authorId: string } },
-    { name: 'update'; type: { id: string; authorId: string } },
-    { name: 'delete'; type: { id: string; authorId: string } },
-  ]
-}>()
+export const { permix, PermixProvider, PermixHydrate, usePermix, Check } =
+  createPermix<{
+    post: [
+      { name: 'create'; type: { id: string; authorId: string } },
+      { name: 'read'; type: { id: string; authorId: string } },
+      { name: 'update'; type: { id: string; authorId: string } },
+      { name: 'delete'; type: { id: string; authorId: string } },
+    ]
+  }>()
 ```
 
 ```ts title="plugins/permix.server.ts"
@@ -151,14 +151,13 @@ export default defineNuxtPlugin(() => {
 
 ```vue title="app.vue"
 <script setup lang="ts">
-import { PermixHydrate, PermixProvider } from 'permix/vue'
-import { permix } from '~/lib/permix-client'
+import { PermixHydrate, PermixProvider } from '~/lib/permix-client'
 
 const state = useState('permix-state')
 </script>
 
 <template>
-  <PermixProvider :permix="permix">
+  <PermixProvider>
     <PermixHydrate v-if="state" :state="state">
       <NuxtPage />
     </PermixHydrate>
@@ -181,18 +180,17 @@ const state = useState('permix-state')
 
 ## Use on the client
 
-From any Vue component, import the client singleton and `usePermix` from `permix/vue`:
+From any Vue component, import the factory-bound `usePermix` from your `createPermix` module:
 
 ```vue title="components/EditButton.vue"
 <script setup lang="ts">
-import { usePermix } from 'permix/vue'
-import { permix } from '~/lib/permix-client'
+import { usePermix } from '~/lib/permix-client'
 
 defineProps<{
   post: { id: string; authorId: string }
 }>()
 
-const { check } = usePermix(permix)
+const { check } = usePermix()
 </script>
 
 <template>
@@ -200,7 +198,7 @@ const { check } = usePermix(permix)
 </template>
 ```
 
-If you prefer the component API, create checkers with `createComponents` from `permix/vue` — see the [Vue integration](/docs/integrations/vue#components) for details.
+If you prefer the component API, use `Check` from `createPermix` in `permix/vue` — see the [Vue integration](/docs/integrations/vue).
 
 </Step>
 

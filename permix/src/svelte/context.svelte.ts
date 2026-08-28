@@ -9,7 +9,11 @@ export interface PermixContext<T extends Definition> {
   rules: Rules<T> | null
 }
 
-const PERMIX_CONTEXT_KEY = Symbol('svelte-permix')
+export const PERMIX_CONTEXT_KEY = Symbol('svelte-permix')
+
+export function createPermixContextKey() {
+  return Symbol('svelte-permix')
+}
 
 /**
  * Provides Permix context to the Svelte component tree.
@@ -18,14 +22,17 @@ const PERMIX_CONTEXT_KEY = Symbol('svelte-permix')
  *
  * @link https://permix.letstri.dev/docs/integrations/svelte
  */
-export function providePermix<T extends Definition>(permix: Permix<T>): void {
+export function providePermix<T extends Definition>(
+  permix: Permix<T>,
+  key: symbol = PERMIX_CONTEXT_KEY
+): void {
   const context = $state<PermixContext<T>>({
     permix,
     isReady: permix.isReady(),
     rules: permix.getRules(),
   })
 
-  setContext(PERMIX_CONTEXT_KEY, context)
+  setContext(key, context)
 
   const setup = permix.hook('setup', (instance) => {
     context.permix = instance
@@ -44,8 +51,10 @@ export function providePermix<T extends Definition>(permix: Permix<T>): void {
   })
 }
 
-export function usePermixContext<T extends Definition>(): PermixContext<T> {
-  const context = getContext<PermixContext<T> | undefined>(PERMIX_CONTEXT_KEY)
+export function usePermixContext<T extends Definition>(
+  key: symbol = PERMIX_CONTEXT_KEY
+): PermixContext<T> {
+  const context = getContext<PermixContext<T> | undefined>(key)
 
   if (!context) {
     throw new Error(
@@ -62,9 +71,10 @@ export function usePermixContext<T extends Definition>(): PermixContext<T> {
  * @link https://permix.letstri.dev/docs/integrations/svelte
  */
 export function usePermix<T extends Definition>(
-  _permix: Pick<Permix<T>, 'getRules' | 'check'>
+  _permix?: Pick<Permix<T>, 'getRules' | 'check'>,
+  key: symbol = PERMIX_CONTEXT_KEY
 ) {
-  const context = usePermixContext<T>()
+  const context = usePermixContext<T>(key)
 
   const check: Permix<T>['check'] = (...args) =>
     runCheck(context.permix, context.rules, ...args)

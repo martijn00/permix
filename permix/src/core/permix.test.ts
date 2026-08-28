@@ -679,6 +679,64 @@ describe('deep rules', () => {
       expect(ready.isReady()).toBe(true)
     })
 
+    it('does not fire the setup hook from hydrate', () => {
+      const factory = createPermix<{
+        post: ['create']
+      }>()
+      const setup = vi.fn()
+      factory.hook('setup', setup)
+
+      factory.hydrate({ post: { create: true } })
+
+      expect(setup).not.toHaveBeenCalled()
+    })
+
+    it('installs dehydrated booleans without becoming ready', () => {
+      const factory = createPermix<{
+        post: ['create']
+      }>()
+      const setup = vi.fn()
+      factory.hook('setup', setup)
+
+      const hydrated = factory.install({
+        dehydrated: { post: { create: true } },
+      })
+
+      expect(setup).not.toHaveBeenCalled()
+      expect(hydrated.isReady()).toBe(false)
+      expect(hydrated.check('post.create')).toBe(true)
+    })
+
+    it('installs function rules as a ready instance', () => {
+      const factory = createPermix<{
+        post: ['create']
+      }>()
+      const setup = vi.fn()
+      const ready = vi.fn()
+      factory.hook('setup', setup)
+      factory.hook('ready', ready)
+
+      const instance = factory.install({
+        dehydrated: { post: { create: false } },
+        rules: { post: { create: true } },
+      })
+
+      expect(setup).toHaveBeenCalledOnce()
+      expect(ready).toHaveBeenCalledOnce()
+      expect(instance.isReady()).toBe(true)
+      expect(instance.check('post.create')).toBe(true)
+    })
+
+    it('throws when install() has neither dehydrated nor rules', () => {
+      const factory = createPermix<{
+        post: ['create']
+      }>()
+
+      expect(() => factory.install({})).toThrow(
+        /requires dehydrated and\/or rules/
+      )
+    })
+
     it('should return removal function from hook', () => {
       const permix = createPermix<{
         post: ['create']
