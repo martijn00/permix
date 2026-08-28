@@ -5,3 +5,5 @@ node_modules
 permix/test/next/.scratch
 permix/test/next/playwright-report
 permix/test/next/test-results
+.agents
+.claude

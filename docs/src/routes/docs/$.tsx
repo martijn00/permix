@@ -16,7 +16,7 @@ import { Suspense } from 'react'
 import { useMDXComponents } from '@/components/mdx'
 import { SidebarScrollFix } from '@/components/sidebar-scroll'
 import { baseOptions } from '@/lib/layout.shared'
-import { gitConfig } from '@/lib/shared'
+import { docsGithubUrl } from '@/lib/shared'
 import { slugsToMarkdownPath, source } from '@/lib/source'
 
 const serverLoader = createServerFn({
@@ -65,7 +65,7 @@ const clientLoader = browserCollections.docs.createClientLoader({
           <MarkdownCopyButton markdownUrl={markdownUrl} />
           <ViewOptionsPopover
             markdownUrl={markdownUrl}
-            githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/docs/content/docs/${path}`}
+            githubUrl={docsGithubUrl(path)}
           />
         </div>
         <DocsBody>

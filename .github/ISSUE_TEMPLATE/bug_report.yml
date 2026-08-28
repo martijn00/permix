@@ -1,0 +1,94 @@
+name: Bug report
+description: Something isn't working as expected
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a bug report, please check that the issue hasn't already been reported.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: A minimal code snippet or repository that reproduces the issue.
+      placeholder: |
+        import { createPermix } from 'permix'
+
+        const permix = createPermix<{ post: ['read'] }>()
+        permix.setup({ post: { read: true } })
+        permix.check('post.read')
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include any error messages or console output.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: permix version
+      placeholder: e.g. 4.1.2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework / adapter
+      options:
+        - Core (no adapter)
+        - React
+        - Vue
+        - Solid
+        - Svelte
+        - Next.js
+        - TanStack Start
+        - Express
+        - Hono
+        - Fastify
+        - tRPC
+        - oRPC
+        - Elysia
+        - Node
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: framework_version
+    attributes:
+      label: Framework version
+      placeholder: e.g. React 19.2, Next.js 16
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues first
+          required: true

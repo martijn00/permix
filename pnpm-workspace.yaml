@@ -37,3 +37,6 @@ peerDependencyRules:
 publicHoistPattern:
   - '@typescript/*'
 shellEmulator: true
+minimumReleaseAgeExclude:
+  - '@fumadocs/base-ui@16.15.4'
+  - fumadocs-core@16.15.4
