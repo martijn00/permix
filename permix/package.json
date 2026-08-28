@@ -65,6 +65,10 @@
       "types": "./dist/supabase/index.d.mts",
       "import": "./dist/supabase/index.mjs"
     },
+    "./better-auth": {
+      "types": "./dist/better-auth/index.d.mts",
+      "import": "./dist/better-auth/index.mjs"
+    },
     "./pdp": {
       "types": "./dist/pdp/index.d.mts",
       "import": "./dist/pdp/index.mjs"
@@ -203,6 +207,7 @@
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
     "arktype": "^2.2.3",
+    "better-auth": "catalog:",
     "chokidar": "catalog:",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
@@ -234,6 +239,7 @@
     "@orpc/server": ">=1",
     "@tanstack/react-start": ">=1",
     "@trpc/server": ">=11",
+    "better-auth": "catalog:",
     "chokidar": ">=5",
     "drizzle-orm": ">=0.30.0 || >=1.0.0-rc.3",
     "effect": ">=3",
@@ -267,6 +273,9 @@
       "optional": true
     },
     "@trpc/server": {
+      "optional": true
+    },
+    "better-auth": {
       "optional": true
     },
     "drizzle-orm": {
