@@ -1,0 +1,12 @@
+---
+title: Feature flags
+description: Treat flags as a second Permix definition or a nested entity
+---
+
+A permission path can represent a product flag (`features.betaDashboard`) as well as a CRUD action. Use a dedicated entity or a nested tree so flags do not collide with resource paths.
+
+Runnable example: [examples/feature-flags](https://github.com/letstri/permix/tree/main/examples/feature-flags).
+
+If you keep two instances (permissions vs flags), give RPC adapters distinct `contextKey()` values so they do not overwrite each other — [tRPC](/docs/integrations/trpc) / [oRPC](/docs/integrations/orpc).
+
+Flags in the UI are still UX. Gate paid or dangerous features on the server with the same path.

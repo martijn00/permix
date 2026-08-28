@@ -1,8 +1,8 @@
 # Permission extraction
 
-Use extraction when an application wants one typed permission vocabulary generated from actual source usage.
+Docs: https://permix.letstri.dev/docs/guide/extraction Example: https://github.com/letstri/permix/tree/main/examples/extracted-catalog
 
-## Mark and generate
+Use when the app wants a typed vocabulary generated from actual `permission()` markers — not for granting access or replacing `setup()`.
 
 ```ts
 import { permission } from 'permix'
@@ -10,13 +10,11 @@ import { permission } from 'permix'
 export const comment = permission({
   key: 'tasks.comment',
   title: 'Comment on tasks',
-  annotations: {
-    surfaces: ['web', 'api'],
-  },
+  annotations: { surfaces: ['web', 'api'] },
 })
 ```
 
-Keys and metadata must be static. Run:
+Keys and metadata must be **static**. Dynamic keys fail the scan.
 
 ```bash
 pnpm permix extract
@@ -24,9 +22,7 @@ pnpm permix extract --watch
 pnpm permix extract --check
 ```
 
-The default outputs are `.permix/permissions.ts` and `.permix/permissions.json`. Use repeatable `--include` and `--exclude` flags for monorepos.
-
-## Consume the generated definition
+Default outputs: `.permix/permissions.ts` and `.permix/permissions.json`. Repeat `--include` / `--exclude` for monorepos.
 
 ```ts
 import { createPermix } from 'permix'
@@ -36,10 +32,8 @@ const permix = createPermix<Definition>()
 permix.check(permissions.tasks.comment)
 ```
 
-For payload data, call the generated `definePermissionOverlay()` with existing `action()` values, then use `Definition<typeof overlay>`. Never put validators in JSON or assume extraction enables runtime validation.
+Payload types: generated `definePermissionOverlay()` + `action()`. Never put validators in JSON; extraction does not enable runtime validation — [standard-schema.md](standard-schema.md).
 
-Use the generated `definePermissionConfig()` to type central metadata. Inline metadata is the default; central metadata wins. Generate once before importing the generated helper into a new central config.
+Next.js: `withPermix(nextConfig, options)` from `permix/next/config`, or `createPermixPlugin(options)`.
 
-Next.js projects can wrap config with `withPermix(nextConfig, options)` from `permix/next/config`. Use `createPermixPlugin(options)` when a preconfigured wrapper is easier to compose.
-
-Removing a marker only prunes generated TS/JSON. Always review persisted roles, provider policies, SQL/RLS, and other downstream systems separately.
+Removing a marker only prunes generated TS/JSON. Review roles, RLS, and provider policies separately.

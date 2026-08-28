@@ -1,0 +1,37 @@
+---
+title: Security
+description: Where Permix enforces, and where it does not
+---
+
+Permix is an **application-layer** permission library. It types and evaluates rules in your TypeScript process. It is not a policy engine (Casbin, Cerbos), not a hosted authorization product (Permit.io), and not a replacement for database RLS.
+
+## Client checks are UX
+
+`usePermix`, `<Check>`, and hydrated booleans hide or disable controls. They do not protect APIs. Every path the UI checks must also run on the server: middleware, a server function, a Route Handler, a Nest guard, or a provider `check()`.
+
+## Hydrate is a snapshot
+
+[`dehydrate()`](/docs/guide/hydration) evaluates function rules **without** entity data. Closures are not serialized. After `hydrate()`, call `setup()` on the client so ReBAC functions return. `isReady` stays `false` until that `setup()`.
+
+## Next.js Route Handlers and Server Actions
+
+`permix/next` memoizes one instance per **RSC request** via React `cache()`. Route Handlers and Server Actions do **not** share that identity. Create and `setup()` a core `createPermix()` instance inside each invocation. See [Next.js](/docs/integrations/next).
+
+## Provider identity
+
+Verified sessions and JWTs feed `resolveRules`. They are not a substitute for Permix rules.
+
+- JWT authorization claims can be **stale** until refresh.
+- Do not treat user-controlled metadata as trusted authorization input.
+- Clerk organization checks need an active organization; prefer an explicit bearer token when org context matters.
+
+## Database access
+
+App-layer checks do not replace Postgres RLS (or Convex table rules). Enable RLS on every browser-reachable [Supabase](/docs/integrations/supabase) table. Use `createSupabasePolicyManifest` to type-check the mapping; apply SQL policies explicitly.
+
+## Checklist
+
+- Mutations cannot succeed by calling the API with a forged client
+- Same path strings on UI and server
+- Rules derived from authenticated session/context, not client-supplied headers alone
+- Entity checks pass the loaded resource when the action uses `type` / `required: true`

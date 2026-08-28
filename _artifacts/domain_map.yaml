@@ -77,14 +77,10 @@ skills:
     slug: permix
     domain: authorization
     description: >
-      Everything past initial setup: dot-path check, callback combinators,
-      ~all/~any, entity-aware ReBAC rules, isReady/isReadyAsync;
-      PermixProvider/usePermix/createComponents and SSR dehydrate/hydrate for
-      React, Vue, Solid, Svelte, Next.js, TanStack Start, Nuxt, React Router;
-      setupMiddleware and checkMiddleware for Express, Hono, Fastify, NestJS,
-      tRPC, oRPC, Node, Elysia, Astro.
-      Single skill with a thin SKILL.md router and three reference files
-      loaded on demand.
+      Everything past initial setup. SKILL.md is a workflow with invariants and
+      a verify checklist. Per-adapter references cover check/ReBAC, UI, SSR,
+      HTTP/RPC, Nest, Drizzle, Effect, Standard Schema, catalog extraction, HTTP
+      PDP, and provider identity (Supabase, Better Auth, Clerk, Convex).
     type: core
     packages:
       - permix
@@ -106,6 +102,9 @@ skills:
       - node
       - elysia
       - astro
+      - extractor
+      - drizzle
+      - effect
       - adapter
       - pdp
       - supabase
@@ -144,16 +143,45 @@ skills:
       - 'Expose typed authorization checks through an HTTP PDP'
     references:
       - 'references/check.md'
-      - 'references/frontend.md'
+      - 'references/hydration.md'
+      - 'references/security.md'
+      - 'references/example.md'
+      - 'references/react.md'
+      - 'references/vue.md'
+      - 'references/solid.md'
+      - 'references/svelte.md'
+      - 'references/next.md'
+      - 'references/tanstack-start.md'
+      - 'references/react-router.md'
+      - 'references/nuxt.md'
+      - 'references/astro.md'
       - 'references/server.md'
+      - 'references/express.md'
+      - 'references/hono.md'
+      - 'references/fastify.md'
+      - 'references/node.md'
+      - 'references/elysia.md'
+      - 'references/nest.md'
+      - 'references/trpc.md'
+      - 'references/orpc.md'
+      - 'references/drizzle.md'
+      - 'references/effect.md'
+      - 'references/standard-schema.md'
       - 'references/extraction.md'
-      - 'references/providers.md'
+      - 'references/pdp.md'
+      - 'references/supabase.md'
+      - 'references/better-auth.md'
+      - 'references/clerk.md'
+      - 'references/convex.md'
     sources:
       - 'letstri/permix:docs/content/docs/guide/check.mdx'
       - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
       - 'letstri/permix:docs/content/docs/guide/ready.mdx'
       - 'letstri/permix:docs/content/docs/guide/hydration.mdx'
       - 'letstri/permix:docs/content/docs/guide/extraction.mdx'
+      - 'letstri/permix:docs/content/docs/guide/concepts.mdx'
+      - 'letstri/permix:docs/content/docs/guide/security.mdx'
+      - 'letstri/permix:docs/content/docs/guide/choose-adapter.mdx'
       - 'letstri/permix:docs/content/docs/integrations/react.mdx'
       - 'letstri/permix:docs/content/docs/integrations/vue.mdx'
       - 'letstri/permix:docs/content/docs/integrations/solid.mdx'
@@ -172,6 +200,9 @@ skills:
       - 'letstri/permix:docs/content/docs/integrations/server.mdx'
       - 'letstri/permix:docs/content/docs/integrations/astro.mdx'
       - 'letstri/permix:docs/content/docs/integrations/elysia.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/drizzle.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/effect.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/standard-schema.mdx'
       - 'letstri/permix:docs/content/docs/integrations/pdp.mdx'
       - 'letstri/permix:docs/content/docs/integrations/supabase.mdx'
       - 'letstri/permix:docs/content/docs/integrations/better-auth.mdx'
@@ -226,6 +257,15 @@ failure_modes:
       app.use(permix.setupMiddleware(rules))
       app.post('/posts', permix.checkMiddleware('post.create'), handler)
     source: 'letstri/permix:docs/content/docs/integrations/express.mdx'
+    priority: CRITICAL
+    status: active
+    skills: [permix]
+
+  - mistake: 'Treating app-layer checks as database enforcement'
+    impact: 'Browser-reachable tables leak rows; stale JWTs keep old claims'
+    correct_pattern: |
+      Enable RLS on every browser-accessible table; resolveRules from verified identity; refresh tokens before trusting JWT authorization claims.
+    source: 'letstri/permix:docs/content/docs/guide/security.mdx'
     priority: CRITICAL
     status: active
     skills: [permix]

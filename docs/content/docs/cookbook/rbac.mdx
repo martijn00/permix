@@ -1,0 +1,24 @@
+---
+title: Role-based access (RBAC)
+description: Map roles to Permix templates
+---
+
+Use [templates](/docs/guide/template) as named role presets. Resolve the user's role from your auth layer, then `setup(admin())` or `setup(member())`.
+
+Runnable example: [examples/role-based](https://github.com/letstri/permix/tree/main/examples/role-based).
+
+```ts
+const admin = permix.template({
+  post: { create: true, read: true, update: true, delete: true },
+})
+
+const member = permix.template({
+  post: { create: false, read: true, update: false, delete: false },
+})
+
+permix.setup(user.role === 'admin' ? admin() : member())
+```
+
+Templates can take the user as a parameter when some actions depend on identity. Resource-level rules (owner can edit) belong in [ReBAC](/docs/guide/rebac), not a second role table.
+
+Still enforce the same paths on the server — [Security](/docs/guide/security).

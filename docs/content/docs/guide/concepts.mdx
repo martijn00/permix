@@ -1,0 +1,45 @@
+---
+title: Concepts
+description: Schema, rules, check, templates, and hydration in one place
+---
+
+Permix splits **vocabulary** (what can exist) from **rules** (what this user may do) from **checks** (asking at a call site).
+
+```text
+Definition  →  setup(rules)  →  check(path[, entity])
+     │                │                    │
+  compile-time    per user/request      boolean
+```
+
+## Definition (schema)
+
+The generic on `createPermix<D>()` lists entities and actions. Every `setup()` must include every action (`false` to deny). Paths like `post.update` and `workspace.billing.view` are inferred from `D`.
+
+Share one definition across server and client with `ValidateDefinition`. Infer path unions with `$inferPath`. See [Instance](/docs/guide/instance).
+
+## Rules
+
+`setup()` replaces the previous rule tree. Leaves are `boolean` or `(data) => boolean`. Capture the **actor** in the closure; pass the **resource** at check time ([ReBAC](/docs/guide/rebac)).
+
+Reusable role trees use [template](/docs/guide/template). Rules in another file stay typed with `createRules`.
+
+## Check
+
+`permix.check('post.read')` returns a boolean. Combine with a callback `c => c('a') && c('b')`. Aggregate with `~any` / `~all`. See [Check](/docs/guide/check).
+
+Before the first `setup()`, `check` throws `PermixNotReadyError`. Gate UI with `isReady` / `isReadyAsync` ([Ready](/docs/guide/ready)).
+
+## Hydration
+
+`dehydrate()` is a JSON snapshot of **booleans**. Function rules are not in that JSON. After `hydrate()`, call `setup()` on the client again. See [Hydration](/docs/guide/hydration) and [Security](/docs/guide/security).
+
+## Where code lives
+
+| Concern | Typical module |
+| --- | --- |
+| Shared `Definition` | `lib/permix.ts` (or generated `.permix/permissions.ts`) |
+| Role templates | next to the definition |
+| Server enforcement | `permix/<adapter>` middleware / guard / `resolveRules` |
+| UI | `permix/react` (or vue/solid/svelte) |
+
+Pick the adapter with [Choose an adapter](/docs/guide/choose-adapter).

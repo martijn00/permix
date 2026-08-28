@@ -36,7 +36,7 @@ Dynamic function rules are invoked without data when aggregating; entity-only ru
 
 ## Entity-aware actions (ReBAC / ABAC)
 
-Attach a `type` to actions that need the resource at check time:
+Attach a `type` (or `schema`) to actions that need the resource at check time:
 
 ```ts
 interface Post {
@@ -66,7 +66,7 @@ permix.check('post.update', post) // optional data if not required: true
 permix.check('post.delete', post) // required: true — data required
 ```
 
-Prefer `schema: typeof postSchema` (or `action('edit', postSchema)`) when the entity already has a Zod/Valibot/ArkType schema — see https://permix.letstri.dev/docs/integrations/standard-schema. Core `check()` does not parse data. The `permix/standard-schema` factory can, via `{ validate: 'deny' | 'throw' }`.
+Prefer `schema: typeof postSchema` (or `action('edit', postSchema)`) when the entity already has a Zod/Valibot/ArkType schema — see [standard-schema.md](standard-schema.md). Core `check()` does not parse data. The `permix/standard-schema` factory can, via `{ validate: 'deny' | 'throw' }`.
 
 **ReBAC pattern**: capture the **actor** in closures at `setup` time; pass the **resource** at `check` time. No separate ReBAC API.
 
@@ -86,7 +86,7 @@ Gate UI or early checks when permissions load asynchronously (fetch user, then `
 | Checking before `setup` | Call `setup` after auth; use `isReady` in UI |
 | Path not in schema | Add action to `createPermix<D>()` generic |
 | Missing check data | Add `type` / `required: true` on action; pass entity to `check` |
-| Trusting client-only checks | Enforce same paths on server (see `references/server.md`) |
+| Trusting client-only checks | Enforce same paths on the server — [security.md](security.md) |
 | Expecting lazy `c()` | Combine with `&&` / `\|\|`; each `c()` runs immediately |
 
 ## Server vs client

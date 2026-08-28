@@ -13,23 +13,19 @@ These skills teach coding agents how to integrate Permix v4 in consumer applicat
 | Slug | Type | Domain | Load when |
 |------|------|--------|-----------|
 | `permix-getting-started` | core | core-setup | New Permix install, schema, roles, templates |
-| `permix` | core | authorization + frontend + server | Everything past initial setup: `check`/ReBAC, UI + SSR, server middleware, HTTP PDP, Supabase, Better Auth, Clerk, and Convex |
-
-`permix` is a single skill with a thin `SKILL.md` router and five reference
-files loaded on demand: `references/check.md`, `references/frontend.md`,
-`references/server.md`, `references/extraction.md`, and
-`references/providers.md`.
+| `permix` | core | authorization + frontend + server | Everything past initial setup. Thin `SKILL.md` with invariants, workflow, verify checklist, and per-adapter references loaded on demand. |
 
 ## Dependency graph
 
 ```text
 permix-getting-started
 └── permix
-    ├── references/check.md
-    ├── references/frontend.md
-    ├── references/server.md
-    ├── references/extraction.md
-    └── references/providers.md
+    ├── Core: check, hydration, security, example
+    ├── UI: react, vue, solid, svelte
+    ├── Full-stack: next, tanstack-start, react-router, nuxt, astro
+    ├── HTTP/RPC: server, express, hono, fastify, node, elysia, nest, trpc, orpc
+    ├── Opt-in: drizzle, effect, standard-schema, extraction
+    └── Providers: pdp, supabase, better-auth, clerk, convex
 ```
 
 ## Critical failure modes
@@ -38,21 +34,18 @@ See `_artifacts/domain_map.yaml` → `failure_modes`. Highest priority:
 
 1. **v3 schema shape in v4 projects** — use action tuples, not `{ action, dataType }`.
 2. **hydrate without client `setup`** — dynamic rules are lost in JSON; always `setup` after hydrate.
-3. **Client-only checks** — mirror paths on server with `setupMiddleware` + `checkMiddleware`.
-4. **Treating app checks as database enforcement** — Supabase browser access
-   still requires RLS; JWT claims may remain stale until refresh.
+3. **Client-only checks** — mirror paths on server with `setupMiddleware` + `checkMiddleware` (or the matching adapter).
+4. **Treating app checks as database enforcement** — Supabase browser access still requires RLS; JWT claims may remain stale until refresh.
 
 ## Source-of-truth policy
 
 When `docs/content/docs/` or public API in `permix/src/` changes:
 
-1. Update the affected `permix/skills/*/SKILL.md` and bump `library_version` on release.
+1. Update the affected `permix/skills/*/SKILL.md` and the matching `references/<adapter>.md`.
 2. Run `pnpm run skills:stale` from `permix/` (or monorepo CI `intent stale`).
 3. Align `sources` in SKILL frontmatter with the changed doc paths.
 
-## Out of scope (docs-only for now)
-
-- `permix/effect`, `permix/drizzle`, `permix/standard-schema` — documented at https://permix.letstri.dev/docs/integrations/effect, `/drizzle`, and `/standard-schema`; no dedicated skill yet.
+Invariants live in `permix/SKILL.md`. Framework details live in `references/<name>.md`. Do not paste full docs into the skill.
 
 ## Registry
 

@@ -30,7 +30,8 @@ The client still uses `permix/react`. Hydrate only the permission-dependent isla
 <Callout type="warn">
   Requires **Next.js 15+**. Route Handlers and Server Actions do **not** share
   the RSC `cache()` identity. Create and `setup()` an explicit core
-  `createPermix()` instance inside each invocation.
+  `createPermix()` instance inside each invocation. Client `check` is a UI hint
+  — see [Security](/docs/guide/security).
 </Callout>
 
 <Steps>

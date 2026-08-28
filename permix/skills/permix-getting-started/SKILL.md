@@ -182,10 +182,12 @@ permix.hookOnce('ready', () => {
 
 Docs: https://permix.letstri.dev/docs/guide/events
 
+Then follow the **permix** skill workflow (server enforce → UI → hydrate → verify).
+
 ## Checklist for new apps
 
 - [ ] Single exported `permix` instance (same reference everywhere)
 - [ ] Schema covers every permission the app uses
 - [ ] `setup` runs when auth/session is known
-- [ ] UI waits for `isReady` or handles not-ready (see **permix** skill, `references/frontend.md`)
-- [ ] Server routes use middleware (see **permix** skill, `references/server.md`) — never rely on client checks alone
+- [ ] UI waits for `isReady` (see **permix** skill, matching `references/react.md` / `vue.md` / `solid.md` / `svelte.md`)
+- [ ] Server routes use the matching adapter (see **permix** skill, `references/server.md` or the full-stack/provider reference) — never rely on client checks alone

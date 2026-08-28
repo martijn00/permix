@@ -1,0 +1,10 @@
+---
+title: Enum-based actions
+description: Keep action names in an enum without losing path inference
+---
+
+When the domain already uses enums for actions, keep those literals in the `createPermix` generic (as a tuple of those enum members, not a wide `string`). Permix infers paths from the tuple; a wide enum type will collapse autocomplete.
+
+Runnable example: [examples/enum-based](https://github.com/letstri/permix/tree/main/examples/enum-based).
+
+Prefer string tuples (`post: ['read', 'update']`) unless an enum is already the source of truth elsewhere. Generated catalogs from [`permission()` markers](/docs/guide/extraction) are another way to avoid duplicating string unions.

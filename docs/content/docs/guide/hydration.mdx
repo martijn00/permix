@@ -11,7 +11,8 @@ Hydration is the process of converting server-side state into client-side state.
   Note that function-based permissions will be converted to `false` during
   dehydration since functions cannot be serialized to JSON. You should call
   `setup` method on the client side after hydration to fully restore
-  function-based permissions.
+  function-based permissions. Hydrated booleans are not enforcement — see
+  [Security](/docs/guide/security).
 </Callout>
 
 ## Usage

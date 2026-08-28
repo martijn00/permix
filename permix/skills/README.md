@@ -4,31 +4,29 @@ These skills teach AI assistants how to integrate [Permix](https://permix.letstr
 
 **Permix v4** uses action tuples (`post: ['read', { name: 'edit', type: Post }]`), not the v3 `{ action, dataType }` shape. Upgrading? See [migration guide](https://permix.letstri.dev/docs/migration-v3-to-v4).
 
-Skills ship inside the `permix` npm package and are versioned with each release. They include `sources` metadata pointing at docs and source files so maintainers can detect drift when documentation changes.
-
-## Install via npm (recommended)
-
-After adding Permix to your project:
+## Install
 
 ```bash
 pnpm add permix
 pnpm dlx @tanstack/intent@latest install
 ```
 
-Intent discovers `permix` in `node_modules`, reads the skills bundled with your installed version, and writes lightweight skill-loading guidance into your agent config (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, etc.).
+Or:
 
-List or load a specific skill:
+```bash
+npx skills add letstri/permix
+```
+
+Intent discovers `permix` in `node_modules`, reads the skills bundled with your installed version, and writes lightweight skill-loading guidance into your agent config (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, etc.).
 
 ```bash
 pnpm dlx @tanstack/intent@latest list
 pnpm dlx @tanstack/intent@latest load permix#permix
 ```
 
-When you `pnpm update permix`, skills update with the package — knowledge travels through npm, not model training cutoffs.
+When you `pnpm update permix`, skills update with the package.
 
-## Manual install (Cursor)
-
-Copy skill folders into `.agents/skills/`:
+### Manual install (Cursor)
 
 ```bash
 cp -r node_modules/permix/skills/permix .agents/skills/
@@ -37,32 +35,58 @@ cp -r node_modules/permix/skills/permix-getting-started .agents/skills/
 
 Restart Cursor or start a new agent chat so skills are picked up.
 
+## Principles
+
+The `permix` skill produces these by construction. The final verify checklist checks them.
+
+- **Same schema, same paths** on client and server.
+- **Server enforces; client is UX.** Every UI path has a server twin.
+- **`hydrate` restores booleans only.** Client `setup()` restores function/ReBAC rules.
+- **Do not `check` before ready.**
+- **v4 action tuples**, not v3 `{ action, dataType }`.
+- **Import `permix/<adapter>`**, never a guessed export (`permix/remix` does not exist).
+- **Provider identity is not authorization.** JWTs/sessions feed `resolveRules`; they do not replace Permix or RLS.
+
+## What it covers
+
+- **Schema and roles** — `createPermix`, `setup`, `template`, `createRules` (`permix-getting-started`).
+- **Checks** — dot paths, callbacks, `~all`/`~any`, ReBAC closures, `isReady`.
+- **UI** — React factory, Vue/Solid/Svelte provider + hooks, declarative `Check`.
+- **Full-stack SSR** — Next.js resolver + Cache Components, TanStack Start, React Router 7, Nuxt, Astro.
+- **HTTP/RPC** — Express, Hono, Fastify, Node, srvx/`permix/server`, Elysia, Nest, tRPC, oRPC.
+- **Opt-in** — Drizzle, Effect, Standard Schema, catalog extraction.
+- **Providers** — HTTP PDP, Supabase, Better Auth, Clerk, Convex.
+
+## References
+
+The `permix/SKILL.md` overview is always loaded; references split so the agent pulls only what the task needs.
+
+**Core**
+
+- [`permix/references/check.md`](./permix/references/check.md)
+- [`permix/references/hydration.md`](./permix/references/hydration.md)
+- [`permix/references/security.md`](./permix/references/security.md)
+- [`permix/references/example.md`](./permix/references/example.md) — invariant → `examples/` map
+
+**UI / full-stack / HTTP** — one file per adapter under [`permix/references/`](./permix/references/).
+
+**Opt-in / providers** — `drizzle.md`, `effect.md`, `standard-schema.md`, `extraction.md`, `pdp.md`, `supabase.md`, `better-auth.md`, `clerk.md`, `convex.md`.
+
 ## Skills
 
 | Skill | Intent id | When to use |
 | --- | --- | --- |
 | [permix-getting-started](./permix-getting-started/SKILL.md) | `permix#permix-getting-started` | New project, schema, `setup`, roles/templates |
-| [permix](./permix/SKILL.md) | `permix#permix` | Everything past setup: `check`/ReBAC (`references/check.md`), React/Vue/Solid/Svelte + SSR (`references/frontend.md`), Express/Hono/Fastify/NestJS/tRPC/oRPC middleware (`references/server.md`) |
+| [permix](./permix/SKILL.md) | `permix#permix` | Everything past setup: follow the workflow, then load the matching reference |
 
 ## Registry and version history
 
-The package includes the `tanstack-intent` npm keyword. Published versions are indexed on the [Agent Skills Registry](https://tanstack.com/intent/registry) with skill history per release.
+The package includes the `tanstack-intent` npm keyword. Published versions are indexed on the [Agent Skills Registry](https://tanstack.com/intent/registry).
 
 ## Without skills
 
 - Official docs: https://permix.letstri.dev/docs
 - LLM-oriented exports: https://permix.letstri.dev/llms.txt and https://permix.letstri.dev/llms-full.txt
-
-## Optional integrations (docs only)
-
-| Topic | Docs |
-| --- | --- |
-| Effect | https://permix.letstri.dev/docs/integrations/effect |
-| Drizzle ORM | https://permix.letstri.dev/docs/integrations/drizzle |
-| Standard Schema (Zod, Valibot, …) | https://permix.letstri.dev/docs/integrations/standard-schema |
-| Events (`hook`, `hookOnce`) | https://permix.letstri.dev/docs/guide/events |
-
-Examples: https://github.com/letstri/permix/tree/main/examples
 
 ## Maintainer workflow (this repo)
 

@@ -1,40 +1,18 @@
 ---
 title: Introduction
-description: The type-safe permission management you've always needed
+description: Type-safe permissions for TypeScript on the client and the server
 icon: RiInboxLine
 ---
 
-## Idea
+Permix is a small, framework-agnostic permissions library. You declare a typed schema once, assign rules with `setup()`, and check with dot-path strings. The same definition drives UI, HTTP middleware, and full-stack adapters.
 
-In my many years of experience, I have worked extensively with permissions management, and early in my career I wrote solutions that looked like this:
+## Three steps
 
-```ts
-if (user.role === 'admin') {
-  // do something
-}
-```
+1. **Define** the vocabulary — `createPermix<{ post: ['read', 'update'] }>()`
+2. **Setup** rules for the current user or request — booleans or `(data) => boolean`
+3. **Check** — `permix.check('post.read')`
 
-Later, I started using [CASL](https://casl.js.org) for permissions management in a [Vue](https://vuejs.org/) application.
-
-```ts
-can('read', ['Post', 'Comment'])
-can('manage', 'Post', { author: 'me' })
-can('create', 'Comment')
-```
-
-But time goes on, CASL becomes older, and developers' needs grow, especially for type-safe libraries. Unfortunately, CASL couldn't satisfy my type validation needs and so I started thinking again about writing my own validation solution. But this time I wanted to make it as a library, as I already had experience with open-source.
-
-## Implementation
-
-I started to create my own solution. However, nothing occurred to me until I watched a Web Dev Simplified [video](https://www.youtube.com/watch?v=5GG-VUvruzE) where he demonstrated an example of implementing permission management as he envisioned it. I really liked his approach because it was based on type-safety, which is exactly what I needed.
-
-So I'm ready to present to you my permission management solution called Permix!
-
-## DX
-
-When creating Permix, the goal was to simplify DX as much as possible without losing type-safety and provide the necessary functionality.
-
-That is why you only need to write the following code to get started:
+Client `check` is UX. The server (middleware, server function, Route Handler, or provider adapter) is the enforcement boundary. See [Security](/docs/guide/security).
 
 ```ts twoslash
 import { createPermix } from 'permix'
@@ -52,12 +30,11 @@ permix.setup({
 const canReadPost = permix.check('post.read') // true
 ```
 
-It looks too simple, so here's a more interesting example:
+## A fuller example
 
 ```ts twoslash
 import { createPermix } from 'permix'
 
-// You can take types from your database
 interface User {
   id: string
   role: 'editor' | 'user'
@@ -76,7 +53,6 @@ interface Comment {
   authorId: string
 }
 
-// Create definition to describe your permissions
 type PermissionsDefinition = {
   post: [
     { name: 'create'; type: Post },
@@ -93,7 +69,6 @@ type PermissionsDefinition = {
 
 const permix = createPermix<PermissionsDefinition>()
 
-// Define permissions for different users
 const editorPermissions = permix.template({
   post: {
     create: true,
@@ -123,14 +98,12 @@ const userPermissions = permix.template(({ id: userId }: User) => ({
 }))
 
 async function getUser() {
-  // Imagine that this function is fetching user from database
   return {
     id: '1',
     role: 'editor' as const,
   }
 }
 
-// Setup permissions for signed in user
 async function setupPermix() {
   const user = await getUser()
   const permissionsMap = {
@@ -141,14 +114,11 @@ async function setupPermix() {
   permix.setup(permissionsMap[user.role]())
 }
 
-// Call setupPermix where you need to setup permissions
 setupPermix()
 
-// Check if a user has permission to do something
 const canCreatePost = permix.check('post.create')
 
 async function getComment() {
-  // Imagine that this function is fetching comment from database
   return {
     id: '1',
     content: 'Hello, world!',
@@ -161,31 +131,31 @@ const comment = await getComment()
 const canUpdateComment = permix.check('comment.update', comment)
 ```
 
-## Benefits
+## Why Permix
 
-What are the benefits of using Permix?
-
-- 100% type-safe without writing TypeScript (except for initialization)
-- Requires TypeScript 5.9 or newer (5.9, 6, and 7 are supported)
-- Single source of truth for your entire app
-- Perfect match for TypeScript monorepos
-- Zero dependencies
+- Native TypeScript (5.9, 6, and 7) without a second type layer
+- One schema for the whole app and monorepo
+- Zero runtime dependencies in core
 - Built-in SSR via [dehydrate / hydrate](/docs/guide/hydration)
-- Relationship-based rules with closures — see [ReBAC patterns](/docs/guide/rebac)
-- Large number of integrations for different frameworks, such as [React](/docs/integrations/react), [Vue](/docs/integrations/vue), [Express](/docs/integrations/express), and more.
+- Relationship-based rules with closures — [ReBAC](/docs/guide/rebac)
+- Adapters for UI, full-stack, HTTP/RPC, and identity providers
 
-## Core concepts
+Unsure which adapter to import? [Choose an adapter](/docs/guide/choose-adapter).
 
-| Topic                   | Guide                              |
+## Guides
+
+| Topic                   | Page                               |
 | ----------------------- | ---------------------------------- |
+| Mental model            | [Concepts](/docs/guide/concepts)   |
 | Schema and instance API | [Instance](/docs/guide/instance)   |
 | Assigning rules         | [Setup](/docs/guide/setup)         |
 | Checking permissions    | [Check](/docs/guide/check)         |
 | Role presets            | [Template](/docs/guide/template)   |
 | SSR transfer            | [Hydration](/docs/guide/hydration) |
-| Async bootstrap         | [Ready state](/docs/guide/ready)   |
-| Permission change hooks | [Events](/docs/guide/events)       |
+| Enforcement             | [Security](/docs/guide/security)   |
 
-## Ready?
+Continue with the [Quick Start](/docs/quick-start).
 
-Ready to take Permix to your project? Let's go to the [Quick Start](/docs/quick-start) page.
+## Background
+
+Permix started from the limits of `if (user.role === 'admin')` and of [CASL](https://casl.js.org) in TypeScript-heavy apps. The shape of `setup` / `check` was inspired by [Web Dev Simplified's permissions walkthrough](https://www.youtube.com/watch?v=5GG-VUvruzE). Feature comparison with CASL: [Comparison](/docs/comparison).

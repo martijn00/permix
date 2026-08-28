@@ -1,0 +1,40 @@
+---
+title: Choose an adapter
+description: Which permix/* import matches your stack
+---
+
+Install `permix` once. Then import the **subpath** that matches where the check runs. Core `permix` is the schema and `check()`; adapters attach that instance to a framework context.
+
+## Decision tree
+
+1. **UI only (SPA)** — `permix/react`, `permix/vue`, `permix/solid`, or `permix/svelte`. Still enforce later on an API.
+2. **Full-stack app with SSR**
+   - Next.js App Router 15+ → [`permix/next`](/docs/integrations/next) (client still `permix/react`)
+   - TanStack Start → [`permix/tanstack-start`](/docs/integrations/tanstack-start)
+   - React Router 7 / Remix → [`permix/react-router`](/docs/integrations/react-router) (no `permix/remix`)
+   - Nuxt → [`permix/nuxt`](/docs/integrations/nuxt) on the server, `permix/vue` on the client
+   - Astro → [`permix/astro`](/docs/integrations/astro) + an island UI adapter
+3. **HTTP server**
+   - Express → `permix/express`
+   - Hono → `permix/hono`
+   - Fastify → `permix/fastify`
+   - NestJS → `permix/nest` (guard + `@Check`, not middleware)
+   - Elysia → `permix/elysia`
+   - Node `http` → `permix/node`
+   - Fetch / srvx → `permix/server`
+4. **RPC** — `permix/trpc` or `permix/orpc` (`setupContext`, not `setupMiddleware`)
+5. **Identity provider** — `permix/better-auth`, `permix/clerk`, `permix/supabase`, `permix/convex`. These resolve rules from a verified session; they do not replace step 3/4 on your own routes.
+6. **Remote decision service** — [`permix/pdp`](/docs/integrations/pdp)
+7. **Schema from the database or validators** — [`permix/drizzle`](/docs/integrations/drizzle), [`permix/standard-schema`](/docs/integrations/standard-schema)
+8. **Effect programs** — [`permix/effect`](/docs/integrations/effect)
+
+## Common mistakes
+
+| Guess | Actual |
+| --- | --- |
+| `permix/remix` | `permix/react-router` |
+| Putting Better Auth/Prisma inside TanStack `setupMiddleware()` from the library | `createSetupHandler` in app-owned `.server()` |
+| Using `permix/next` inside a Route Handler | Core `createPermix()` + `setup()` per invocation |
+| Importing `permix/nuxt` in a Vue client component | `permix/vue` on the client |
+
+See the [examples index](/docs/examples) for a runnable app per stack.

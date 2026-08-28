@@ -67,3 +67,17 @@ Integration entries import `../core/index.mjs`, so a typical app ships **core + 
 | `@casl/react` | 0.62 kB | published `dist/esm/index.mjs` only (adapter; ability loaded separately) |
 
 CASL core figure reflects what most apps ship after bundling and minification, not a single prebuilt file on disk.
+
+## When to use Permix (and when not to)
+
+Permix is an **application-layer** TypeScript library: one schema, isomorphic checks, first-class adapters. Use it when the policy lives in your app code and you want the same paths on UI and server.
+
+| Need | Prefer |
+| --- | --- |
+| Typed checks in a TS monorepo, SSR hydrate, framework adapters | Permix |
+| Mongo-style condition objects, subject classes, ORM `accessibleBy` | [CASL](https://casl.js.org) |
+| Central policy language, sidecar, or multi-service PDP as the system of record | Casbin, Cerbos, Oso, or a hosted product such as Permit.io |
+| Row-level data access in Postgres | Native RLS (Permix can map paths — it does not replace RLS) |
+| AuthN, sessions, organizations | Better Auth, Clerk, or similar — Permix **authorizes** after identity is known |
+
+See [Security](/docs/guide/security) for the enforcement boundary.

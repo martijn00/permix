@@ -22,9 +22,10 @@ npx skills add letstri/permix
 Install and set up a base Permix architecture for this project.
 
 1. Detect my stack (framework(s), server/client split, e.g. React, Vue, Solid,
-   Svelte, Next.js, TanStack Start, Node, Hono, Express, tRPC, oRPC, Fastify,
-   Elysia, Drizzle) and install `permix` plus the matching integration
-   package(s) from https://permix.letstri.dev/docs.
+   Svelte, Next.js, TanStack Start, Nuxt, React Router, Astro, Nest, Node, Hono,
+   Express, tRPC, oRPC, Fastify, Elysia, Drizzle, Better Auth, Clerk, Supabase,
+   Convex) and install `permix` plus the matching integration from
+   https://permix.letstri.dev/docs/guide/choose-adapter.
 2. Scan the codebase for my real resources/entities (DB models, API routes,
    UI sections) and design a `createPermix<...>` schema from them instead of
    placeholder data.
@@ -123,6 +124,8 @@ You've now got a basic setup of Permix. Next, read the core guides:
 - [Check](/docs/guide/check) — paths, `~all` / `~any`, errors
 - [Template](/docs/guide/template) — reusable role presets
 - [Hydration](/docs/guide/hydration) and [Ready state](/docs/guide/ready) — SSR and async bootstrap
+- [Choose an adapter](/docs/guide/choose-adapter) — which `permix/*` import to use
+- [Security](/docs/guide/security) — client checks are UX only
 
 </Step>
 
@@ -130,7 +133,7 @@ You've now got a basic setup of Permix. Next, read the core guides:
 
 ## Integrations
 
-Continuing from the quick start, you can now explore how Permix integrates with other libraries and frameworks.
+Pick the matching page, or start from [Choose an adapter](/docs/guide/choose-adapter).
 
 <Cards>
 
@@ -212,6 +215,30 @@ Continuing from the quick start, you can now explore how Permix integrates with 
 
 <Card href="/docs/integrations/effect" title="Effect">
   Integration with Effect services and layers.
+</Card>
+
+<Card href="/docs/integrations/nest" title="NestJS">
+  Guard and @Check decorator.
+</Card>
+
+<Card href="/docs/integrations/pdp" title="HTTP PDP">
+  Fetch-standard policy decision point.
+</Card>
+
+<Card href="/docs/integrations/better-auth" title="Better Auth">
+  Server and client permission plugins.
+</Card>
+
+<Card href="/docs/integrations/clerk" title="Clerk">
+  Session and organization-aware rules.
+</Card>
+
+<Card href="/docs/integrations/supabase" title="Supabase">
+  Verified identity, optional RLS mapping.
+</Card>
+
+<Card href="/docs/integrations/convex" title="Convex">
+  Isolated checks on queries, mutations, and actions.
 </Card>
 
 </Cards>
