@@ -55,6 +55,23 @@ export interface ForbiddenDecision {
 
 export type AdapterDecision = AllowedDecision | ForbiddenDecision
 
+type ExcludeCallbackCheck<Args> = Args extends readonly [
+  infer First,
+  ...unknown[],
+]
+  ? First extends (...args: never[]) => unknown
+    ? never
+    : Args
+  : never
+
+/**
+ * Check arguments that can cross a transport boundary. Unlike core
+ * {@link CheckArgs}, callback-composed checks are deliberately excluded.
+ */
+export type AdapterPathCheckArgs<D extends Definition> = ExcludeCallbackCheck<
+  CheckArgs<D>
+>
+
 type CheckRequestForPath<D extends Definition, Path extends RulesPaths<D>> =
   DataAtPath<D, Path> extends []
     ? { readonly path: Path }

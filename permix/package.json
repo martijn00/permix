@@ -58,6 +58,10 @@
       "types": "./dist/adapter/index.d.mts",
       "import": "./dist/adapter/index.mjs"
     },
+    "./pdp": {
+      "types": "./dist/pdp/index.d.mts",
+      "import": "./dist/pdp/index.mjs"
+    },
     "./react": {
       "types": "./dist/react/index.d.mts",
       "import": "./dist/react/index.mjs"
