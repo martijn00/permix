@@ -2,8 +2,8 @@ import type { Permix as PermixCore } from '../core'
 import { createPermix as createPermixCore } from '../core'
 import type { Action } from '../core/definitions'
 import type {
-    InferStandardSchemaOutput,
-    StandardSchemaV1,
+  InferStandardSchemaOutput,
+  StandardSchemaV1,
 } from '../core/standard-schema'
 import {
     PermixInvalidActionsError,
