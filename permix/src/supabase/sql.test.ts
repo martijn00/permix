@@ -88,7 +88,7 @@ describe('Supabase SQL recipes', () => {
       'invalid claims denied',
       'owner allowed',
       'role permission allowed',
-      'update without select affects zero rows',
+      'update without select stays invisible',
       'service-role bypass is privileged',
     ]) {
       expect(fixture).toContain(`scenario: ${scenario}`)

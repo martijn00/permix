@@ -196,7 +196,9 @@
     "size:update-baseline": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts --update-baseline",
     "skills:stale": "intent stale skills",
     "skills:validate": "intent validate skills",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:supabase-rls": "node ./scripts/test-supabase-rls.mjs",
+    "verify:packed": "pnpm run build && node ./scripts/verify-packed-package.mjs"
   },
   "devDependencies": {
     "@clerk/backend": "catalog:",

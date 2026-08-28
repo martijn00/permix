@@ -81,10 +81,18 @@ Pass an extracted `PermissionCatalog` to validate unknown and uncovered paths. T
 
 The package exports SQL recipe strings and helpers for an access-token hook, `authorize(permission)`, ownership predicates, permission predicates, and RLS policy templates. Copy the reviewed SQL into your own migration and adapt its schema, claim names, and roles.
 
+The repository also ships a transactional fixture covering anonymous access, malformed and stale claims, ownership, role permissions, `UPDATE` without `SELECT`, and service-role bypass. Run it against a local Supabase stack:
+
+```sh
+supabase db start --workdir permix/test/supabase-rls
+pnpm --filter permix test:supabase-rls
+supabase stop --workdir permix/test/supabase-rls
+```
+
 Important boundaries:
 
 - JWT authorization claims can remain stale until the token refreshes.
 - Ownership checks should compare verified `auth.uid()`/claims to row data.
-- `UPDATE` normally also needs a matching `SELECT` policy.
+- Supabase API update workflows normally need a matching `SELECT` policy, but the Postgres `UPDATE` policy independently controls which rows may mutate.
 - Service-role clients bypass RLS and must stay on trusted servers.
 - App-layer checks improve composition and UX; Postgres remains the final enforcement point for Supabase data.

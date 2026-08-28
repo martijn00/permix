@@ -15,6 +15,7 @@
     "update": "taze -r -I major",
     "verify": "pnpm run format:check && pnpm run lint && pnpm run test && pnpm run check-types && pnpm run build && pnpm --filter permix size:compare",
     "verify:full": "pnpm run verify && pnpm run test:next",
+    "verify:release": "pnpm run verify && pnpm --filter permix type-check:compat && pnpm --filter permix skills:validate && pnpm --filter permix skills:stale && pnpm --filter permix verify:packed && pnpm --filter provider-adapters start",
     "commitlint": "commitlint --config commitlint.config.mts"
   },
   "devDependencies": {

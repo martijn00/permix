@@ -204,7 +204,7 @@ end;
 $$;
 reset role;
 
--- scenario: update without select affects zero rows
+-- scenario: update without select stays invisible
 set local role authenticated;
 select set_config(
   'request.jwt.claims',
@@ -213,13 +213,26 @@ select set_config(
 );
 do $$
 declare
+  visible_rows integer;
   affected_rows integer;
 begin
+  select count(*) into visible_rows
+  from permix_supabase_fixture.update_only_documents;
+  if visible_rows <> 0 then
+    raise exception 'UPDATE-only row unexpectedly visible before mutation';
+  end if;
+
   update permix_supabase_fixture.update_only_documents
   set body = 'still-hidden';
   get diagnostics affected_rows = row_count;
-  if affected_rows <> 0 then
-    raise exception 'UPDATE without SELECT expected 0 rows, got %', affected_rows;
+  if affected_rows <> 1 then
+    raise exception 'UPDATE policy expected 1 row, got %', affected_rows;
+  end if;
+
+  select count(*) into visible_rows
+  from permix_supabase_fixture.update_only_documents;
+  if visible_rows <> 0 then
+    raise exception 'UPDATE-only row unexpectedly visible after mutation';
   end if;
 end;
 $$;
