@@ -82,8 +82,9 @@ test.describe('next 16.3 instant navigation', () => {
 
     await instant(page, async () => {
       await page.getByTestId('globex-link').click()
-      await expect(page.getByTestId('tenant-shell')).toBeVisible()
-      await expect(page.getByText('globex:create-denied')).toBeVisible()
+      await expect(
+        page.getByTestId('tenant-shell').filter({ hasText: 'globex:create-denied' })
+      ).toBeVisible()
     })
   })
 
@@ -96,8 +97,9 @@ test.describe('next 16.3 instant navigation', () => {
 
     await instant(page, async () => {
       await page.getByTestId('globex-prefetch-link').click()
-      await expect(page.getByTestId('tenant-shell')).toBeVisible()
-      await expect(page.getByText('globex:create-denied')).toBeVisible()
+      await expect(
+        page.getByTestId('tenant-shell').filter({ hasText: 'globex:create-denied' })
+      ).toBeVisible()
     })
   })
 })
