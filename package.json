@@ -11,6 +11,7 @@
     "prepare": "husky",
     "publish": "cd permix && pnpm publish",
     "test": "turbo run test --filter=permix",
+    "test:next": "pnpm --filter permix build && pnpm --filter @permix/next-integration test",
     "update": "taze -r -I major"
   },
   "devDependencies": {

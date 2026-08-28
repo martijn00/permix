@@ -1,93 +1,94 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createPermix } from './permix'
+import { resetRequestCache } from './request-cache-mock'
 
-// React's `cache()` only memoizes within a Next.js request scope (backed by
-// AsyncLocalStorage). Outside of one — including in vitest — it returns a
-// fresh value on every call, which would defeat the per-request instance
-// pattern. We replace it here with a simple module-level memoizer so that a
-// single `createPermix()` call behaves as if it were running inside one
-// Next.js request for the duration of the test.
 vi.mock('react', async () => {
   const actual = await vi.importActual<typeof import('react')>('react')
+  const { createRequestScopedCache } = await import('./request-cache-mock')
   return {
     ...actual,
-    cache: <T extends (...args: any[]) => any>(fn: T): T => {
-      const store = new Map<string, ReturnType<T>>()
-      return ((...args: Parameters<T>) => {
-        const key = JSON.stringify(args)
-        if (!store.has(key)) {
-          store.set(key, fn(...args))
+    cache: createRequestScopedCache,
+    use: <T>(usable: T | PromiseLike<T>): T => {
+      if (
+        usable !== null &&
+        usable !== undefined &&
+        typeof (usable as PromiseLike<T>).then === 'function'
+      ) {
+        const thenable = usable as PromiseLike<T> & {
+          status?: 'fulfilled' | 'rejected' | 'pending'
+          value?: T
+          reason?: unknown
         }
-        return store.get(key)!
-      }) as T
+        if (thenable.status === 'fulfilled') {
+          return thenable.value as T
+        }
+        if (thenable.status === 'rejected') {
+          throw thenable.reason
+        }
+        throw thenable
+      }
+      return usable as T
     },
   }
 })
 
 describe('next createPermix', () => {
-  it('sets up rules and checks permissions', () => {
+  afterEach(() => {
+    resetRequestCache()
+  })
+
+  it('initializes from a sync resolver and checks permissions', async () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>(() => ({
       post: {
         create: true,
         read: false,
       },
-    })
+    }))
 
-    expect(permix.check('post.create')).toBe(true)
-    expect(permix.check('post.read')).toBe(false)
+    await expect(permix.check('post.create')).resolves.toBe(true)
+    await expect(permix.check('post.read')).resolves.toBe(false)
   })
 
-  it('works with data resolved before setup', async () => {
+  it('initializes from an async resolver', async () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
-
-    // Mimic the documented pattern: await your own data, then call setup
-    // with plain rules. No async wrapper around setup needed.
-    const user = await Promise.resolve({ role: 'admin' as const })
-
-    permix.setup({
-      post: {
-        create: user.role === 'admin',
-      },
+    }>(async () => {
+      const user = await Promise.resolve({ role: 'admin' as const })
+      return {
+        post: {
+          create: user.role === 'admin',
+        },
+      }
     })
 
-    expect(permix.check('post.create')).toBe(true)
+    await expect(permix.check('post.create')).resolves.toBe(true)
   })
 
-  it('exposes the underlying core instance via get()', () => {
+  it('returns the initialized core instance from getPermix', async () => {
     const permix = createPermix<{
       post: ['create']
-    }>()
+    }>(() => ({ post: { create: true } }))
 
-    permix.setup({ post: { create: true } })
-
-    const core = permix.get()
+    const core = await permix.getPermix()
 
     expect(core.isReady()).toBe(true)
     expect(core.check('post.create')).toBe(true)
   })
 
-  it('reads the current rules with getRules', () => {
+  it('reads the current rules with getRules', async () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    expect(permix.getRules()).toBeNull()
-
-    permix.setup({
+    }>(() => ({
       post: {
         create: true,
         read: false,
       },
-    })
+    }))
 
-    expect(permix.getRules()).toStrictEqual({
+    await expect(permix.getRules()).resolves.toStrictEqual({
       post: {
         create: true,
         read: false,
@@ -95,19 +96,17 @@ describe('next createPermix', () => {
     })
   })
 
-  it('dehydrates the request-scoped state', () => {
+  it('dehydrates the request-scoped state', async () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
-
-    permix.setup({
+    }>(() => ({
       post: {
         create: true,
         read: false,
       },
-    })
+    }))
 
-    expect(permix.dehydrate()).toStrictEqual({
+    await expect(permix.dehydrate()).resolves.toStrictEqual({
       post: {
         create: true,
         read: false,
@@ -115,35 +114,86 @@ describe('next createPermix', () => {
     })
   })
 
-  it('reuses the same instance across calls in the same request scope', () => {
+  it('shares one initialized instance across concurrent callers', async () => {
+    let calls = 0
     const permix = createPermix<{
       post: ['create']
-    }>()
+    }>(async () => {
+      calls++
+      await Promise.resolve()
+      return { post: { create: true } }
+    })
 
-    permix.setup({ post: { create: true } })
+    const [first, second, allowed] = await Promise.all([
+      permix.getPermix(),
+      permix.getPermix(),
+      permix.check('post.create'),
+    ])
 
-    // Two get() calls in the same "request" must return the same instance,
-    // proving that setup() persists across subsequent calls.
-    expect(permix.get()).toBe(permix.get())
-    expect(permix.check('post.create')).toBe(true)
+    expect(calls).toBe(1)
+    expect(first).toBe(second)
+    expect(allowed).toBe(true)
+    expect(first.check('post.create')).toBe(true)
   })
 
-  it('isolates state between independent factories', () => {
-    const permixA = createPermix<{ post: ['create'] }>()
-    const permixB = createPermix<{ post: ['create'] }>()
+  it('isolates state between independent factories', async () => {
+    const permixA = createPermix<{ post: ['create'] }>(() => ({
+      post: { create: true },
+    }))
+    const permixB = createPermix<{ post: ['create'] }>(() => ({
+      post: { create: false },
+    }))
 
-    permixA.setup({ post: { create: true } })
-    permixB.setup({ post: { create: false } })
-
-    expect(permixA.check('post.create')).toBe(true)
-    expect(permixB.check('post.create')).toBe(false)
-    expect(permixA.get()).not.toBe(permixB.get())
+    await expect(permixA.check('post.create')).resolves.toBe(true)
+    await expect(permixB.check('post.create')).resolves.toBe(false)
+    const [coreA, coreB] = await Promise.all([
+      permixA.getPermix(),
+      permixB.getPermix(),
+    ])
+    expect(coreA).not.toBe(coreB)
   })
 
-  it('creates reusable templates', () => {
+  it('isolates state across simulated requests of the same factory', async () => {
+    let requestRole: 'admin' | 'guest' = 'admin'
+    const permix = createPermix<{ post: ['create'] }>(() => ({
+      post: { create: requestRole === 'admin' },
+    }))
+
+    await expect(permix.check('post.create')).resolves.toBe(true)
+    const first = await permix.getPermix()
+
+    resetRequestCache()
+    requestRole = 'guest'
+
+    await expect(permix.check('post.create')).resolves.toBe(false)
+    await expect(permix.getPermix()).resolves.not.toBe(first)
+  })
+
+  it('usePermix unwraps the same initialized instance', async () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>(() => ({ post: { create: true } }))
+
+    const instancePromise = permix.getPermix()
+    const instance = await instancePromise
+    Object.assign(instancePromise, {
+      status: 'fulfilled',
+      value: instance,
+    })
+
+    expect(permix.usePermix()).toBe(instance)
+    expect(instance.check('post.create')).toBe(true)
+  })
+
+  it('creates reusable templates without waiting on initialization', () => {
     const permix = createPermix<{
       post: ['create', 'read']
-    }>()
+    }>(() => ({
+      post: {
+        create: false,
+        read: false,
+      },
+    }))
 
     const adminTemplate = permix.template({
       post: {
@@ -163,7 +213,11 @@ describe('next createPermix', () => {
   it('supports parameterized templates', () => {
     const permix = createPermix<{
       post: [{ name: 'edit'; type: { authorId: string } }]
-    }>()
+    }>(() => ({
+      post: {
+        edit: () => false,
+      },
+    }))
 
     const template = permix.template((userId: string) => ({
       post: {

@@ -15,4 +15,8 @@ export const ignorePatterns = [
   '**/*.generated.ts',
   'examples/svelte/src/lib/index.ts',
   'pnpm-lock.yaml',
+  'permix/test/next/.scratch/**',
+  'permix/test/next/playwright-report/**',
+  'permix/test/next/test-results/**',
+  'permix/test/next/**',
 ]

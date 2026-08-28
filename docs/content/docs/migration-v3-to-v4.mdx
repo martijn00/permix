@@ -336,15 +336,15 @@ Map each Better Auth role to a rules object yourself — the same booleans you p
 
 These are additive — migrate the core API first, then adopt what you need:
 
-| Import                  | Use case                                    |
-| ----------------------- | ------------------------------------------- |
-| `permix/next`           | Next.js App Router, request-scoped instance |
-| `permix/tanstack-start` | TanStack Start middleware and SSR           |
-| `permix/server`         | Framework-agnostic fetch middleware         |
-| `permix/svelte`         | Svelte 5 runes                              |
-| `permix/drizzle`        | Rules from Drizzle v1 schema                |
-| `permix/drizzle/legacy` | Drizzle v0 (`>=0.30 <1`)                    |
-| `permix/effect`         | Effect `Layer` / `Context`                  |
+| Import                  | Use case                                       |
+| ----------------------- | ---------------------------------------------- |
+| `permix/next`           | Next.js App Router, resolver + dual RSC access |
+| `permix/tanstack-start` | TanStack Start middleware and SSR              |
+| `permix/server`         | Framework-agnostic fetch middleware            |
+| `permix/svelte`         | Svelte 5 runes                                 |
+| `permix/drizzle`        | Rules from Drizzle v1 schema                   |
+| `permix/drizzle/legacy` | Drizzle v0 (`>=0.30 <1`)                       |
+| `permix/effect`         | Effect `Layer` / `Context`                     |
 
 See the [examples directory](https://github.com/letstri/permix/tree/main/examples) (`next`, `tanstack-start`, `svelte`, `rebac`, and updated `react`, `vue`, …).
 
