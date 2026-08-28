@@ -57,6 +57,34 @@
       "types": "./dist/core/index.d.mts",
       "import": "./dist/core/index.mjs"
     },
+    "./adapter": {
+      "types": "./dist/adapter/index.d.mts",
+      "import": "./dist/adapter/index.mjs"
+    },
+    "./supabase": {
+      "types": "./dist/supabase/index.d.mts",
+      "import": "./dist/supabase/index.mjs"
+    },
+    "./better-auth": {
+      "types": "./dist/better-auth/index.d.mts",
+      "import": "./dist/better-auth/index.mjs"
+    },
+    "./clerk": {
+      "types": "./dist/clerk/index.d.mts",
+      "import": "./dist/clerk/index.mjs"
+    },
+    "./clerk/next": {
+      "types": "./dist/clerk/next/index.d.mts",
+      "import": "./dist/clerk/next/index.mjs"
+    },
+    "./convex": {
+      "types": "./dist/convex/index.d.mts",
+      "import": "./dist/convex/index.mjs"
+    },
+    "./pdp": {
+      "types": "./dist/pdp/index.d.mts",
+      "import": "./dist/pdp/index.mjs"
+    },
     "./react": {
       "types": "./dist/react/index.d.mts",
       "import": "./dist/react/index.mjs"
@@ -172,7 +200,9 @@
     "size:update-baseline": "node --import ./scripts/register-typescript6.mjs ./scripts/bundle-size.ts --update-baseline",
     "skills:stale": "intent stale skills",
     "skills:validate": "intent validate skills",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:supabase-rls": "node ./scripts/test-supabase-rls.mjs",
+    "verify:packed": "pnpm run build && node ./scripts/verify-packed-package.mjs"
   },
   "dependencies": {
     "chokidar": "catalog:",
@@ -180,6 +210,8 @@
     "tinyglobby": "catalog:"
   },
   "devDependencies": {
+    "@clerk/backend": "catalog:",
+    "@clerk/nextjs": "catalog:",
     "@nestjs/common": "^11.2.3",
     "@nestjs/core": "^11.2.3",
     "@nestjs/platform-express": "^11.2.3",
@@ -200,6 +232,8 @@
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
     "arktype": "^2.2.3",
+    "better-auth": "catalog:",
+    "convex": "catalog:",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "esbuild": "catalog:",
@@ -223,11 +257,15 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
+    "@clerk/backend": "catalog:",
+    "@clerk/nextjs": "catalog:",
     "@nestjs/common": ">=10",
     "@nestjs/core": ">=10",
     "@orpc/server": ">=1",
     "@tanstack/react-start": ">=1",
     "@trpc/server": ">=11",
+    "better-auth": "catalog:",
+    "convex": "catalog:",
     "drizzle-orm": ">=0.30.0 || >=1.0.0-rc.3",
     "effect": ">=3",
     "elysia": ">=1",
@@ -245,6 +283,12 @@
     "vue": ">=3"
   },
   "peerDependenciesMeta": {
+    "@clerk/backend": {
+      "optional": true
+    },
+    "@clerk/nextjs": {
+      "optional": true
+    },
     "@nestjs/common": {
       "optional": true
     },
@@ -258,6 +302,12 @@
       "optional": true
     },
     "@trpc/server": {
+      "optional": true
+    },
+    "better-auth": {
+      "optional": true
+    },
+    "convex": {
       "optional": true
     },
     "drizzle-orm": {

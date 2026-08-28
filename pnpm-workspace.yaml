@@ -8,11 +8,15 @@ allowBuilds:
   esbuild: false
   sharp: false
 catalog:
+  '@clerk/backend': ^3.16.12
+  '@clerk/nextjs': ^7.8.2
   '@types/node': ^25.9.1
   '@types/react': ^19.2.15
   '@types/react-dom': ^19.2.3
   '@vitejs/plugin-react': ^6.0.2
+  better-auth: ^1.7.2
   chokidar: ^5.0.0
+  convex: ^1.45.0
   esbuild: ^0.28.2
   oxc-parser: ^0.147.0
   oxfmt: ^0.64.0

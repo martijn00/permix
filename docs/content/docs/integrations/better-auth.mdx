@@ -1,0 +1,78 @@
+---
+title: Better Auth
+description: Add isolated server and client permission plugins to Better Auth
+---
+
+## Overview
+
+`permix/better-auth` provides a native Better Auth server/client plugin pair. Each configured plugin captures its own rules resolver, so multiple auth instances and concurrent users cannot overwrite shared permission state.
+
+## Server plugin
+
+```ts
+import { betterAuth } from 'better-auth'
+import { createBetterAuthPermixPlugin } from 'permix/better-auth'
+
+type Definition = {
+  documents: [
+    'read',
+    { name: 'update'; type: { ownerId: string }; required: true },
+  ]
+}
+
+export const permixPlugin = createBetterAuthPermixPlugin<Definition>({
+  resolveRules: async (session) => ({
+    documents: {
+      read: true,
+      update: ({ ownerId }) => ownerId === session.user.id,
+    },
+  }),
+})
+
+export const auth = betterAuth({
+  plugins: [permixPlugin],
+})
+```
+
+The plugin uses Better Auth's current session middleware. Signed-out requests are rejected, async rules are supported, and every request receives a fresh Permix instance.
+
+## Client plugin
+
+```ts
+import { createAuthClient } from 'better-auth/client'
+import { createBetterAuthPermixClient } from 'permix/better-auth'
+import { permixPlugin } from './auth'
+
+export const authClient = createAuthClient({
+  plugins: [createBetterAuthPermixClient<typeof permixPlugin>()],
+})
+
+const { data: permissions } = await authClient.permix.getPermissions()
+```
+
+The client method returns typed dehydrated booleans for UI gating. Protected work must still be checked on the server.
+
+## Better Auth access control
+
+If an application already uses Better Auth's access-control statements, Permix can reuse that vocabulary:
+
+```ts
+import { createAccessControl } from 'better-auth/plugins/access'
+import {
+  inferDefinitionFromAccessControl,
+  rulesFromBetterAuthRole,
+} from 'permix/better-auth'
+
+const access = createAccessControl({
+  documents: ['read', 'update'],
+} as const)
+
+const member = access.newRole({
+  documents: ['read'],
+})
+
+const definition = inferDefinitionFromAccessControl(access.statements)
+const rules = rulesFromBetterAuthRole(access.statements, member)
+```
+
+These helpers are optional. A manual or extracted Permix `Definition` remains the canonical permission vocabulary when provider-native statements do not match the application's authorization model.

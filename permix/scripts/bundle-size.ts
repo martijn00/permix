@@ -147,6 +147,48 @@ export const BUNDLE_CASES: readonly BundleCase[] = [
     fixture: 'react-router.ts',
   },
   {
+    name: 'adapter',
+    subpath: './adapter',
+    platform: 'node',
+    fixture: 'adapter.ts',
+  },
+  {
+    name: 'better-auth',
+    subpath: './better-auth',
+    platform: 'node',
+    fixture: 'better-auth.ts',
+  },
+  {
+    name: 'clerk',
+    subpath: './clerk',
+    platform: 'node',
+    fixture: 'clerk.ts',
+  },
+  {
+    name: 'clerk-next',
+    subpath: './clerk/next',
+    platform: 'node',
+    fixture: 'clerk-next.ts',
+  },
+  {
+    name: 'convex',
+    subpath: './convex',
+    platform: 'node',
+    fixture: 'convex.ts',
+  },
+  {
+    name: 'pdp',
+    subpath: './pdp',
+    platform: 'node',
+    fixture: 'pdp.ts',
+  },
+  {
+    name: 'supabase',
+    subpath: './supabase',
+    platform: 'node',
+    fixture: 'supabase.ts',
+  },
+  {
     name: 'extractor',
     subpath: './extractor',
     platform: 'node',

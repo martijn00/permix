@@ -1,0 +1,20 @@
+{
+  "name": "provider-adapters",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@clerk/backend": "catalog:",
+    "better-auth": "catalog:",
+    "convex": "catalog:",
+    "permix": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

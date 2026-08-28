@@ -1,5 +1,50 @@
+import { access } from 'node:fs/promises'
+
 const entrypoints = [
   ['.', await import('permix'), ['createPermix', 'permission']],
+  [
+    './adapter',
+    await import('permix/adapter'),
+    ['createAdapter', 'serializeAdapterError'],
+  ],
+  [
+    './supabase',
+    await import('permix/supabase'),
+    [
+      'createSupabaseClaimsAdapter',
+      'createSupabasePolicyManifest',
+      'verifySupabaseClaims',
+    ],
+  ],
+  [
+    './better-auth',
+    await import('permix/better-auth'),
+    [
+      'createBetterAuthPermixClient',
+      'createBetterAuthPermixPlugin',
+      'rulesFromBetterAuthRole',
+    ],
+  ],
+  [
+    './clerk',
+    await import('permix/clerk'),
+    [
+      'createClerkAuthorizationMapping',
+      'createClerkPermissionsHandler',
+      'createClerkPermix',
+      'createClerkPermixClient',
+    ],
+  ],
+  [
+    './convex',
+    await import('permix/convex'),
+    ['createConvexPermix', 'defineConvexTableSelection'],
+  ],
+  [
+    './pdp',
+    await import('permix/pdp'),
+    ['createPdpClient', 'createPdpHandler', 'createPdpOpenApiDocument'],
+  ],
   ['./trpc', await import('permix/trpc'), ['createPermix']],
   ['./orpc', await import('permix/orpc'), ['createPermix']],
   ['./express', await import('permix/express'), ['createPermix']],
@@ -32,3 +77,12 @@ for (const [subpath, module, expectedExports] of entrypoints) {
     }
   }
 }
+
+// Clerk's Next.js server entrypoint is intended for the Next.js bundler and
+// cannot be executed by this raw Node smoke process. Resolve the public export
+// and assert that its built module exists; tsconfig.compat.json checks its types.
+const clerkNextUrl = import.meta.resolve('permix/clerk/next')
+if (!clerkNextUrl.endsWith('/dist/clerk/next/index.mjs')) {
+  throw new Error('Invalid permix/clerk/next export target')
+}
+await access(new URL(clerkNextUrl))

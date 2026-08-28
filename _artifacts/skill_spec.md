@@ -6,18 +6,19 @@ Docs: https://permix.letstri.dev/docs
 
 ## Purpose
 
-These skills teach coding agents how to integrate Permix v4 in consumer applications: schema design, `setup`, `check`, UI adapters, server middleware, and SSR hydration. They are derived from `docs/content/docs/` and `permix/src/` — not from model training cutoffs.
+These skills teach coding agents how to integrate Permix v4 in consumer applications: schema design, `setup`, `check`, UI adapters, server middleware, SSR hydration, HTTP PDP, and provider identity adapters. They are derived from `docs/content/docs/` and `permix/src/` — not from model training cutoffs.
 
 ## Skill inventory
 
 | Slug | Type | Domain | Load when |
 |------|------|--------|-----------|
 | `permix-getting-started` | core | core-setup | New Permix install, schema, roles, templates |
-| `permix` | core | authorization + frontend + server | Everything past initial setup: `check`/ReBAC, React/Vue/Solid/Svelte + SSR, Express/Hono/Fastify/tRPC/oRPC middleware |
+| `permix` | core | authorization + frontend + server | Everything past initial setup: `check`/ReBAC, UI + SSR, server middleware, HTTP PDP, Supabase, Better Auth, Clerk, and Convex |
 
-`permix` is a single skill with a thin `SKILL.md` router and three reference
+`permix` is a single skill with a thin `SKILL.md` router and five reference
 files loaded on demand: `references/check.md`, `references/frontend.md`,
-`references/server.md`.
+`references/server.md`, `references/extraction.md`, and
+`references/providers.md`.
 
 ## Dependency graph
 
@@ -26,7 +27,9 @@ permix-getting-started
 └── permix
     ├── references/check.md
     ├── references/frontend.md
-    └── references/server.md
+    ├── references/server.md
+    ├── references/extraction.md
+    └── references/providers.md
 ```
 
 ## Critical failure modes
@@ -36,6 +39,8 @@ See `_artifacts/domain_map.yaml` → `failure_modes`. Highest priority:
 1. **v3 schema shape in v4 projects** — use action tuples, not `{ action, dataType }`.
 2. **hydrate without client `setup`** — dynamic rules are lost in JSON; always `setup` after hydrate.
 3. **Client-only checks** — mirror paths on server with `setupMiddleware` + `checkMiddleware`.
+4. **Treating app checks as database enforcement** — Supabase browser access
+   still requires RLS; JWT claims may remain stale until refresh.
 
 ## Source-of-truth policy
 

@@ -1,0 +1,98 @@
+---
+title: Supabase
+description: Verify Supabase identity, infer permission types, and align app checks with Postgres RLS
+---
+
+## Overview
+
+`permix/supabase` covers three separate concerns:
+
+1. Verify a bearer token with Supabase Auth and resolve per-request Permix rules.
+2. Infer a Permix definition from selected generated `Database` tables/views.
+3. Describe how canonical permission paths map to native Postgres RLS policies.
+
+Permix checks do not replace RLS. Enable RLS on every browser-accessible table and enforce data access in Postgres.
+
+## Verified auth
+
+```ts
+import { createSupabaseClaimsAdapter } from 'permix/supabase'
+
+const permissions = createSupabaseClaimsAdapter<Definition, Claims>({
+  client: supabase,
+  resolveRules: ({ principal }) => ({
+    documents: {
+      read: principal.claims.app_metadata.permissions.includes(
+        'documents.read'
+      ),
+      update: ({ ownerId }) => ownerId === principal.claims.sub,
+    },
+  }),
+})
+
+const decision = await permissions.check(
+  request.headers.get('authorization'),
+  'documents.update',
+  document
+)
+```
+
+Use `createSupabaseUserAdapter` when rules require a freshly fetched Auth user. The claims adapter only exposes verified authorization claims; it deliberately does not expose user-controlled metadata as trusted authorization input.
+
+## Generated database inference
+
+```ts
+import {
+  defineSupabaseSelection,
+  type SupabaseDefinition,
+} from 'permix/supabase'
+import type { Database } from './database.types'
+
+const selection = defineSupabaseSelection<Database>()({
+  public: {
+    tables: ['documents'],
+    views: ['published_documents'],
+  },
+} as const)
+
+type Definition = SupabaseDefinition<Database, typeof selection>
+```
+
+Selected tables infer `select`, `insert`, `update`, and `delete` payloads. Selected views infer `select`. This is type-only and never reads a generated file or live project at runtime.
+
+## Policy manifest
+
+```ts
+import { createSupabasePolicyManifest } from 'permix/supabase'
+
+const manifest = createSupabasePolicyManifest<Definition>({
+  'public.tables.documents.select': {
+    schema: 'public',
+    relation: 'documents',
+    relationType: 'table',
+    operation: 'select',
+  },
+})
+```
+
+Pass an extracted `PermissionCatalog` to validate unknown and uncovered paths. The manifest describes intent; it does not generate or apply migrations.
+
+## RLS recipes
+
+The package exports SQL recipe strings and helpers for an access-token hook, `authorize(permission)`, ownership predicates, permission predicates, and RLS policy templates. Copy the reviewed SQL into your own migration and adapt its schema, claim names, and roles.
+
+The repository also ships a transactional fixture covering anonymous access, malformed and stale claims, ownership, role permissions, `UPDATE` without `SELECT`, and service-role bypass. Run it against a local Supabase stack:
+
+```sh
+supabase db start --workdir permix/test/supabase-rls
+pnpm --filter permix test:supabase-rls
+supabase stop --workdir permix/test/supabase-rls
+```
+
+Important boundaries:
+
+- JWT authorization claims can remain stale until the token refreshes.
+- Ownership checks should compare verified `auth.uid()`/claims to row data.
+- Supabase API update workflows normally need a matching `SELECT` policy, but the Postgres `UPDATE` policy independently controls which rows may mutate.
+- Service-role clients bypass RLS and must stay on trusted servers.
+- App-layer checks improve composition and UX; Postgres remains the final enforcement point for Supabase data.

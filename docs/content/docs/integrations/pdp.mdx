@@ -1,0 +1,68 @@
+---
+title: HTTP PDP
+description: Expose typed permission decisions through a fetch-standard HTTP API
+---
+
+## Overview
+
+`permix/pdp` exposes a stateless policy decision point (PDP) for services that cannot run your rules directly. It includes a fetch-standard handler, a browser-compatible TypeScript client, and a deterministic OpenAPI 3.1 document.
+
+The server authenticates every request, resolves fresh rules for the verified subject, and creates an isolated Permix instance. A JSON permission catalog is optional metadata; it is never required to authorize.
+
+## Server
+
+```ts
+import { createPdpHandler } from 'permix/pdp'
+
+type Definition = {
+  document: ['read', 'create']
+}
+
+const handler = createPdpHandler<Definition, Caller, Service>({
+  authenticateCaller: async (request) => verifyUserToken(request),
+  authenticateService: async (request) => verifyServiceCredential(request),
+  resolveSubject: ({ service, subject }) =>
+    service.canImpersonate ? loadCaller(subject) : null,
+  resolveRules: async ({ principal }) => ({
+    document: {
+      read: await canReadDocuments(principal.userId),
+      create: await canCreateDocuments(principal.userId),
+    },
+  }),
+})
+
+export const POST = handler
+```
+
+Caller-scoped requests derive the subject from the verified caller. Only a trusted service credential may name a different subject; never forward an untrusted request body subject directly into `resolveRules`.
+
+The handler supports single checks, batch checks, dehydrated permission retrieval, and health/version metadata. Malformed transport input, authentication failures, denials, validation failures, and internal errors use distinct structured responses.
+
+## Client
+
+```ts
+import { createPdpClient } from 'permix/pdp'
+
+const permissions = createPdpClient<Definition>({
+  baseUrl: 'https://permissions.example.com',
+  getToken: async () => getAccessToken(),
+})
+
+const decision = await permissions.check('document.read')
+const decisions = await permissions.checkMany([
+  { path: 'document.read' },
+  { path: 'document.create' },
+])
+```
+
+Client checks are useful for UX, but the API that performs protected work must still enforce the same permission server-side.
+
+## OpenAPI and catalogs
+
+```ts
+import { createPdpOpenApiDocument } from 'permix/pdp'
+
+const document = createPdpOpenApiDocument(permissionCatalog)
+```
+
+Generate or persist this document at build time. When a catalog is supplied, permission enums and descriptions come from that versioned artifact. Unsupported catalog schema versions are rejected; unknown fields on a supported version are tolerated for forward-compatible metadata.

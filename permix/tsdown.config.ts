@@ -8,6 +8,13 @@ export default defineConfig({
   unbundle: true,
   entry: [
     './src/core/index.ts',
+    './src/adapter/index.ts',
+    './src/supabase/index.ts',
+    './src/better-auth/index.ts',
+    './src/clerk/index.ts',
+    './src/clerk/next/index.ts',
+    './src/convex/index.ts',
+    './src/pdp/index.ts',
     './src/react/index.ts',
     './src/vue/index.ts',
     './src/trpc/index.ts',

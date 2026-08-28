@@ -155,6 +155,48 @@
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
+  "adapter": {
+    "maxBytes": 4900,
+    "maxGzipBytes": 2100,
+    "maxDeltaBytes": 250,
+    "maxDeltaGzipBytes": 100
+  },
+  "better-auth": {
+    "maxBytes": 5700,
+    "maxGzipBytes": 2400,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "clerk": {
+    "maxBytes": 6100,
+    "maxGzipBytes": 2450,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "clerk-next": {
+    "maxBytes": 6250,
+    "maxGzipBytes": 2500,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "convex": {
+    "maxBytes": 6100,
+    "maxGzipBytes": 2500,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
+  "pdp": {
+    "maxBytes": 11000,
+    "maxGzipBytes": 3800,
+    "maxDeltaBytes": 500,
+    "maxDeltaGzipBytes": 200
+  },
+  "supabase": {
+    "maxBytes": 6050,
+    "maxGzipBytes": 2500,
+    "maxDeltaBytes": 350,
+    "maxDeltaGzipBytes": 150
+  },
   "extractor": {
     "maxBytes": 84500,
     "maxGzipBytes": 25200,

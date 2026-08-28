@@ -42,7 +42,8 @@ skills:
       dehydrate/hydrate for React, Vue, Solid, Svelte, Next.js, TanStack
       Start, Nuxt, React Router; setupMiddleware/checkMiddleware for Express,
       Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia, Astro. Thin router with
-      references loaded on demand.
+      HTTP PDP and provider adapters for Supabase, Better Auth, Clerk, and
+      Convex. Thin router with references loaded on demand.
     requires:
       - permix-getting-started
     subsystems:
@@ -64,11 +65,18 @@ skills:
       - elysia
       - astro
       - extractor
+      - adapter
+      - pdp
+      - supabase
+      - better-auth
+      - clerk
+      - convex
     references:
       - 'references/check.md'
       - 'references/frontend.md'
       - 'references/server.md'
       - 'references/extraction.md'
+      - 'references/providers.md'
     sources:
       - 'letstri/permix:docs/content/docs/guide/check.mdx'
       - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
@@ -93,6 +101,11 @@ skills:
       - 'letstri/permix:docs/content/docs/integrations/server.mdx'
       - 'letstri/permix:docs/content/docs/integrations/astro.mdx'
       - 'letstri/permix:docs/content/docs/integrations/elysia.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/pdp.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/supabase.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/better-auth.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/clerk.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/convex.mdx'
       - 'letstri/permix:permix/src/core/check.ts'
 
 coverage:
