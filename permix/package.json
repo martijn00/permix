@@ -57,6 +57,10 @@
       "types": "./dist/core/index.d.mts",
       "import": "./dist/core/index.mjs"
     },
+    "./adapter": {
+      "types": "./dist/adapter/index.d.mts",
+      "import": "./dist/adapter/index.mjs"
+    },
     "./react": {
       "types": "./dist/react/index.d.mts",
       "import": "./dist/react/index.mjs"
