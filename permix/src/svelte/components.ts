@@ -25,6 +25,6 @@ export function createComponents<D extends Definition>(
   permix: Pick<Permix<D>, 'getRules' | 'check'>
 ): PermixComponents<D> {
   return {
-    Check,
+    Check: Check as Component<CheckProps<D, RulesPaths<D>>>,
   }
 }

@@ -106,7 +106,10 @@ function buildPermix<D extends Definition>(
     return async ({ request, context, params }, next) => {
       const rules =
         typeof callbackOrRules === 'function'
-          ? await callbackOrRules({ request, params })
+          ? await callbackOrRules({
+              request,
+              ...(params === undefined ? {} : { params }),
+            })
           : callbackOrRules
       const instance = createPermixCore<D>(rules)
       instance.hook('check', (checkContext) => {
