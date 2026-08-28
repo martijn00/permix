@@ -1,3 +1,5 @@
+import { access } from 'node:fs/promises'
+
 const entrypoints = [
   ['.', await import('permix'), ['createPermix', 'permission']],
   [
@@ -21,6 +23,16 @@ const entrypoints = [
       'createBetterAuthPermixClient',
       'createBetterAuthPermixPlugin',
       'rulesFromBetterAuthRole',
+    ],
+  ],
+  [
+    './clerk',
+    await import('permix/clerk'),
+    [
+      'createClerkAuthorizationMapping',
+      'createClerkPermissionsHandler',
+      'createClerkPermix',
+      'createClerkPermixClient',
     ],
   ],
   [
@@ -60,3 +72,12 @@ for (const [subpath, module, expectedExports] of entrypoints) {
     }
   }
 }
+
+// Clerk's Next.js server entrypoint is intended for the Next.js bundler and
+// cannot be executed by this raw Node smoke process. Resolve the public export
+// and assert that its built module exists; tsconfig.compat.json checks its types.
+const clerkNextUrl = import.meta.resolve('permix/clerk/next')
+if (!clerkNextUrl.endsWith('/dist/clerk/next/index.mjs')) {
+  throw new Error('Invalid permix/clerk/next export target')
+}
+await access(new URL(clerkNextUrl))
