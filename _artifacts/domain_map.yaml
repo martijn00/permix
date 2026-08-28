@@ -34,7 +34,8 @@ domains:
     slug: server
     description: >
       Per-request setupMiddleware and checkMiddleware for Express, Hono, Fastify,
-      NestJS, tRPC, oRPC, Node, Elysia, and Astro.
+      NestJS, tRPC, oRPC, Node, Elysia, and Astro; provider identity adapters
+      and fetch-standard policy decision points.
 
   - name: 'SSR and hydration'
     slug: ssr
@@ -106,6 +107,12 @@ skills:
       - node
       - elysia
       - astro
+      - adapter
+      - pdp
+      - supabase
+      - better-auth
+      - clerk
+      - convex
     covers:
       - check
       - isReady
@@ -122,6 +129,8 @@ skills:
       - checkMiddleware
       - getOrThrow
       - permission extraction
+      - provider identity adapters
+      - HTTP PDP and client
     tasks:
       - 'Gate UI or API logic with permix.check'
       - 'Implement resource-level authorization with entity data'
@@ -132,11 +141,14 @@ skills:
       - 'Protect HTTP or RPC routes on the server'
       - 'Derive rules from authenticated request context'
       - 'Generate typed permission catalogs from source markers'
+      - 'Resolve per-request rules from Supabase, Better Auth, Clerk, or Convex'
+      - 'Expose typed authorization checks through an HTTP PDP'
     references:
       - 'references/check.md'
       - 'references/frontend.md'
       - 'references/server.md'
       - 'references/extraction.md'
+      - 'references/providers.md'
     sources:
       - 'letstri/permix:docs/content/docs/guide/check.mdx'
       - 'letstri/permix:docs/content/docs/guide/rebac.mdx'
@@ -161,6 +173,11 @@ skills:
       - 'letstri/permix:docs/content/docs/integrations/server.mdx'
       - 'letstri/permix:docs/content/docs/integrations/astro.mdx'
       - 'letstri/permix:docs/content/docs/integrations/elysia.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/pdp.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/supabase.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/better-auth.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/clerk.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/convex.mdx'
       - 'letstri/permix:permix/src/core/check.ts'
 
 coverage:

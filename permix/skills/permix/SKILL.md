@@ -1,7 +1,7 @@
 ---
 name: permix
 description: >-
-  Applies Permix authorization once a schema exists: permix.check() paths and ReBAC callbacks, frontend bindings (permix/react, permix/vue, permix/solid, permix/svelte) with SSR dehydrate/hydrate for Next.js, TanStack Start, Nuxt, and React Router, and server middleware (permix/express, hono, fastify, nest, trpc, orpc, node, elysia, astro). Use for anything past initial setup — checking permissions, gating UI, or protecting routes. For creating the schema and first `permix.setup()`, use permix-getting-started first.
+  Applies Permix authorization once a schema exists: permix.check() paths and ReBAC callbacks, frontend bindings, server middleware, HTTP PDP, and provider integrations for Supabase, Better Auth, Clerk, and Convex. Use for checking permissions, gating UI, protecting routes, or resolving rules from provider identity. For creating the schema and first `permix.setup()`, use permix-getting-started first.
 metadata:
   type: core
   library: permix
@@ -32,6 +32,11 @@ sources:
   - 'letstri/permix:docs/content/docs/integrations/server.mdx'
   - 'letstri/permix:docs/content/docs/integrations/astro.mdx'
   - 'letstri/permix:docs/content/docs/integrations/elysia.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/pdp.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/supabase.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/better-auth.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/clerk.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/convex.mdx'
   - 'letstri/permix:permix/src/core/check.ts'
 ---
 
@@ -45,6 +50,7 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 | Generate typed permission constants, metadata, and a `Definition` from source markers | [references/extraction.md](references/extraction.md) |
 | React, Vue, Solid, or Svelte UI — `createPermix` from `permix/react` (or vue/solid/svelte); factory-bound Provider / `usePermix()` / `Check`; SSR `dehydrate`/`hydrate`/`install` for Next.js / TanStack Start / Nuxt / React Router | [references/frontend.md](references/frontend.md) |
 | Protecting Express, Hono, Fastify, NestJS, tRPC, oRPC, Node, Elysia, or Astro routes — `setupMiddleware`, `checkMiddleware`, or Nest `guard` / `@Check` | [references/server.md](references/server.md) |
+| HTTP PDP/client or provider identity with Supabase, Better Auth, Clerk, or Convex | [references/providers.md](references/providers.md) |
 
 ## Rules that apply everywhere
 
