@@ -125,6 +125,14 @@ export default defineConfig({
       },
     },
     {
+      files: ['permix/src/react/**'],
+      rules: {
+        'typescript/no-explicit-any': 'error',
+        'typescript/consistent-type-imports': 'error',
+        'react/exhaustive-effect-dependencies': 'error',
+      },
+    },
+    {
       files: nonReactGlobs,
       rules: {
         'react-hooks/rules-of-hooks': 'off',

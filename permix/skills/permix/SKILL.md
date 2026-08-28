@@ -37,7 +37,7 @@ Assumes a `permix` instance already exists (see **permix-getting-started**). Loa
 | Task | Reference |
 | --- | --- |
 | `permix.check()` paths, callbacks, `~all`/`~any`, ReBAC/ABAC with entity data, `isReady` | [references/check.md](references/check.md) |
-| React, Vue, Solid, or Svelte UI — `PermixProvider`, `usePermix`, `createComponents`, SSR `dehydrate`/`hydrate` for Next.js / TanStack Start | [references/frontend.md](references/frontend.md) |
+| React, Vue, Solid, or Svelte UI — `createPermix` from `permix/react` (or `PermixProvider` / `usePermix` / `createComponents`), SSR `dehydrate`/`hydrate` for Next.js / TanStack Start | [references/frontend.md](references/frontend.md) |
 | Protecting Express, Hono, Fastify, tRPC, oRPC, Node, or Elysia routes — `setupMiddleware`, `checkMiddleware` | [references/server.md](references/server.md) |
 
 ## Rules that apply everywhere

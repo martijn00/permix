@@ -10,7 +10,10 @@ import { createPermix as createHonoPermix } from 'permix/hono'
 import { createPermix as createNextPermix } from 'permix/next'
 import { createPermix as createNodePermix } from 'permix/node'
 import { createPermix as createOrpcPermix } from 'permix/orpc'
-import { createComponents as createReactComponents } from 'permix/react'
+import {
+  createComponents as createReactComponents,
+  createPermix as createReactPermix,
+} from 'permix/react'
 import { createPermix as createServerPermix } from 'permix/server'
 import { createComponents as createSolidComponents } from 'permix/solid'
 import { createComponents as createSvelteComponents } from 'permix/svelte'
@@ -24,6 +27,8 @@ type PostDefinition = {
 
 const core = createPermix<PostDefinition>()
 const react = createReactComponents(core)
+const reactFactory = createReactPermix(core)
+const reactStandalone = createReactPermix<PostDefinition>()
 const vue = createVueComponents(core)
 const trpc = createTrpcPermix<PostDefinition>()
 const orpc = createOrpcPermix<PostDefinition>()
@@ -50,6 +55,8 @@ core.setup({
 
 const checkArgs: CheckArgs<PostDefinition> = ['post.create']
 const allowed = core.check(...checkArgs)
+type FactoryCheck = ReturnType<(typeof reactFactory)['usePermix']>['check']
+const factoryCheck: FactoryCheck = core.check
 
 export {
   allowed,
@@ -59,12 +66,15 @@ export {
   effect,
   elysia,
   express,
+  factoryCheck,
   fastify,
   hono,
   next,
   node,
   orpc,
   react,
+  reactFactory,
+  reactStandalone,
   server,
   solid,
   svelte,

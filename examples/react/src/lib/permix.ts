@@ -1,10 +1,9 @@
-import { createPermix } from 'permix'
-import { createComponents } from 'permix/react'
+import { createPermix } from 'permix/react'
 
 import type { Post } from '../hooks/posts'
 import type { User } from '../hooks/user'
 
-export const permix = createPermix<{
+export const { permix, PermixProvider, usePermix, Check } = createPermix<{
   post: ['read', { name: 'edit'; type: Post }]
 }>()
 
@@ -16,5 +15,3 @@ export function setupPermix(user: User) {
     },
   })
 }
-
-export const { Check } = createComponents(permix)

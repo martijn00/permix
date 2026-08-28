@@ -1,10 +1,13 @@
 import { render, waitFor } from '@testing-library/react'
+import * as React from 'react'
+// @ts-expect-error react-dom/server has no types under tsconfig.react.json `types: []`
+import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 
 import { createPermix, PermixRuleNotDefinedError } from '../core'
 import { createComponents, PermixHydrate, PermixProvider } from './components'
 import { usePermix } from './hooks'
-import '@testing-library/jest-dom/vitest'
 
 describe('components', () => {
   it('should check hydration', async () => {
@@ -39,6 +42,150 @@ describe('components', () => {
     )
 
     expect(container.firstChild).toHaveTextContent('true')
+  })
+
+  it('uses dehydrated rules on the first render without mutating the instance', () => {
+    const permixServer = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permixServer.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const dehydrated = permixServer.dehydrate()
+    const permixClient = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    function TestComponent() {
+      const { check, isReady } = usePermix(permixClient)
+      return <div>{`${check('post.create')}:${isReady}`}</div>
+    }
+
+    const html = renderToString(
+      <PermixProvider permix={permixClient}>
+        <PermixHydrate state={dehydrated}>
+          <TestComponent />
+        </PermixHydrate>
+      </PermixProvider>
+    )
+
+    expect(html).toContain('true:false')
+    expect(permixClient.getRules()).toBeNull()
+    expect(permixClient.isReady()).toBe(false)
+  })
+
+  it('keeps isReady false after hydration until client setup', async () => {
+    const permixServer = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permixServer.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const dehydrated = permixServer.dehydrate()
+    const permixClient = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    function TestComponent() {
+      const { check, isReady } = usePermix(permixClient)
+      return (
+        <div>
+          <span data-testid="hydrate-create">
+            {check('post.create').toString()}
+          </span>
+          <span data-testid="hydrate-ready">{isReady.toString()}</span>
+        </div>
+      )
+    }
+
+    const { getByTestId } = render(
+      <React.StrictMode>
+        <PermixProvider permix={permixClient}>
+          <PermixHydrate state={dehydrated}>
+            <TestComponent />
+          </PermixHydrate>
+        </PermixProvider>
+      </React.StrictMode>
+    )
+
+    expect(getByTestId('hydrate-create')).toHaveTextContent('true')
+    expect(getByTestId('hydrate-ready')).toHaveTextContent('false')
+
+    permixClient.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    await waitFor(() => {
+      expect(getByTestId('hydrate-ready')).toHaveTextContent('true')
+    })
+  })
+
+  it('replaces hydrated booleans when setup supplies new rules', async () => {
+    const permixServer = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permixServer.setup({
+      post: {
+        create: true,
+        read: false,
+      },
+    })
+
+    const dehydrated = permixServer.dehydrate()
+    const permixClient = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    function TestComponent() {
+      const { check } = usePermix(permixClient)
+      return (
+        <div>
+          <span data-testid="replace-create">
+            {check('post.create').toString()}
+          </span>
+          <span data-testid="replace-read">
+            {check('post.read').toString()}
+          </span>
+        </div>
+      )
+    }
+
+    const { getByTestId } = render(
+      <PermixProvider permix={permixClient}>
+        <PermixHydrate state={dehydrated}>
+          <TestComponent />
+        </PermixHydrate>
+      </PermixProvider>
+    )
+
+    expect(getByTestId('replace-create')).toHaveTextContent('true')
+    expect(getByTestId('replace-read')).toHaveTextContent('false')
+
+    permixClient.setup({
+      post: {
+        create: false,
+        read: true,
+      },
+    })
+
+    await waitFor(() => {
+      expect(getByTestId('replace-create')).toHaveTextContent('false')
+      expect(getByTestId('replace-read')).toHaveTextContent('true')
+    })
   })
 
   it('should work with Check component', () => {

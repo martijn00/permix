@@ -31,6 +31,37 @@ describe('permix react', () => {
     expect(result.current.check('post.read')).toBe(false)
   })
 
+  it('reads ready state on the first render when setup ran before subscribe', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: {
+        create: true,
+      },
+    })
+
+    function TestComponent() {
+      const { isReady, check } = usePermix(permix)
+      return (
+        <div>
+          {isReady.toString()}:{check('post.create').toString()}
+        </div>
+      )
+    }
+
+    const { container } = render(
+      <React.StrictMode>
+        <PermixProvider permix={permix}>
+          <TestComponent />
+        </PermixProvider>
+      </React.StrictMode>
+    )
+
+    expect(container.firstChild).toHaveTextContent('true:true')
+  })
+
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']

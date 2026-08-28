@@ -9,18 +9,26 @@ export interface PermixContext<T extends Definition> {
   rules: Rules<T> | null
 }
 
-export const Context = React.createContext<PermixContext<any>>(null!)
+export function createPermixContext<D extends Definition>() {
+  return React.createContext<PermixContext<D> | null>(null)
+}
 
-export function usePermixContext() {
-  const context = React.useContext(Context)
+export const Context = createPermixContext<Definition>()
 
-  if (!context) {
+export function usePermixContext<D extends Definition = Definition>(
+  context?: React.Context<PermixContext<D> | null>
+): PermixContext<D> {
+  const value = React.useContext(
+    context ?? (Context as React.Context<PermixContext<D> | null>)
+  )
+
+  if (!value) {
     throw new Error(
       '[Permix]: Looks like you forgot to wrap your app with <PermixProvider>'
     )
   }
 
-  return context
+  return value
 }
 
 /**
@@ -29,15 +37,25 @@ export function usePermixContext() {
  * @link https://permix.letstri.dev/docs/integrations/react
  */
 export function usePermix<T extends Definition>(
-  permix: Pick<Permix<T>, 'getRules' | 'check'>
+  permix: Pick<Permix<T>, 'getRules' | 'check'>,
+  context?: React.Context<PermixContext<T> | null>
 ) {
-  const { isReady, rules } = usePermixContext()
+  const { isReady, rules, permix: provided } = usePermixContext(context)
+
+  const nodeProcess = (
+    globalThis as typeof globalThis & {
+      process?: { env?: { NODE_ENV?: string } }
+    }
+  ).process
+
+  if (nodeProcess?.env?.NODE_ENV !== 'production' && provided !== permix) {
+    throw new Error(
+      '[Permix]: usePermix must receive the same instance passed to <PermixProvider>'
+    )
+  }
 
   const check: Permix<T>['check'] = React.useCallback(
-    (...args) =>
-      createCheck<T>(() => (rules ?? permix.getRules()) as Rules<T> | null)(
-        ...args
-      ),
+    (...args) => createCheck<T>(() => rules ?? permix.getRules())(...args),
     [rules, permix]
   )
 
