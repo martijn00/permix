@@ -6,12 +6,12 @@ import { createMiddleware } from '@tanstack/react-start'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixForbiddenError,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -57,8 +57,11 @@ function buildPermix<D extends Definition>(
 ) {
   const onForbidden =
     options.onForbidden ??
-    (() => {
-      throw new PermixForbiddenError()
+    ((params) => {
+      throw new PermixForbiddenError({
+        path: params.path,
+        reasons: params.reasons ?? [],
+      })
     })
 
   const hooks = createHooks<PermixHooks<D>>()
@@ -178,7 +181,7 @@ function buildPermix<D extends Definition>(
       } else {
         return await onForbidden({
           next,
-          ...createCheckContext<D>(...args),
+          ...withDenialReasons(permix, args),
         })
       }
     }) as unknown as ReturnType<typeof createMiddleware>

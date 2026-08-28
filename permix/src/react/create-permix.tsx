@@ -15,6 +15,7 @@ export interface CreatePermixResult<D extends Definition> {
   }) => ReactNode
   usePermix: () => {
     check: Permix<D>['check']
+    explain: Permix<D>['explain']
     isReady: boolean
   }
   Check: PermixComponents<D>['Check']

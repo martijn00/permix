@@ -219,6 +219,32 @@ describe('permix react', () => {
     expect(onCheck).toHaveBeenCalledWith({
       path: 'post.create',
       allowed: true,
+      reasons: [],
+    })
+  })
+
+  it('exposes explain() for UI denial reasons', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'not an author' }),
+      },
+    })
+
+    const { result } = renderHook(() => usePermix(permix), {
+      wrapper: ({ children }) => (
+        <PermixProvider permix={permix}>{children}</PermixProvider>
+      ),
+    })
+
+    expect(result.current.check('post.create')).toBe(false)
+    expect(result.current.explain('post.create')).toStrictEqual({
+      allowed: false,
+      path: 'post.create',
+      reasons: ['not an author'],
     })
   })
 })

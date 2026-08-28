@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import type { Definition, Permix, Rules } from '../core'
-import { runCheck } from '../core'
+import { runCheck, runExplain } from '../core'
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>
@@ -81,5 +81,10 @@ export function usePermix<T extends Definition>(
     [rules, provided]
   )
 
-  return { check, isReady }
+  const explain: Permix<T>['explain'] = React.useCallback(
+    (...args) => runExplain(provided, rules, ...args),
+    [rules, provided]
+  )
+
+  return { check, explain, isReady }
 }

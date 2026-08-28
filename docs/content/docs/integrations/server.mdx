@@ -219,6 +219,7 @@ The `onForbidden` handler receives:
 - `next`: the downstream handler — call it to let the request through anyway
 - `path`: the permission path that was checked (e.g. `'post.create'`)
 - `data`: optional data passed to the check
+- `reasons`: denial strings from `{ allow: false, reason }` rules (empty for boolean denials)
 
 ## Advanced Usage
 

@@ -3,11 +3,11 @@ import { createMiddleware } from 'hono/factory'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -90,7 +90,7 @@ function buildPermix<D extends Definition>(
       const allowed = permix.check(...args)
 
       if (!allowed) {
-        return await onForbidden({ c, ...createCheckContext(...args) })
+        return await onForbidden({ c, ...withDenialReasons(permix, args) })
       }
 
       // oxlint-disable-next-line typescript/no-confusing-void-expression -- Hono's next() is Promise<void>

@@ -209,6 +209,7 @@ The `onForbidden` handler receives:
 
 - `path`: The permission path that was checked (e.g. `'post.create'`)
 - `data`: Optional data passed to the check
+- `reasons`: Denial strings from `{ allow: false, reason }` rules (empty for boolean denials)
 - `ctx`: Your tRPC context object
 - `next`: The middleware `next` function — call it to allow the request through
 

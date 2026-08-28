@@ -493,7 +493,7 @@ Returns an object with the following methods:
 
 | Option | Description |
 | --- | --- |
-| `onForbidden({ path, data })` | Called when `checkMiddleware` denies a request. Defaults to throwing a `PermixError`. |
+| `onForbidden({ path, data, reasons })` | Called when `checkMiddleware` denies a request. Defaults to throwing a `PermixForbiddenError`. |
 
 ### Hooks
 

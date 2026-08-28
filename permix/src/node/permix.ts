@@ -2,11 +2,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -105,7 +105,7 @@ function buildPermix<D extends Definition>(
             req,
             res,
             next,
-            ...createCheckContext(...args),
+            ...withDenialReasons(permix, args),
           })
           return
         }

@@ -2,11 +2,11 @@ import type { Context } from 'elysia'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -84,7 +84,7 @@ function buildPermix<D extends Definition>(
       if (!allowed) {
         const result = await onForbidden({
           context,
-          ...createCheckContext(...args),
+          ...withDenialReasons(permix, args),
         })
         if (result !== undefined) {
           return result

@@ -1,10 +1,10 @@
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -136,7 +136,7 @@ function buildPermix<D extends Definition>(
           request,
           context,
           next,
-          ...createCheckContext(...args),
+          ...withDenialReasons(permix, args),
         })
       }
 

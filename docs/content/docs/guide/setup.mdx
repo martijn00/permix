@@ -77,7 +77,7 @@ permix.isReady() // true
 
 ## Type-Based
 
-When creating a Permix instance, you can attach a `type` to actions that need entity data in rule callbacks. This allows you to check permissions for specific data entities. So instead of `boolean` you can use functions to check permissions.
+When creating a Permix instance, you can attach a `type` to actions that need entity data in rule callbacks. This allows you to check permissions for specific data entities. So instead of `boolean` you can use functions to check permissions. Functions may return `true` / `false` or `{ allow, reason }` — `check()` still collapses the result to a boolean; `explain()` keeps the reason. See [Check](/docs/guide/check#explain).
 
 ```ts twoslash
 import { createPermix } from 'permix'

@@ -66,6 +66,23 @@ permix.check('post.update', post) // optional data if not required: true
 permix.check('post.delete', post) // required: true — data required
 ```
 
+Rule functions may return `{ allow, reason }` instead of a boolean. `check()` still returns `boolean`. Use `explain()` (same arguments) for tooltip copy — `explain().reasons` is the denial text, not a guessed string.
+
+```ts
+permix.setup({
+  post: {
+    delete: (post) =>
+      post.authorId === currentUser.id
+        ? true
+        : { allow: false, reason: 'Only the author can delete this post' },
+  },
+})
+
+const { allowed, reasons } = permix.explain('post.delete', post)
+```
+
+UI hooks (`usePermix`) expose `explain` next to `check`. `'~all'` aggregates reasons from denied leaves. `dehydrate()` still stores booleans only.
+
 Prefer `schema: typeof postSchema` (or `action('edit', postSchema)`) when the entity already has a Zod/Valibot/ArkType schema — see https://permix.letstri.dev/docs/integrations/standard-schema. Core `check()` does not parse data. The `permix/standard-schema` factory can, via `{ validate: 'deny' | 'throw' }`.
 
 **ReBAC pattern**: capture the **actor** in closures at `setup` time; pass the **resource** at `check` time. No separate ReBAC API.

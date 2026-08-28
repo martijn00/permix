@@ -1,4 +1,4 @@
-import type { CheckArgs, CheckerFn } from '../core'
+import type { CheckArgs, CheckerFn, ExplainResult } from '../core'
 import type { Definition } from '../core/definitions'
 import type { StandardSchemaV1 } from '../core/standard-schema'
 import { PermixAsyncValidationError, PermixValidationError } from './errors'
@@ -90,4 +90,40 @@ export function checkWithValidation<D extends Definition>(
     return check(...args)
   }
   return check(...([first, prepared] as unknown as CheckArgs<D>))
+}
+
+export function explainWithValidation<D extends Definition>(
+  explain: (...args: CheckArgs<D>) => ExplainResult,
+  schemas: Map<string, StandardSchemaV1>,
+  mode: ValidateMode,
+  args: CheckArgs<D>
+): ExplainResult {
+  const first = args[0]
+
+  if (typeof first === 'function') {
+    return explain((c: CheckerFn<D>) =>
+      first((path, ...data) => {
+        const prepared = prepareCheckData(schemas, mode, path, data[0])
+        if (prepared === DENY) {
+          return false
+        }
+        if (prepared === SKIP) {
+          return c(path, ...data)
+        }
+        return (c as (nextPath: string, nextData?: unknown) => boolean)(
+          path,
+          prepared
+        )
+      })
+    )
+  }
+
+  const prepared = prepareCheckData(schemas, mode, first, args[1])
+  if (prepared === DENY) {
+    return { allowed: false, path: first, reasons: [] }
+  }
+  if (prepared === SKIP) {
+    return explain(...args)
+  }
+  return explain(...([first, prepared] as unknown as CheckArgs<D>))
 }

@@ -130,12 +130,12 @@ Requires Svelte 5. Provider + hooks from `permix/svelte`; mirror the React steps
 </PermixProvider>
 ```
 
-`usePermix(permix)` returns `{ check, isReady }` where `isReady` is a reactive getter — access it as `permissions.isReady` (don't destructure). `createComponents(permix)` returns a typed `Check` component that uses `children` / `otherwise` snippets.
+`usePermix(permix)` returns `{ check, explain, isReady }` where `isReady` is a reactive getter — access it as `permissions.isReady` (don't destructure). `createComponents(permix)` returns a typed `Check` component that uses `children` / `otherwise` snippets.
 
 ## UX guidelines
 
 - Show loading or skeleton while `!isReady` — `check` returns `false` when rules are not ready in hooks.
-- Hide destructive actions when denied; prefer disabling with tooltip only if you explain why.
+- Hide destructive actions when denied. If you disable instead, set the tooltip from `explain().reasons` — do not invent a denial string.
 - Keep permission strings in sync with server middleware paths.
 
 ## SSR and hydration

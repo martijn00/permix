@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'solid-js'
 
 import type { Definition, Permix, Rules } from '../core'
-import { runCheck } from '../core'
+import { runCheck, runExplain } from '../core'
 
 export interface PermixContext<T extends Definition> {
   permix: Permix<T>
@@ -36,5 +36,8 @@ export function usePermix<T extends Definition>(
   const check: Permix<T>['check'] = (...args) =>
     runCheck(context.permix, context.rules, ...args)
 
-  return { check, isReady: () => context.isReady }
+  const explain: Permix<T>['explain'] = (...args) =>
+    runExplain(context.permix, context.rules, ...args)
+
+  return { check, explain, isReady: () => context.isReady }
 }

@@ -70,15 +70,22 @@ import { usePermix } from './lib/permix'
 
 export default function Page() {
   const post = usePost()
-  const { check, isReady } = usePermix()
+  const { check, explain, isReady } = usePermix()
 
   if (!isReady) {
     return <div>Loading permissions...</div>
   }
 
   const canEdit = check('post.edit', post)
+  const denial = explain('post.edit', post)
 
-  return canEdit ? <button>Edit Post</button> : null
+  return canEdit ? (
+    <button>Edit Post</button>
+  ) : (
+    <button disabled title={denial.reasons.join(' ')}>
+      Edit Post
+    </button>
+  )
 }
 ```
 

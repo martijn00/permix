@@ -7,7 +7,7 @@ import type {
   SpecialPath,
   SpecialSymbol,
 } from './permix'
-import type { Rules } from './rules'
+import type { RuleDecision, RuleResult, Rules } from './rules'
 
 export type CheckArgs<D extends Definition> =
   | {
@@ -16,7 +16,39 @@ export type CheckArgs<D extends Definition> =
   | [special: SpecialPath<D>]
   | [callback: (c: CheckerFn<D>) => boolean]
 
-type Rule = Rules<any> | boolean | ((data?: unknown) => boolean)
+type Rule = Rules<any> | boolean | ((data?: unknown) => RuleResult)
+
+export interface ExplainResult {
+  readonly allowed: boolean
+  readonly path: string | null
+  readonly reasons: readonly string[]
+}
+
+interface WalkResult {
+  readonly allowed: boolean
+  readonly reasons: readonly string[]
+}
+
+function isRuleDecision(value: unknown): value is RuleDecision {
+  if (typeof value !== 'object' || value === null || !('allow' in value)) {
+    return false
+  }
+  return typeof value.allow === 'boolean'
+}
+
+export function unwrapRuleResult(value: unknown): WalkResult {
+  if (typeof value === 'boolean') {
+    return { allowed: value, reasons: [] }
+  }
+  if (isRuleDecision(value)) {
+    const reason = value.reason
+    if (value.allow || reason === undefined || reason.length === 0) {
+      return { allowed: value.allow, reasons: [] }
+    }
+    return { allowed: false, reasons: [reason] }
+  }
+  return { allowed: Boolean(value), reasons: [] }
+}
 
 function isSpecialSymbol(value: unknown): value is SpecialSymbol {
   return value === '~any' || value === '~all'
@@ -36,7 +68,7 @@ function pathFromArgs(args: unknown[]): string {
  */
 export function callRuleWithoutData(rule: () => unknown): boolean {
   try {
-    return Boolean(rule())
+    return unwrapRuleResult(rule()).allowed
   } catch {
     return false
   }
@@ -49,7 +81,7 @@ function ownChild(parent: object, key: string): Rule | undefined {
   return (parent as Record<string, Rule>)[key]
 }
 
-function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
+function walk(rules: Rules<any>, inputArgs: unknown[]): WalkResult {
   let args = inputArgs
   const first = args[0]
 
@@ -78,13 +110,19 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
         throw new PermixRuleNotDefinedError(path)
       }
 
-      const out: boolean[] = []
+      const out: WalkResult[] = []
       const visit = (rule: Rule) => {
         if (typeof rule === 'boolean') {
-          return void out.push(rule)
+          out.push({ allowed: rule, reasons: [] })
+          return
         }
         if (typeof rule === 'function') {
-          return void out.push(callRuleWithoutData(rule))
+          try {
+            out.push(unwrapRuleResult(rule()))
+          } catch {
+            out.push({ allowed: false, reasons: [] })
+          }
+          return
         }
         for (const key of Object.keys(rule)) {
           const child = ownChild(rule, key)
@@ -95,9 +133,16 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
       }
       visit(subtree)
       if (out.length === 0) {
-        return false
+        return { allowed: false, reasons: [] }
       }
-      return last === '~all' ? out.every(Boolean) : out.some(Boolean)
+      const allowed =
+        last === '~all'
+          ? out.every((item) => item.allowed)
+          : out.some((item) => item.allowed)
+      const reasons = allowed
+        ? []
+        : out.flatMap((item) => (item.allowed ? [] : item.reasons))
+      return { allowed, reasons }
     }
 
     if (first.includes('.')) {
@@ -120,31 +165,60 @@ function walk(rules: Rules<any>, inputArgs: unknown[]): boolean {
     if (remainingPath) {
       throw new PermixRuleNotDefinedError(pathFromArgs(args))
     }
-    return rule
+    return { allowed: rule, reasons: [] }
   }
   if (typeof rule === 'function') {
-    return Boolean(rule(args[i]))
+    return unwrapRuleResult(rule(args[i]))
   }
 
   const path = args.slice(0, i + 1).join('.')
   throw new PermixRuleNotDefinedError(path)
 }
 
+function evaluate<D extends Definition>(
+  rules: Rules<D> | null | (() => Rules<D> | null),
+  args: CheckArgs<D>
+): WalkResult {
+  const r = typeof rules === 'function' ? rules() : rules
+
+  if (!r) {
+    throw new PermixNotReadyError()
+  }
+
+  if (typeof args[0] === 'function') {
+    const reasons: string[] = []
+    const allowed = Boolean(
+      args[0]((path, ...data) => {
+        const result = walk(r, [path, ...data])
+        if (!result.allowed) {
+          reasons.push(...result.reasons)
+        }
+        return result.allowed
+      })
+    )
+    return { allowed, reasons: allowed ? [] : reasons }
+  }
+
+  return walk(r, args)
+}
+
 export function createCheck<D extends Definition>(
   rules: Rules<D> | null | (() => Rules<D> | null)
 ) {
-  return (...args: CheckArgs<D>): boolean => {
-    const r = typeof rules === 'function' ? rules() : rules
+  return (...args: CheckArgs<D>): boolean => evaluate(rules, args).allowed
+}
 
-    if (!r) {
-      throw new PermixNotReadyError()
+export function createExplain<D extends Definition>(
+  rules: Rules<D> | null | (() => Rules<D> | null)
+) {
+  return (...args: CheckArgs<D>): ExplainResult => {
+    const result = evaluate(rules, args)
+    const context = createCheckContext<D>(...args)
+    return {
+      allowed: result.allowed,
+      path: context.path,
+      reasons: result.reasons,
     }
-
-    if (typeof args[0] === 'function') {
-      return Boolean(args[0]((path, ...data) => walk(r, [path, ...data])))
-    }
-
-    return walk(r, args)
   }
 }
 
@@ -169,11 +243,32 @@ export function runCheck(
   return instance.check(...args)
 }
 
+/**
+ * Same overlay rule as {@link runCheck}: first-paint dehydrated rules must not
+ * throw {@link PermixNotReadyError}. Does not fire the `check` hook.
+ */
+export function runExplain(
+  instance: {
+    explain: (...args: any[]) => ExplainResult
+    getRules: () => Rules<any> | null
+  },
+  overlay: Rules<any> | null | undefined,
+  ...args: any[]
+): ExplainResult {
+  if (instance.getRules() === null && overlay) {
+    return (
+      createExplain(overlay as never) as (...next: any[]) => ExplainResult
+    )(...args)
+  }
+  return instance.explain(...args)
+}
+
 export interface CheckContext<D extends Definition> {
   path: RulesPaths<D> | SpecialPath<D> | null
   data?: unknown
   allowed?: boolean
   error?: unknown
+  reasons?: readonly string[]
 }
 
 export function createCheckContext<D extends Definition>(
@@ -196,4 +291,16 @@ export function createCheckContext<D extends Definition>(
   }
 
   return { path: first, data }
+}
+
+export function withDenialReasons<D extends Definition>(
+  instance: { explain: (...args: CheckArgs<D>) => ExplainResult },
+  args: CheckArgs<D>
+): CheckContext<D> {
+  const explanation = instance.explain(...args)
+  return {
+    ...createCheckContext(...args),
+    allowed: explanation.allowed,
+    reasons: explanation.reasons,
+  }
 }

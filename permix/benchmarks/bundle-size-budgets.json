@@ -1,127 +1,127 @@
 {
   "core": {
-    "maxBytes": 3950,
-    "maxGzipBytes": 1650,
+    "maxBytes": 5050,
+    "maxGzipBytes": 2050,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "react-classic": {
-    "maxBytes": 5200,
-    "maxGzipBytes": 2200,
+    "maxBytes": 6550,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "react-factory": {
-    "maxBytes": 6600,
-    "maxGzipBytes": 2650,
+    "maxBytes": 8000,
+    "maxGzipBytes": 3100,
     "maxDeltaBytes": 350,
     "maxDeltaGzipBytes": 150
   },
   "react-check": {
-    "maxBytes": 5250,
-    "maxGzipBytes": 2200,
+    "maxBytes": 6500,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "vue": {
-    "maxBytes": 5500,
-    "maxGzipBytes": 2250,
+    "maxBytes": 6950,
+    "maxGzipBytes": 2750,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "solid": {
-    "maxBytes": 5050,
-    "maxGzipBytes": 2100,
+    "maxBytes": 6450,
+    "maxGzipBytes": 2600,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "svelte": {
-    "maxBytes": 4850,
-    "maxGzipBytes": 2050,
+    "maxBytes": 6200,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "trpc": {
-    "maxBytes": 5000,
-    "maxGzipBytes": 2100,
+    "maxBytes": 6250,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "orpc": {
-    "maxBytes": 5000,
-    "maxGzipBytes": 2100,
+    "maxBytes": 6250,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "express": {
-    "maxBytes": 5150,
-    "maxGzipBytes": 2100,
+    "maxBytes": 6350,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "hono": {
-    "maxBytes": 5100,
-    "maxGzipBytes": 2100,
+    "maxBytes": 6350,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "node": {
-    "maxBytes": 5200,
-    "maxGzipBytes": 2150,
+    "maxBytes": 6450,
+    "maxGzipBytes": 2600,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "server": {
-    "maxBytes": 5150,
-    "maxGzipBytes": 2150,
+    "maxBytes": 6350,
+    "maxGzipBytes": 2550,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "astro": {
-    "maxBytes": 5400,
-    "maxGzipBytes": 2200,
+    "maxBytes": 6600,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "elysia": {
-    "maxBytes": 5100,
-    "maxGzipBytes": 2050,
+    "maxBytes": 6350,
+    "maxGzipBytes": 2500,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "fastify": {
-    "maxBytes": 5350,
-    "maxGzipBytes": 2250,
+    "maxBytes": 6550,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "drizzle": {
-    "maxBytes": 4400,
-    "maxGzipBytes": 1900,
+    "maxBytes": 5500,
+    "maxGzipBytes": 2300,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "drizzle-legacy": {
-    "maxBytes": 4400,
-    "maxGzipBytes": 1900,
+    "maxBytes": 5500,
+    "maxGzipBytes": 2300,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "standard-schema": {
-    "maxBytes": 6450,
-    "maxGzipBytes": 2550,
+    "maxBytes": 8000,
+    "maxGzipBytes": 3100,
     "maxDeltaBytes": 350,
     "maxDeltaGzipBytes": 150
   },
   "effect": {
-    "maxBytes": 5050,
-    "maxGzipBytes": 2050,
+    "maxBytes": 6200,
+    "maxGzipBytes": 2450,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "next": {
-    "maxBytes": 4450,
-    "maxGzipBytes": 1800,
+    "maxBytes": 5550,
+    "maxGzipBytes": 2200,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
@@ -132,26 +132,26 @@
     "maxDeltaGzipBytes": 150
   },
   "nuxt": {
-    "maxBytes": 4950,
-    "maxGzipBytes": 2000,
+    "maxBytes": 6050,
+    "maxGzipBytes": 2400,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "tanstack-start": {
-    "maxBytes": 5350,
-    "maxGzipBytes": 2150,
+    "maxBytes": 6750,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "nest": {
-    "maxBytes": 5300,
-    "maxGzipBytes": 2200,
+    "maxBytes": 6500,
+    "maxGzipBytes": 2650,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },
   "react-router": {
-    "maxBytes": 5250,
-    "maxGzipBytes": 2150,
+    "maxBytes": 6450,
+    "maxGzipBytes": 2600,
     "maxDeltaBytes": 250,
     "maxDeltaGzipBytes": 100
   },

@@ -103,7 +103,7 @@ import { Check } from './lib/permix-components'
 
 export default function Page() {
   const post = usePost()
-  const { check, isReady } = usePermix(permix)
+  const { check, explain, isReady } = usePermix(permix)
 
   const canEdit = () => check('post.edit', post)
 

@@ -228,6 +228,7 @@ The `onForbidden` handler receives:
 - `reply`: Fastify Reply object
 - `path`: The permission path that was checked (or `null` for callback checks)
 - `data`: Optional entity data passed to the check
+- `reasons`: Denial strings from `{ allow: false, reason }` rules (empty for boolean denials)
 
 ## Advanced Usage
 

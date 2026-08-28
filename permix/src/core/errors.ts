@@ -35,8 +35,15 @@ export class PermixNotFoundError extends PermixError {
 }
 
 export class PermixForbiddenError extends PermixError {
-  constructor() {
+  path?: string | null
+  reasons: string[]
+
+  constructor(payload?: { path?: string | null; reasons?: readonly string[] }) {
     super('Forbidden.')
     this.name = 'PermixForbiddenError'
+    if (payload?.path !== undefined) {
+      this.path = payload.path
+    }
+    this.reasons = payload?.reasons === undefined ? [] : [...payload.reasons]
   }
 }

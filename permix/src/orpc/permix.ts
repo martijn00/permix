@@ -2,11 +2,11 @@ import { ORPCError, os } from '@orpc/server'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -58,7 +58,7 @@ function buildPermix<D extends Definition, const Key extends string>(
         return await opts.next()
       }
 
-      return forbiddenHandler({ ...opts, ...createCheckContext(...args) })
+      return forbiddenHandler({ ...opts, ...withDenialReasons(instance, args) })
     })
   }
 

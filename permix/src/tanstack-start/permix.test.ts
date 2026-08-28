@@ -215,6 +215,7 @@ describe('tanstack-start createPermix', () => {
       expect(onCheck).toHaveBeenCalledWith({
         path: 'post.create',
         allowed: true,
+        reasons: [],
       })
     })
   })
@@ -302,7 +303,8 @@ describe('tanstack-start createPermix', () => {
       expect(onForbidden).toHaveBeenCalledWith({
         next: run.next,
         path: 'post.create',
-        data: undefined,
+        allowed: false,
+        reasons: [],
       })
       expect(run.next).toHaveBeenCalledOnce()
     })

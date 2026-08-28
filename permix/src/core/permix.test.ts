@@ -1,6 +1,10 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import { PermixNotReadyError, PermixRuleNotDefinedError } from './errors'
+import {
+  PermixForbiddenError,
+  PermixNotReadyError,
+  PermixRuleNotDefinedError,
+} from './errors'
 import { createPermix } from './permix'
 
 describe(createPermix, () => {
@@ -774,13 +778,18 @@ describe('deep rules', () => {
       })
 
       permix.check('post.create')
-      expect(fn).toHaveBeenCalledWith({ path: 'post.create', allowed: true })
+      expect(fn).toHaveBeenCalledWith({
+        path: 'post.create',
+        allowed: true,
+        reasons: [],
+      })
 
       permix.check('post.edit', { authorId: '1' })
       expect(fn).toHaveBeenCalledWith({
         path: 'post.edit',
         data: { authorId: '1' },
         allowed: true,
+        reasons: [],
       })
     })
 
@@ -795,7 +804,11 @@ describe('deep rules', () => {
       permix.setup({ post: { create: true, read: false } })
 
       permix.check((c) => c('post.create') && c('post.read'))
-      expect(fn).toHaveBeenCalledWith({ path: null, allowed: false })
+      expect(fn).toHaveBeenCalledWith({
+        path: null,
+        allowed: false,
+        reasons: [],
+      })
     })
 
     it('should resolve isReadyAsync immediately if already ready', async () => {
@@ -816,6 +829,110 @@ describe('deep rules', () => {
 
       await expect(promise).resolves.toBeUndefined()
     })
+  })
+})
+
+describe('explain', () => {
+  it('should keep check() as a boolean when a rule returns a decision', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'not an author' }),
+      },
+    })
+
+    expect(permix.check('post.create')).toBe(false)
+  })
+
+  it('should return the denial reason from a closure', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'not an author' }),
+      },
+    })
+
+    expect(permix.explain('post.create')).toStrictEqual({
+      allowed: false,
+      path: 'post.create',
+      reasons: ['not an author'],
+    })
+  })
+
+  it('should fire the check hook with reasons after eval', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    const fn = vi.fn()
+    permix.hook('check', fn)
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'not an author' }),
+      },
+    })
+
+    expect(permix.check('post.create')).toBe(false)
+    expect(fn).toHaveBeenCalledWith({
+      path: 'post.create',
+      allowed: false,
+      reasons: ['not an author'],
+    })
+  })
+
+  it('should aggregate denial reasons for ~all', () => {
+    const permix = createPermix<{
+      post: ['create', 'read', 'delete']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'cannot create' }),
+        read: true,
+        delete: () => ({ allow: false, reason: 'cannot delete' }),
+      },
+    })
+
+    expect(permix.check('post.~all')).toBe(false)
+    expect(permix.explain('post.~all')).toStrictEqual({
+      allowed: false,
+      path: 'post.~all',
+      reasons: ['cannot create', 'cannot delete'],
+    })
+  })
+
+  it('should dehydrate function decisions to booleans without reasons', () => {
+    const permix = createPermix<{
+      post: ['create', 'read']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: true, reason: 'ok' }),
+        read: () => ({ allow: false, reason: 'nope' }),
+      },
+    })
+
+    expect(permix.dehydrate()).toStrictEqual({
+      post: { create: true, read: false },
+    })
+  })
+
+  it('should attach path and reasons on PermixForbiddenError', () => {
+    const error = new PermixForbiddenError({
+      path: 'post.create',
+      reasons: ['not an author'],
+    })
+
+    expect(error.path).toBe('post.create')
+    expect(error.reasons).toStrictEqual(['not an author'])
   })
 })
 

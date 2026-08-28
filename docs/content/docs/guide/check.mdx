@@ -113,6 +113,30 @@ permix.check('invalid-entity.create')
 
 Invalid paths cause a TypeScript error at compile time. At runtime, checking an undefined path throws `PermixRuleNotDefinedError`.
 
+## Explain
+
+`check()` always returns a boolean. Use `explain()` with the same arguments when you need to show **why** a path was denied:
+
+```ts
+permix.setup({
+  post: {
+    update: (post) =>
+      post.authorId === currentUserId
+        ? true
+        : { allow: false, reason: 'Only the author can edit this post' },
+  },
+})
+
+permix.check('post.update', post) // false
+
+const { allowed, path, reasons } = permix.explain('post.update', post)
+// { allowed: false, path: 'post.update', reasons: ['Only the author can edit this post'] }
+```
+
+Boolean rules and `{ allow: true }` produce an empty `reasons` array. `'~all'` / `'~any'` collect reasons from every denied leaf. `dehydrate()` still collapses function rules to `true`/`false` — reasons are not serialized.
+
+`onForbidden` handlers and `PermixForbiddenError` carry the same `{ path, reasons }` payload. UI adapters expose `explain` next to `check` on `usePermix()` so tooltips can use the rule reason instead of a guessed string.
+
 ## Errors
 
 Permix throws typed errors from `permix` when checks cannot run safely:

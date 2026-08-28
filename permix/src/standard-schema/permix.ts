@@ -10,7 +10,7 @@ import {
   PermixInvalidSchemaMapError,
 } from './errors'
 import type { ValidateMode } from './validate'
-import { checkWithValidation } from './validate'
+import { checkWithValidation, explainWithValidation } from './validate'
 
 export type { ValidateMode } from './validate'
 
@@ -104,9 +104,9 @@ export interface CreateStandardSchemaPermixOptions<
   actions?: Actions
 
   /**
-   * When set, `check()` runs the entity's Standard Schema `validate` on the
-   * data argument before the rule. Parsed output (including transforms) is
-   * what the rule receives.
+   * When set, `check()` and `explain()` run the entity's Standard Schema
+   * `validate` on the data argument before the rule. Parsed output (including
+   * transforms) is what the rule receives.
    *
    * - `'deny'` — invalid data returns `false`
    * - `'throw'` — invalid data throws {@link import('./errors').PermixValidationError}
@@ -296,6 +296,7 @@ export function createPermix<
 
   if (validate) {
     const originalCheck = permix.check.bind(permix)
+    const originalExplain = permix.explain.bind(permix)
     permix.check = (...args: Parameters<typeof permix.check>) =>
       checkWithValidation(
         originalCheck,
@@ -306,6 +307,8 @@ export function createPermix<
           notifyCheck(permix, args, false)
         }
       )
+    permix.explain = (...args: Parameters<typeof permix.explain>) =>
+      explainWithValidation(originalExplain, schemasByEntity, validate, args)
   }
 
   return Object.assign(permix, { actions, entities, validate })

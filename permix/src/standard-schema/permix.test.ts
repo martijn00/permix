@@ -177,6 +177,25 @@ describe('standard-schema createPermix', () => {
       path: 'post.update',
       data: { id: 1 },
       allowed: false,
+      reasons: [],
+    })
+  })
+
+  it('denies explain() when validate deny rejects data', () => {
+    const permix = createPermix({ post: postSchema }, { validate: 'deny' })
+    permix.setup({
+      post: {
+        create: true,
+        read: true,
+        update: true,
+        delete: false,
+      },
+    })
+
+    expect(permix.explain('post.update', { id: 1 } as never)).toStrictEqual({
+      allowed: false,
+      path: 'post.update',
+      reasons: [],
     })
   })
 })

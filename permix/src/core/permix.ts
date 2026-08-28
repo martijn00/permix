@@ -1,5 +1,5 @@
-import type { CheckArgs, CheckContext } from './check'
-import { createCheck, createCheckContext } from './check'
+import type { CheckArgs, CheckContext, ExplainResult } from './check'
+import { createCheckContext, createExplain } from './check'
 import type { Action, ActionData, ActionName, Definition } from './definitions'
 import { PermixNotReadyError } from './errors'
 import { createHooks } from './hooks'
@@ -97,7 +97,7 @@ export interface Permix<D extends Definition> {
    * Provide the rules for this Permix instance. Must be called before `check()`.
    *
    * The rules object mirrors the shape of `D`: every leaf action becomes either
-   * a `boolean` or a `(data) => boolean` validator.
+   * a `boolean` or a `(data) => boolean | { allow, reason }` validator.
    *
    * @example
    * ```ts
@@ -139,6 +139,13 @@ export interface Permix<D extends Definition> {
    * ```
    */
   check: (...args: CheckArgs<D>) => boolean
+
+  /**
+   * Same arguments as {@link Permix.check}, but returns `{ allowed, path, reasons }`
+   * so UIs can show why a path was denied. Boolean rules produce no reasons.
+   * Rule functions may `return { allow, reason }` instead of a bare boolean.
+   */
+  explain: (...args: CheckArgs<D>) => ExplainResult
 
   /**
    * Serialize the current rules into a JSON-safe object.
@@ -359,19 +366,20 @@ export function createPermix<D extends Definition>(
     ? { promise: Promise.resolve(), resolve: () => undefined }
     : Promise.withResolvers<void>()
 
-  const checkFn = createCheck<D>(() => rules)
+  const explainFn = createExplain<D>(() => rules)
 
   function emitCheck(
     args: CheckArgs<D>,
     allowed: boolean,
-    error?: unknown
+    error?: unknown,
+    reasons: readonly string[] = []
   ): void {
     const context = createCheckContext<D>(...args)
     hooks.callHook(
       'check',
       error === undefined
-        ? { ...context, allowed }
-        : { ...context, allowed, error }
+        ? { ...context, allowed, reasons }
+        : { ...context, allowed, error, reasons }
     )
   }
 
@@ -387,13 +395,16 @@ export function createPermix<D extends Definition>(
     },
     check(...args: CheckArgs<D>): boolean {
       try {
-        const allowed = checkFn(...args)
-        emitCheck(args, allowed)
-        return allowed
+        const result = explainFn(...args)
+        emitCheck(args, result.allowed, undefined, result.reasons)
+        return result.allowed
       } catch (error) {
         emitCheck(args, false, error)
         throw error
       }
+    },
+    explain(...args: CheckArgs<D>): ExplainResult {
+      return explainFn(...args)
     },
     dehydrate() {
       if (!rules) {

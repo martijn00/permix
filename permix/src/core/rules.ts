@@ -2,15 +2,26 @@ import { callRuleWithoutData } from './check'
 import type { Action, ActionData, ActionName, Definition } from './definitions'
 
 type ActionRule<A extends Action> = [ActionData<A>] extends [never]
-  ? boolean | (() => boolean)
+  ? boolean | (() => RuleResult)
   : A extends { required: true }
-    ? (data: ActionData<A>) => boolean
-    : ((data?: ActionData<A>) => boolean) | boolean
+    ? (data: ActionData<A>) => RuleResult
+    : ((data?: ActionData<A>) => RuleResult) | boolean
+
+/**
+ * Structured result a rule function may return instead of a bare boolean.
+ * `check()` still collapses this to `boolean`; `explain()` keeps the reason.
+ */
+export interface RuleDecision {
+  readonly allow: boolean
+  readonly reason?: string
+}
+
+export type RuleResult = boolean | RuleDecision
 
 /**
  * The shape of the object passed to `permix.setup()` (and produced by
  * {@link createRules}). It mirrors the `Definition` `D`: every leaf action
- * becomes either a `boolean` or a `(data) => boolean` validator.
+ * becomes either a `boolean` or a `(data) => RuleResult` validator.
  */
 export type Rules<D extends Definition> = D extends readonly Action[]
   ? { [E in D[number] as ActionName<E>]: ActionRule<E> }

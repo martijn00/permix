@@ -150,4 +150,29 @@ describe('permix solid', () => {
 
     expect(() => render(() => <TestComponent />)).toThrow()
   })
+
+  it('exposes explain() for UI denial reasons', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    permix.setup({
+      post: {
+        create: () => ({ allow: false, reason: 'not an author' }),
+      },
+    })
+
+    const { result } = renderHook(() => usePermix(permix), {
+      wrapper: (props) => (
+        <PermixProvider permix={permix}>{props.children}</PermixProvider>
+      ),
+    })
+
+    expect(result.check('post.create')).toBe(false)
+    expect(result.explain('post.create')).toStrictEqual({
+      allowed: false,
+      path: 'post.create',
+      reasons: ['not an author'],
+    })
+  })
 })

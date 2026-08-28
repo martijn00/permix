@@ -8,11 +8,11 @@ import fp from 'fastify-plugin'
 
 import type { Permix as PermixCore } from '../core'
 import {
-  createCheckContext,
   createHooks,
   createPermix as createPermixCore,
   createTemplate,
   PermixNotFoundError,
+  withDenialReasons,
 } from '../core'
 import type { CheckArgs, CheckContext } from '../core/check'
 import type { Definition } from '../core/definitions'
@@ -109,7 +109,11 @@ function buildPermix<D extends Definition>(
       const allowed = permix.check(...args)
 
       if (!allowed) {
-        await onForbidden({ request, reply, ...createCheckContext(...args) })
+        await onForbidden({
+          request,
+          reply,
+          ...withDenialReasons(permix, args),
+        })
         if (!reply.sent) {
           reply.status(403).send({ error: 'Forbidden' })
         }
