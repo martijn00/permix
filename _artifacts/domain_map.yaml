@@ -69,6 +69,7 @@ skills:
       - 'letstri/permix:docs/content/docs/guide/instance.mdx'
       - 'letstri/permix:docs/content/docs/guide/events.mdx'
       - 'letstri/permix:docs/content/docs/migration-v3-to-v4.mdx'
+      - 'letstri/permix:docs/content/docs/integrations/standard-schema.mdx'
       - 'letstri/permix:permix/src/core/index.ts'
 
   - name: 'Permix (check, frontend, server)'

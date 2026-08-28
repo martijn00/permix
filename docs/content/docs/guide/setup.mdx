@@ -105,6 +105,30 @@ permix.setup({
 })
 ```
 
+### Standard Schema
+
+If the entity already has a Zod (or Valibot, ArkType, …) schema, pass `schema` instead of `type`. See [Standard Schema](/docs/integrations/standard-schema) and [`action()`](/docs/guide/instance#schema).
+
+```ts twoslash
+import { createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({
+  id: z.string(),
+  authorId: z.string(),
+})
+
+const permix = createPermix<{
+  post: [{ name: 'update'; schema: typeof postSchema }]
+}>()
+
+permix.setup({
+  post: {
+    update: (post) => post?.authorId === 'user-1',
+  },
+})
+```
+
 ### Required
 
 By default, a `type` on an action makes the data argument optional in `check`. Set `required: true` to require it.

@@ -183,7 +183,7 @@ importers:
         version: 6.0.2(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       drizzle-orm:
         specifier: ^1.0.0-rc.3
-        version: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(effect@3.21.2)(zod@4.4.3)
+        version: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(effect@3.21.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)
       elysia:
         specifier: ^1.4.28
         version: 1.4.28(@sinclair/typebox@0.34.49)(exact-mirror@1.0.0)(file-type@22.0.1(supports-color@7.2.0))(openapi-types@12.1.3)(typescript@7.0.2)
@@ -198,13 +198,16 @@ importers:
         version: 4.12.23
       nitro:
         specifier: ^3.0.260522-beta
-        version: 3.0.260522-beta(chokidar@5.0.0)(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3))(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+        version: 3.0.260522-beta(chokidar@5.0.0)(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3))(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
   examples/astro:
     dependencies:
@@ -756,9 +759,12 @@ importers:
       '@vue/test-utils':
         specifier: ^2.4.10
         version: 2.4.10(@vue/compiler-dom@3.5.35)(@vue/server-renderer@3.5.35(vue@3.5.35(typescript@7.0.2)))(vue@3.5.35(typescript@7.0.2))
+      arktype:
+        specifier: ^2.2.3
+        version: 2.2.3
       drizzle-orm:
         specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(effect@3.21.2)(zod@4.4.3)
+        version: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(effect@3.21.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)
       effect:
         specifier: ^3.21.2
         version: 3.21.2
@@ -801,6 +807,9 @@ importers:
       typescript6:
         specifier: catalog:typescript-classic
         version: '@typescript/typescript6@6.0.2'
+      valibot:
+        specifier: ^1.4.2
+        version: 1.4.2(typescript@7.0.2)
       vite-plugin-solid:
         specifier: ^2.11.12
         version: 2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.13)(supports-color@7.2.0)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -876,6 +885,12 @@ packages:
     resolution: {integrity: sha512-3VuAbPjgY52rQNn4wABaXMhBU2Oq91uy6L8nX49eJ35OLI68CyckGU+HZxcaHix4ymuGM2nFL1D6sLpgODK5xw==}
     engines: {node: '>=20.19.0'}
     hasBin: true
+
+  '@ark/schema@0.56.2':
+    resolution: {integrity: sha512-Qx4D2JFbBWpntiHZaTv7bGG4H/M2rigiknezKg/WVyDSaLdE4YCcWAOoFB7pjjDqHbbV2OqRfntm1nnXvwMexg==}
+
+  '@ark/util@0.56.2':
+    resolution: {integrity: sha512-9kU2sUE38FZEGG7l3hamYMBieLYEJh2L1mrYD2eXpT+78EnQSV1bhjxJhnxGBMSTbtwpBSDNSK+K60WvaI/DTQ==}
 
   '@asamuzakjp/css-color@5.1.11':
     resolution: {integrity: sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==}
@@ -4168,6 +4183,12 @@ packages:
   aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
+
+  arkregex@0.0.8:
+    resolution: {integrity: sha512-PJcx6G1kQTgLKPUbeYlYecDRaKq15AMSGVajlKFYWlPeJRQL+j3dKE6tyMs40HZ99djS1l9Vhl3ezAHy9JBIqQ==}
+
+  arktype@2.2.3:
+    resolution: {integrity: sha512-7W+0RLTUNJiBFIIZXwOQxSR8Z273IAd6IvqBeG9+gHnQKFsIx2C0iOtGTmMrPnlX4qLXyc5+ll7A0BIj9WrbTg==}
 
   array-ify@1.0.0:
     resolution: {integrity: sha512-c5AMf34bKdvPhQ7tBGhqkgKNUzMr4WUs+WDtC2ZUGOUncbxKMTvqxYctiseW3+L4bA8ec+GcZ6/A/FW4m8ukng==}
@@ -7540,6 +7561,14 @@ packages:
     resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
+  valibot@1.4.2:
+    resolution: {integrity: sha512-gjdCvJ6d3RyHAneqxMYMW9QMCwYMb3jpOO0IyHZV1bnRHFBHrX3VkIILt5XYR0WhwHiH7Mty8ovuPZ/O3gamrg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -7835,6 +7864,12 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.2.3
       tinyglobby: 0.2.17
+
+  '@ark/schema@0.56.2':
+    dependencies:
+      '@ark/util': 0.56.2
+
+  '@ark/util@0.56.2': {}
 
   '@asamuzakjp/css-color@5.1.11':
     dependencies:
@@ -10867,6 +10902,16 @@ snapshots:
 
   aria-query@5.3.2: {}
 
+  arkregex@0.0.8:
+    dependencies:
+      '@ark/util': 0.56.2
+
+  arktype@2.2.3:
+    dependencies:
+      '@ark/schema': 0.56.2
+      '@ark/util': 0.56.2
+      arkregex: 0.0.8
+
   array-ify@1.0.0: {}
 
   asap@2.0.6: {}
@@ -11378,9 +11423,9 @@ snapshots:
 
   dayjs@1.11.21: {}
 
-  db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3)):
+  db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)):
     optionalDependencies:
-      drizzle-orm: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(effect@3.21.2)(zod@4.4.3)
+      drizzle-orm: 1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(effect@3.21.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)
 
   debug@4.4.3(supports-color@7.2.0):
     dependencies:
@@ -11441,11 +11486,13 @@ snapshots:
     dependencies:
       is-obj: 2.0.0
 
-  drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(effect@3.21.2)(zod@4.4.3):
+  drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(effect@3.21.2)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3):
     optionalDependencies:
       '@sinclair/typebox': 0.34.49
       '@types/pg': 8.20.0
+      arktype: 2.2.3
       effect: 3.21.2
+      valibot: 1.4.2(typescript@7.0.2)
       zod: 4.4.3
 
   dts-resolver@3.0.0: {}
@@ -13192,11 +13239,11 @@ snapshots:
 
   nf3@0.3.17: {}
 
-  nitro@3.0.260522-beta(chokidar@5.0.0)(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3))(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)):
+  nitro@3.0.260522-beta(chokidar@5.0.0)(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3))(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.5(srvx@0.11.16)
-      db0: 0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3))
+      db0: 0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3))
       env-runner: 0.1.9
       h3: 2.0.1-rc.22(crossws@0.4.5(srvx@0.11.16))
       hookable: 6.1.1
@@ -13207,7 +13254,7 @@ snapshots:
       rolldown: 1.0.3
       srvx: 0.11.16
       unenv: 2.0.0-rc.24
-      unstorage: 2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3)))(lru-cache@11.5.1)(ofetch@2.0.0-alpha.3)
+      unstorage: 2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)))(lru-cache@11.5.1)(ofetch@2.0.0-alpha.3)
     optionalDependencies:
       jiti: 2.7.0
       vite: 8.0.16(@types/node@25.9.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)
@@ -14530,10 +14577,10 @@ snapshots:
       picomatch: 4.0.7
       webpack-virtual-modules: 0.6.2
 
-  unstorage@2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3)))(lru-cache@11.5.1)(ofetch@2.0.0-alpha.3):
+  unstorage@2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3)))(lru-cache@11.5.1)(ofetch@2.0.0-alpha.3):
     optionalDependencies:
       chokidar: 5.0.0
-      db0: 0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(zod@4.4.3))
+      db0: 0.3.4(drizzle-orm@1.0.0-rc.3(@sinclair/typebox@0.34.49)(@types/pg@8.20.0)(arktype@2.2.3)(valibot@1.4.2(typescript@7.0.2))(zod@4.4.3))
       lru-cache: 11.5.1
       ofetch: 2.0.0-alpha.3
 
@@ -14565,6 +14612,10 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@14.0.0: {}
+
+  valibot@1.4.2(typescript@7.0.2):
+    optionalDependencies:
+      typescript: 7.0.2
 
   vary@1.1.2: {}
 

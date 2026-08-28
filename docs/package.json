@@ -49,6 +49,7 @@
     "hono": "^4.12.23",
     "nitro": "^3.0.260522-beta",
     "tailwindcss": "^4.3.0",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "^4.4.3"
   }
 }

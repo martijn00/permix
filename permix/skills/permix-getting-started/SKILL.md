@@ -14,6 +14,7 @@ sources:
   - 'letstri/permix:docs/content/docs/guide/instance.mdx'
   - 'letstri/permix:docs/content/docs/guide/events.mdx'
   - 'letstri/permix:docs/content/docs/migration-v3-to-v4.mdx'
+  - 'letstri/permix:docs/content/docs/integrations/standard-schema.mdx'
   - 'letstri/permix:permix/src/core/index.ts'
 ---
 
@@ -61,6 +62,23 @@ export const permix = createPermix<{
   }
 }>()
 ```
+
+**Entity data from a validator** (Zod, Valibot, ArkType, … via [Standard Schema](https://permix.letstri.dev/docs/integrations/standard-schema)):
+
+```ts
+import { action, createPermix } from 'permix'
+import { z } from 'zod'
+
+const postSchema = z.object({ id: z.string(), authorId: z.string() })
+
+const definition = {
+  post: ['create', action('edit', postSchema, { required: true })],
+} as const
+
+export const permix = createPermix<typeof definition>()
+```
+
+Or `{ name: 'edit'; schema: typeof postSchema }` on the generic. CRUD-from-schemas: `createPermix` from `permix/standard-schema` (`{ validate: 'deny' | 'throw' }` to parse `check()` data). Core `check()` does not parse.
 
 Every action you declare in `D` must appear in every `setup()` call (use `false` to deny).
 

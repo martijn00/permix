@@ -36,6 +36,7 @@
     "integrations/nest",
     "integrations/effect",
     "integrations/drizzle",
+    "integrations/standard-schema",
     "---",
     "[Examples](https://github.com/letstri/permix/tree/main/examples)",
     "---LLMs---",

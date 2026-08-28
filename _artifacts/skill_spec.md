@@ -47,7 +47,7 @@ When `docs/content/docs/` or public API in `permix/src/` changes:
 
 ## Out of scope (docs-only for now)
 
-- `permix/effect`, `permix/drizzle` — documented at https://permix.letstri.dev/docs/integrations/effect and `/drizzle`; no dedicated skill yet.
+- `permix/effect`, `permix/drizzle`, `permix/standard-schema` — documented at https://permix.letstri.dev/docs/integrations/effect, `/drizzle`, and `/standard-schema`; no dedicated skill yet.
 
 ## Registry
 

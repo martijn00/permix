@@ -113,6 +113,10 @@
       "types": "./dist/drizzle/legacy/index.d.mts",
       "import": "./dist/drizzle/legacy/index.mjs"
     },
+    "./standard-schema": {
+      "types": "./dist/standard-schema/index.d.mts",
+      "import": "./dist/standard-schema/index.mjs"
+    },
     "./effect": {
       "types": "./dist/effect/index.d.mts",
       "import": "./dist/effect/index.mjs"
@@ -172,6 +176,7 @@
     "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.10",
+    "arktype": "^2.2.3",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "h3": "^1.15.11",
@@ -187,6 +192,7 @@
     "typescript": "catalog:",
     "typescript59": "catalog:typescript-classic",
     "typescript6": "catalog:typescript-classic",
+    "valibot": "^1.4.2",
     "vite-plugin-solid": "^2.11.12",
     "vitest": "catalog:",
     "vue": "^3.5.17",

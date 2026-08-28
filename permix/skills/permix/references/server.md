@@ -111,10 +111,11 @@ app.get('/posts/:id', (req, res) => {
 | Elysia | `permix/elysia` |
 | Effect | `permix/effect` — see integration docs |
 | Drizzle ORM | `permix/drizzle` (and `permix/drizzle/legacy`) — see integration docs |
+| Standard Schema | `permix/standard-schema` — Zod/Valibot entity types; see integration docs |
 
 Use the same `D` schema shape as the client instance.
 
-Effect and Drizzle are optional peer dependencies; follow https://permix.letstri.dev/docs/integrations/effect and https://permix.letstri.dev/docs/integrations/drizzle rather than inventing middleware patterns.
+Effect and Drizzle are optional peer dependencies; Standard Schema needs no extra Permix peer (install Zod/Valibot yourself). Follow https://permix.letstri.dev/docs/integrations/effect, https://permix.letstri.dev/docs/integrations/drizzle, and https://permix.letstri.dev/docs/integrations/standard-schema rather than inventing middleware patterns.
 
 ## tRPC / oRPC
 

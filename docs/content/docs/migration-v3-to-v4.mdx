@@ -336,18 +336,19 @@ Map each Better Auth role to a rules object yourself — the same booleans you p
 
 These are additive — migrate the core API first, then adopt what you need:
 
-| Import                  | Use case                                       |
-| ----------------------- | ---------------------------------------------- |
-| `permix/next`           | Next.js App Router, resolver + dual RSC access |
-| `permix/tanstack-start` | TanStack Start middleware and SSR              |
-| `permix/nuxt`           | Nuxt / Nitro, request-scoped instance          |
-| `permix/react-router`   | React Router 7 middleware and SSR              |
-| `permix/server`         | Framework-agnostic fetch middleware            |
-| `permix/astro`          | Astro middleware and `locals`                  |
-| `permix/svelte`         | Svelte 5 runes                                 |
-| `permix/drizzle`        | Rules from Drizzle v1 schema                   |
-| `permix/drizzle/legacy` | Drizzle v0 (`>=0.30 <1`)                       |
-| `permix/effect`         | Effect `Layer` / `Context`                     |
+| Import                   | Use case                                       |
+| ------------------------ | ---------------------------------------------- |
+| `permix/next`            | Next.js App Router, resolver + dual RSC access |
+| `permix/tanstack-start`  | TanStack Start middleware and SSR              |
+| `permix/nuxt`            | Nuxt / Nitro, request-scoped instance          |
+| `permix/react-router`    | React Router 7 middleware and SSR              |
+| `permix/server`          | Framework-agnostic fetch middleware            |
+| `permix/astro`           | Astro middleware and `locals`                  |
+| `permix/svelte`          | Svelte 5 runes                                 |
+| `permix/drizzle`         | Rules from Drizzle v1 schema                   |
+| `permix/drizzle/legacy`  | Drizzle v0 (`>=0.30 <1`)                       |
+| `permix/standard-schema` | Entity types from Zod, Valibot, ArkType, …     |
+| `permix/effect`          | Effect `Layer` / `Context`                     |
 
 See the [examples directory](https://github.com/letstri/permix/tree/main/examples) (`next`, `tanstack-start`, `svelte`, `rebac`, and updated `react`, `vue`, …).
 
