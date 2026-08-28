@@ -77,6 +77,10 @@
       "types": "./dist/clerk/next/index.d.mts",
       "import": "./dist/clerk/next/index.mjs"
     },
+    "./convex": {
+      "types": "./dist/convex/index.d.mts",
+      "import": "./dist/convex/index.mjs"
+    },
     "./pdp": {
       "types": "./dist/pdp/index.d.mts",
       "import": "./dist/pdp/index.mjs"
@@ -219,6 +223,7 @@
     "arktype": "^2.2.3",
     "better-auth": "catalog:",
     "chokidar": "catalog:",
+    "convex": "catalog:",
     "drizzle-orm": "1.0.0-rc.3",
     "effect": "^3.21.2",
     "esbuild": "catalog:",
@@ -253,6 +258,7 @@
     "@trpc/server": ">=11",
     "better-auth": "catalog:",
     "chokidar": ">=5",
+    "convex": "catalog:",
     "drizzle-orm": ">=0.30.0 || >=1.0.0-rc.3",
     "effect": ">=3",
     "elysia": ">=1",
@@ -294,6 +300,9 @@
       "optional": true
     },
     "better-auth": {
+      "optional": true
+    },
+    "convex": {
       "optional": true
     },
     "drizzle-orm": {

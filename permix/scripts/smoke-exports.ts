@@ -36,6 +36,11 @@ const entrypoints = [
     ],
   ],
   [
+    './convex',
+    await import('permix/convex'),
+    ['createConvexPermix', 'defineConvexTableSelection'],
+  ],
+  [
     './pdp',
     await import('permix/pdp'),
     ['createPdpClient', 'createPdpHandler', 'createPdpOpenApiDocument'],

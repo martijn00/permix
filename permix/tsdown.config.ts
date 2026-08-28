@@ -13,6 +13,7 @@ export default defineConfig({
     './src/better-auth/index.ts',
     './src/clerk/index.ts',
     './src/clerk/next/index.ts',
+    './src/convex/index.ts',
     './src/pdp/index.ts',
     './src/react/index.ts',
     './src/vue/index.ts',
