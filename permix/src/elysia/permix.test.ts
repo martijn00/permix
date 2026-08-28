@@ -332,5 +332,6 @@ describe('key exposure', () => {
   it('should expose a symbol key when using default', () => {
     const permix = createPermix<PermissionsDefinition>()
     expect(permix.key).toBeTypeOf('symbol')
+    expect(permix.getRules({ store: {} } as never)).toBeNull()
   })
 })

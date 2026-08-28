@@ -1,8 +1,10 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
+import { AdapterError } from '../adapter'
 import type { AdapterCheckRequest } from '../adapter'
 import type { Permix } from '../core'
 import { createPermix } from '../core'
+import { optionalPdpCatalog, validatePdpCatalog } from './catalog'
 import {
   PdpClientError,
   createPdpClient,
@@ -356,6 +358,46 @@ describe(createPdpHandler, () => {
   })
 })
 
+describe(validatePdpCatalog, () => {
+  it('rejects malformed catalog shapes', () => {
+    expect(() => {
+      validatePdpCatalog(null)
+    }).toThrow(/must be an object/)
+    expect(() => {
+      validatePdpCatalog({ schemaVersion: 1, permissions: 'nope' })
+    }).toThrow(/permissions array/)
+    expect(() => {
+      validatePdpCatalog({ schemaVersion: 1, permissions: ['x'] })
+    }).toThrow(/must be an object/)
+    expect(() => {
+      validatePdpCatalog({ schemaVersion: 1, permissions: [{ key: '' }] })
+    }).toThrow(/non-empty key/)
+    expect(() => {
+      validatePdpCatalog({
+        schemaVersion: 1,
+        permissions: [{ key: 'projects.read' }],
+      })
+    }).toThrow(/references array/)
+    expect(() => {
+      validatePdpCatalog({
+        schemaVersion: 1,
+        permissions: [{ key: 'projects.read', references: [], title: 1 }],
+      })
+    }).toThrow(/invalid title/)
+    expect(() => {
+      validatePdpCatalog({
+        schemaVersion: 1,
+        permissions: [{ key: 'projects.read', references: [], description: 1 }],
+      })
+    }).toThrow(/invalid description/)
+  })
+
+  it('returns undefined from optionalPdpCatalog when omitted', () => {
+    expect(optionalPdpCatalog(undefined)).toBeUndefined()
+    expect(optionalPdpCatalog(catalog)).toBe(catalog)
+  })
+})
+
 describe(createPdpOpenApiDocument, () => {
   it('is deterministic and derives path enums and descriptions from catalog', () => {
     const first = createPdpOpenApiDocument(catalog)
@@ -368,6 +410,11 @@ describe(createPdpOpenApiDocument, () => {
     expect(serialized).toContain('"projects.update"')
     expect(serialized).toContain('View project details.')
     expect(serialized).toContain('Change a project owned by the caller.')
+  })
+
+  it('describes paths as free-form strings when no catalog is provided', () => {
+    const document = createPdpOpenApiDocument()
+    expect(JSON.stringify(document)).toContain('"minLength":1')
   })
 })
 
@@ -451,6 +498,43 @@ describe(createPdpClient, () => {
       code: 'invalid-request',
       message: 'Bad envelope.',
     })
+
+    const { client: healthy } = createClient({ authorization: 'Bearer user-1' })
+    await expect(healthy.health()).resolves.toStrictEqual({ status: 'ok' })
+    await expect(healthy.metadata()).resolves.toMatchObject({
+      protocolVersion: 'v1',
+      version: '4.1.2',
+    })
+    await expect(healthy.permissions()).resolves.toMatchObject({
+      projects: { read: true },
+    })
+
+    const invalidJson = createPdpClient<TestDefinition>({
+      fetch: async () => new Response('not-json', { status: 500 }),
+    })
+    await expect(invalidJson.health()).rejects.toMatchObject({
+      code: 'internal-error',
+      message: 'PDP returned an invalid JSON response.',
+    })
+
+    const issues = createPdpClient<TestDefinition>({
+      fetch: async () =>
+        Response.json(
+          {
+            error: {
+              code: 'forbidden',
+              message: 'No access.',
+              issues: [{ message: 'denied' }],
+            },
+          },
+          { status: 403 }
+        ),
+    })
+    await expect(issues.check('projects.read')).rejects.toMatchObject({
+      status: 403,
+      code: 'forbidden',
+      issues: [{ message: 'denied' }],
+    })
   })
 
   it('preserves required data in client method types', () => {
@@ -474,6 +558,121 @@ describe(createPdpClient, () => {
       void client.check((check) => check('projects.read'))
     }
     expectTypeOf(invalid).toBeFunction()
+  })
+
+  it('rejects unknown methods, missing service subjects, and omitted version', async () => {
+    const handler = createHandler()
+    await expect(
+      read(
+        await handler(
+          new Request('https://pdp.test/v1/check', { method: 'PUT' })
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 400,
+      body: { error: { code: 'invalid-request' } },
+    })
+    await expect(
+      read(
+        await handler(
+          jsonRequest('/v1/unknown', { mode: 'caller', path: 'projects.read' })
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 400,
+      body: { error: { code: 'invalid-request' } },
+    })
+    await expect(
+      read(
+        await handler(
+          jsonRequest(
+            '/v1/check',
+            { mode: 'service', path: 'projects.read' },
+            { 'x-service-token': 'trusted' }
+          )
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 400,
+      body: { error: { code: 'invalid-request' } },
+    })
+    await expect(
+      read(
+        await handler(
+          jsonRequest(
+            '/v1/check',
+            { mode: 'service', subject: 'nobody', path: 'projects.read' },
+            { 'x-service-token': 'trusted' }
+          )
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 400,
+      body: { error: { code: 'invalid-request' } },
+    })
+
+    await expect(
+      read(
+        await handler(
+          jsonRequest(
+            '/v1/check/batch',
+            { mode: 'caller', checks: 'nope' },
+            { authorization: 'Bearer user-1' }
+          )
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 400,
+      body: { error: { code: 'invalid-request' } },
+    })
+
+    const unversioned = createPdpHandler<TestDefinition, string, string>({
+      ...createHandlerOptions(),
+    })
+    await expect(
+      read(await unversioned(new Request('https://pdp.test/v1/meta')))
+    ).resolves.toMatchObject({
+      status: 200,
+      body: { version: 'unknown', catalog: null },
+    })
+  })
+
+  it('sorts catalog keys and uses title when description is omitted', () => {
+    const document = createPdpOpenApiDocument({
+      schemaVersion: 1,
+      permissions: [
+        { key: 'zeta.read', title: 'Zeta', references: [] },
+        { key: 'alpha.read', references: [] },
+        { key: 'alpha.read', references: [] },
+      ],
+    })
+    const serialized = JSON.stringify(document)
+    expect(serialized.indexOf('alpha.read')).toBeLessThan(
+      serialized.indexOf('zeta.read')
+    )
+    expect(serialized).toContain('Zeta')
+  })
+
+  it('maps thrown forbidden adapter errors to HTTP 403', async () => {
+    const handler = createHandler({
+      resolveRules() {
+        throw new AdapterError('forbidden', 'No access.')
+      },
+    })
+    await expect(
+      read(
+        await handler(
+          jsonRequest(
+            '/v1/check',
+            { mode: 'caller', path: 'projects.read' },
+            { authorization: 'Bearer user-1' }
+          )
+        )
+      )
+    ).resolves.toMatchObject({
+      status: 403,
+      body: { error: { code: 'forbidden' } },
+    })
   })
 })
 

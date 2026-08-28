@@ -63,4 +63,65 @@ permission('projects.update')
       await watcher.close()
     }
   })
+
+  it('emits an error event when regeneration fails', async () => {
+    const cwd = await mkdtemp(path.join(tmpdir(), 'permix-watch-error-'))
+    temporaryDirectories.push(cwd)
+    const sourceFile = path.join(cwd, 'permissions.ts')
+    await writeFile(
+      sourceFile,
+      `import { permission } from 'permix'
+permission('projects.read')
+`
+    )
+    const events: PermissionWatchEvent[] = []
+    const watcher = await watchPermissions({ cwd, debounceMs: 10 }, (event) =>
+      events.push(event)
+    )
+
+    try {
+      await writeFile(
+        sourceFile,
+        `import { permission } from 'permix'
+permission(dynamicKey)
+`
+      )
+
+      await vi.waitFor(
+        () => {
+          expect(events.some((event) => event.type === 'error')).toBe(true)
+        },
+        { timeout: 3000 }
+      )
+    } finally {
+      await watcher.close()
+    }
+  })
+
+  it('coalesces rapid edits and still closes while a generate is in flight', async () => {
+    const cwd = await mkdtemp(path.join(tmpdir(), 'permix-watch-close-'))
+    temporaryDirectories.push(cwd)
+    const sourceFile = path.join(cwd, 'permissions.ts')
+    await writeFile(
+      sourceFile,
+      `import { permission } from 'permix'
+permission('projects.read')
+`
+    )
+    const watcher = await watchPermissions({ cwd, debounceMs: 20 })
+
+    await writeFile(
+      sourceFile,
+      `import { permission } from 'permix'
+permission('projects.update')
+`
+    )
+    await writeFile(
+      sourceFile,
+      `import { permission } from 'permix'
+permission('projects.delete')
+`
+    )
+    await watcher.close()
+  })
 })

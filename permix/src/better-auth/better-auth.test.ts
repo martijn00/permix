@@ -182,6 +182,12 @@ describe('Better Auth server plugin', () => {
 
     expect(resolved.principal.user.id).toBe(user.id)
     expect(allowed).toStrictEqual({ allowed: true })
+    await expect(
+      plugin.checkSession(testSession('user-1'), 'posts.read')
+    ).resolves.toMatchObject({ allowed: true })
+    await expect(
+      plugin.checkSession(testSession('user-1'), 'users.delete')
+    ).resolves.toMatchObject({ allowed: false, error: { code: 'forbidden' } })
     await expect(plugin.resolveSession(null)).rejects.toSatisfy(
       (error: unknown) =>
         serializeAdapterError(error).code === 'unauthenticated'
@@ -243,6 +249,22 @@ describe('Better Auth access-control interop', () => {
     expect(rulesFromBetterAuthRole(access.statements, editor)).toStrictEqual({
       posts: { read: true, update: false },
       users: { delete: false },
+    })
+  })
+
+  it('denies every action when a statement list is missing', () => {
+    const role = access.newRole({ posts: ['read'] })
+    expect(
+      rulesFromBetterAuthRole(
+        {
+          posts: ['read', 'update'],
+          users: undefined as unknown as ['delete'],
+        },
+        role
+      )
+    ).toStrictEqual({
+      posts: { read: true, update: false },
+      users: {},
     })
   })
 })

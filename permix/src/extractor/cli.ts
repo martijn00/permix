@@ -179,6 +179,7 @@ export async function runCli(arguments_: readonly string[]): Promise<number> {
   }
 }
 
+/* v8 ignore start -- CLI process entry cannot run inside Vitest without exiting the worker */
 const executable = process.argv[1]
 if (
   executable !== undefined &&
@@ -186,3 +187,4 @@ if (
 ) {
   process.exitCode = await runCli(process.argv.slice(2))
 }
+/* v8 ignore stop */

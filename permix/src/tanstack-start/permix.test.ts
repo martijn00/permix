@@ -241,6 +241,12 @@ describe('tanstack-start createPermix', () => {
       expect(() => permix.getOrThrow({})).toThrow(PermixNotFoundError)
       expect(() => permix.getOrThrow(null)).toThrow(PermixNotFoundError)
     })
+
+    it('returns null from getRules when missing', () => {
+      const permix = createPermix<PermissionsDefinition>()
+      expect(permix.getRules({})).toBeNull()
+      expect(permix.getRules(null)).toBeNull()
+    })
   })
 
   describe('dehydrate', () => {

@@ -268,6 +268,10 @@ describe('get / getOrThrow', () => {
     expect(permix.getOrThrow(context).check).toBeTypeOf('function')
   })
 
+  it('returns null from getRules when missing', () => {
+    expect(permix.getRules(createMockContext())).toBeNull()
+  })
+
   it('getOrThrow should throw PermixNotFoundError when missing', () => {
     expect(() => permix.getOrThrow(createMockContext())).toThrow(
       PermixNotFoundError
@@ -327,5 +331,29 @@ describe('context key', () => {
     const first = createPermix<PermissionsDefinition>()
     const second = createPermix<PermissionsDefinition>()
     expect(first.context).not.toBe(second.context)
+  })
+})
+
+describe('setupMiddleware callbacks', () => {
+  it('omits params when the middleware context does not include them', async () => {
+    const permix = createPermix<PermissionsDefinition>()
+    const context = createMockContext()
+    const next = createMockNext()
+    const seen: unknown[] = []
+
+    await permix.setupMiddleware((setup) => {
+      seen.push(setup)
+      return {
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      }
+    })({ request: new Request('https://example.com'), context }, next)
+
+    expect(seen[0]).toStrictEqual({
+      request: expect.any(Request),
+    })
+    expect(permix.getRules(context)).toMatchObject({
+      post: { create: true },
+    })
   })
 })

@@ -311,6 +311,10 @@ describe('get / getOrThrow', () => {
     expect(p.check).toBeTypeOf('function')
   })
 
+  it('returns null from getRules when missing', () => {
+    expect(permix.getRules(createMockContext())).toBeNull()
+  })
+
   it('getOrThrow should throw PermixNotFoundError when missing', () => {
     const context = createMockContext()
     expect(() => permix.getOrThrow(context)).toThrow(PermixNotFoundError)

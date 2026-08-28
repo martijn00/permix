@@ -91,6 +91,9 @@ describe('drizzle createPermix', () => {
     expect(() => createPermix(schema, { actions: [] })).toThrow(
       PermixInvalidActionsError
     )
+    expect(() => createPermix(schema, { actions: [] })).toThrow(
+      '[Permix]: `actions` must be a non-empty array of strings.'
+    )
   })
 
   it('exposes correct types for tables and actions', () => {

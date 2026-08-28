@@ -80,6 +80,23 @@ describe('composables', () => {
     expect(wrapper.get('div').text()).toBe('true:true')
   })
 
+  it('falls back to getRules when provider rules are still null', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    const TestWrapper = defineComponent({
+      template: '<div />',
+      setup() {
+        const { check } = usePermix(permix)
+        expect(() => check('post.create')).toThrow()
+        return {}
+      },
+    })
+
+    mountWithPermix(TestWrapper, permix)
+  })
+
   it('should work with DOM rerender', async () => {
     const permix = createPermix<{
       post: [{ name: 'create'; type: { id: string } }, 'read']

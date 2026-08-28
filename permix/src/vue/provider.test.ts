@@ -29,4 +29,17 @@ describe('permix vue provider', () => {
       })
     }).not.toThrow()
   })
+
+  it('unsubscribes from permix hooks when the provider unmounts', () => {
+    const permix = createPermix<{ post: ['read'] }>()
+    const wrapper = mount({
+      components: { PermixProvider },
+      template: '<PermixProvider :permix="permix"><div /></PermixProvider>',
+      setup: () => ({ permix }),
+    })
+    wrapper.unmount()
+    expect(() => {
+      permix.setup({ post: { read: true } })
+    }).not.toThrow()
+  })
 })

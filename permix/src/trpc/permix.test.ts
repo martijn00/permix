@@ -358,4 +358,9 @@ describe(createPermix, () => {
         .createPost()
     ).rejects.toThrow()
   })
+
+  it('returns null from getRules and exposes the context key', () => {
+    expect(permix.getRules({})).toBeNull()
+    expect(permix.key).toBe('someCustomName')
+  })
 })

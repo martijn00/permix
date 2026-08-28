@@ -4,7 +4,6 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { PermissionExtractionError } from './error'
 import { extractPermissions } from './extract'
 
 const temporaryDirectories: string[] = []
@@ -121,6 +120,56 @@ permission({ key: 'projects.read', title: 'Second title' })
           },
         },
       })
-    ).rejects.toBeInstanceOf(PermissionExtractionError)
+    ).rejects.toMatchObject({
+      diagnostics: [
+        {
+          code: 'stale-metadata',
+          file: '<metadata>',
+        },
+      ],
+    })
+  })
+
+  it('applies custom include and exclude globs', async () => {
+    const cwd = await createProject({
+      'src/included.ts': `import { permission } from 'permix'
+permission('projects.read')
+`,
+      'src/skipped.test.ts': `import { permission } from 'permix'
+permission('projects.delete')
+`,
+    })
+
+    await expect(
+      extractPermissions({
+        cwd,
+        include: ['src/**/*.ts'],
+        exclude: ['**/*.test.ts'],
+      })
+    ).resolves.toMatchObject({
+      permissions: [{ key: 'projects.read' }],
+    })
+  })
+
+  it('accepts identical duplicate metadata', async () => {
+    const cwd = await createProject({
+      'src/a.ts': `import { permission } from 'permix'
+permission({ key: 'projects.read', title: 'Read', tags: ['projects'], annotations: { risk: 1 } })
+`,
+      'src/b.ts': `import { permission } from 'permix'
+permission({ key: 'projects.read', title: 'Read', tags: ['projects'], annotations: { risk: 1 } })
+`,
+    })
+
+    await expect(extractPermissions({ cwd })).resolves.toMatchObject({
+      permissions: [
+        {
+          key: 'projects.read',
+          title: 'Read',
+          tags: ['projects'],
+          annotations: { risk: 1 },
+        },
+      ],
+    })
   })
 })

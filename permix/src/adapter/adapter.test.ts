@@ -3,7 +3,7 @@ import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type { ApplyPermissionOverlay, Definition } from '../core'
 import { createPermix } from '../core'
 import { PermixValidationError } from '../standard-schema'
-import { createAdapter, serializeAdapterError } from './index'
+import { AdapterError, createAdapter, serializeAdapterError } from './index'
 import type { AdapterCheckRequest, PermissionAdapter } from './index'
 
 // A type alias preserves concrete keys under Definition's recursive record
@@ -241,6 +241,29 @@ describe(serializeAdapterError, () => {
       },
     ])
     expect(() => JSON.stringify(serialized)).not.toThrow()
+  })
+
+  it('serializes AdapterError issues and validation paths without keys', () => {
+    expect(
+      serializeAdapterError(
+        new AdapterError('validation-failure', 'bad input', [
+          { message: 'missing id' },
+        ])
+      )
+    ).toStrictEqual({
+      code: 'validation-failure',
+      message: 'bad input',
+      issues: [{ message: 'missing id' }],
+    })
+
+    expect(
+      serializeAdapterError(
+        new PermixValidationError('projects.read', [
+          { message: 'plain' },
+          { message: 'keyed', path: [{ key: 'id' }] },
+        ])
+      ).issues
+    ).toStrictEqual([{ message: 'plain' }, { message: 'keyed', path: ['id'] }])
   })
 })
 

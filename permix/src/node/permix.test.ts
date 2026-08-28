@@ -312,6 +312,10 @@ describe('get / getOrThrow', () => {
     const req = createMockRequest()
     expect(() => permix.getOrThrow(req)).toThrow(PermixNotFoundError)
   })
+
+  it('returns null from getRules when missing', () => {
+    expect(permix.getRules(createMockRequest())).toBeNull()
+  })
 })
 
 describe('checkMiddleware without setupMiddleware', () => {

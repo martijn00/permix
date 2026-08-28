@@ -314,6 +314,20 @@ describe('get / getOrThrow', () => {
       name: 'PermixNotFoundError',
     })
   })
+
+  it('returns null from getRules and exposes the factory key', async () => {
+    const app = new Hono()
+    app.get('/', (c) =>
+      c.json({ rules: permix.getRules(c), keyType: typeof permix.key })
+    )
+
+    const res = await app.request('/')
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toStrictEqual({
+      rules: null,
+      keyType: 'symbol',
+    })
+  })
 })
 
 describe('checkMiddleware without setupMiddleware', () => {

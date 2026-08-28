@@ -146,6 +146,9 @@ describe('Supabase verification', () => {
       await expect(
         verifySupabaseUser(client, 'Bearer invalid')
       ).resolves.toBeNull()
+      await expect(
+        verifySupabaseUser(client, { get: () => null })
+      ).resolves.toBeNull()
     }
   )
 })

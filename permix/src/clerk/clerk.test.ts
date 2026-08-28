@@ -6,7 +6,7 @@ import {
 } from '@clerk/backend/internal'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import { serializeAdapterError } from '../adapter'
+import { AdapterError, serializeAdapterError } from '../adapter'
 import type { Definition, DehydratedState, Rules } from '../core'
 import { createPermix } from '../core'
 import {
@@ -16,6 +16,7 @@ import {
   createClerkPermissionsHandler,
   createClerkPermix,
   createClerkPermixClient,
+  createClerkRequestAuthenticator,
 } from './index'
 import type {
   ClerkAuthorizationMappingInput,
@@ -324,6 +325,150 @@ describe('Clerk permissions transport', () => {
       message: 'Clerk permissions endpoint returned an invalid payload.',
     })
   })
+
+  it('maps adapter status codes and malformed client responses', async () => {
+    const post = await createClerkPermissionsHandler(createIntegration())(
+      new Request('https://app.example.test/api/permissions', {
+        method: 'POST',
+      })
+    )
+    expect(post.status).toBe(400)
+
+    const forbidden = createClerkPermissionsHandler(
+      createClerkPermix<TestDefinition>({
+        authenticateRequest: async () => signedIn('user-1'),
+        resolveRules: () => {
+          throw new AdapterError('forbidden', 'No access.')
+        },
+      })
+    )
+    const forbiddenResponse = await forbidden(
+      request({ authorization: 'Bearer token' })
+    )
+    expect(forbiddenResponse.status).toBe(403)
+
+    const unauthenticated = createClerkPermissionsHandler(
+      createClerkPermix<TestDefinition>({
+        authenticateRequest: async () => signedOutAuthObject(),
+        resolveRules: () => fixedRules(true),
+      })
+    )
+    const unauthenticatedResponse = await unauthenticated(
+      request({ authorization: 'Bearer token' })
+    )
+    expect(unauthenticatedResponse.status).toBe(401)
+
+    const invalid = createClerkPermissionsHandler(
+      createClerkPermix<TestDefinition>({
+        authenticateRequest: async () => signedIn('user-1'),
+        resolveRules: () => {
+          throw new AdapterError('validation-failure', 'Bad data.', [
+            { message: 'required', path: ['data'] },
+          ])
+        },
+      })
+    )
+    const invalidResponse = await invalid(
+      request({ authorization: 'Bearer token' })
+    )
+    expect(invalidResponse.status).toBe(400)
+    await expect(invalidResponse.json()).resolves.toMatchObject({
+      error: { code: 'validation-failure', issues: [{ message: 'required' }] },
+    })
+
+    const client = createClerkPermixClient<TestDefinition>({
+      getToken: async () => 'token',
+      organizationId: async () => 'org-1',
+      fetch: async () =>
+        new Response('not-json', {
+          status: 500,
+          headers: { 'content-type': 'text/plain' },
+        }),
+    })
+    await expect(client.getPermissions()).rejects.toMatchObject({
+      code: 'internal-error',
+      message: 'Clerk permissions endpoint returned invalid JSON.',
+    })
+
+    const errorClient = createClerkPermixClient<TestDefinition>({
+      getToken: async () => 'token',
+      fetch: async () =>
+        Response.json(
+          {
+            error: {
+              code: 'forbidden',
+              message: 'No access.',
+              issues: [{ message: 'denied' }],
+            },
+          },
+          { status: 403 }
+        ),
+    })
+    await expect(errorClient.getPermissions()).rejects.toMatchObject({
+      status: 403,
+      code: 'forbidden',
+      issues: [{ message: 'denied' }],
+    })
+
+    const emptyToken = createClerkPermixClient<TestDefinition>({
+      getToken: async () => '',
+      fetch: vi.fn<typeof fetch>(),
+    })
+    await expect(emptyToken.getPermissions()).rejects.toMatchObject({
+      status: 401,
+      code: 'unauthenticated',
+    })
+  })
+
+  it('accepts a SessionAuthObject from authenticateRequest and a catalog', async () => {
+    const integration = createClerkPermix<TestDefinition>({
+      catalog: {
+        schemaVersion: 1,
+        permissions: [{ key: 'documents.read', references: [] }],
+      },
+      authenticateRequest: async () => signedIn('user-1'),
+      resolveRules: (principal) => documentRules(principal.userId),
+    })
+
+    const resolved = await integration.resolve(request())
+    expect(resolved.principal.userId).toBe('user-1')
+    expect(integration.catalog?.permissions).toHaveLength(1)
+  })
+
+  it('treats unrecognized authenticateRequest results as signed out', async () => {
+    const integration = createClerkPermix<TestDefinition>({
+      authenticateRequest: async () => ({ unexpected: true }) as never,
+      resolveRules: () => fixedRules(true),
+    })
+    await expect(integration.resolve(request())).rejects.toSatisfy(
+      (error: unknown) =>
+        serializeAdapterError(error).code === 'unauthenticated'
+    )
+  })
+
+  it('uses global fetch and maps non-error failure bodies', async () => {
+    const fetchImplementation = vi.fn(async () =>
+      Response.json({ unexpected: true }, { status: 500 })
+    )
+    const previous = globalThis.fetch
+    globalThis.fetch = fetchImplementation
+    try {
+      const client = createClerkPermixClient<TestDefinition>({
+        getToken: async () => 'token',
+      })
+      await expect(client.getPermissions()).rejects.toMatchObject({
+        status: 500,
+        code: 'internal-error',
+        message: 'Clerk permissions request failed.',
+      })
+      expect(fetchImplementation).toHaveBeenCalledWith(
+        '/api/permix/clerk/permissions',
+        expect.objectContaining({ method: 'GET' })
+      )
+    } finally {
+      globalThis.fetch = previous
+    }
+  })
 })
 
 describe('Clerk public types', () => {
@@ -404,5 +549,26 @@ function signedIn(
   } as ClerkSessionClaims
   return signedInAuthObject({}, `token-${userId}`, claims)
 }
+
+describe(createClerkRequestAuthenticator, () => {
+  it('authenticates through a client instance and a factory with options', async () => {
+    const authenticateRequest = vi.fn(async () => signedOutAuthObject())
+    const authenticator = createClerkRequestAuthenticator({
+      authenticateRequest: authenticateRequest as never,
+    })
+    const request = new Request('https://example.com')
+    await authenticator(request)
+    expect(authenticateRequest).toHaveBeenCalledWith(request)
+
+    const withOptions = createClerkRequestAuthenticator(
+      async () => ({ authenticateRequest }) as never,
+      { secretKey: 'sk_test' }
+    )
+    await withOptions(request)
+    expect(authenticateRequest).toHaveBeenCalledWith(request, {
+      secretKey: 'sk_test',
+    })
+  })
+})
 
 expectTypeOf<TestDefinition>().toMatchTypeOf<Definition>()

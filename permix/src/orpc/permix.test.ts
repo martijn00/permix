@@ -411,4 +411,9 @@ describe(createPermix, () => {
     // @ts-expect-error using guest's checkMiddleware without guest's setupContext
     withAdmin.use(guest.checkMiddleware('post.create'))
   })
+
+  it('returns null from getRules and exposes the context key', () => {
+    expect(permix.getRules({})).toBeNull()
+    expect(permix.key).toBe('someCustomName')
+  })
 })

@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/vitest'
 
 import { createPermix, PermixRuleNotDefinedError } from '../core'
 import { createComponents, PermixHydrate, PermixProvider } from './components'
-import { usePermix } from './hooks'
+import { createPermixContext, usePermix, usePermixContext } from './hooks'
 
 describe('components', () => {
   it('should check hydration', async () => {
@@ -456,5 +456,81 @@ describe('components', () => {
         </PermixProvider>
       )
     ).toThrow(PermixRuleNotDefinedError)
+  })
+
+  it('reads context getters and rejects a mismatched Check instance', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+    permix.setup({
+      post: { create: true },
+    })
+
+    function Probe() {
+      const value = usePermixContext()
+      return (
+        <div>{`${value.isReady}:${value.rules !== null}`}</div>
+      )
+    }
+
+    const { container } = render(
+      <PermixProvider permix={permix}>
+        <Probe />
+      </PermixProvider>
+    )
+    expect(container).toHaveTextContent('true:true')
+
+    const other = createPermix<{
+      post: ['create']
+    }>()
+    const { Check } = createComponents(other)
+    expect(() =>
+      render(
+        <PermixProvider permix={permix}>
+          <Check path="post.create">secret</Check>
+        </PermixProvider>
+      )
+    ).toThrow('same instance')
+  })
+
+  it('hydrates from a parent context without subscribe', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+    const dehydrated = createPermix<{
+      post: ['create']
+    }>()
+    dehydrated.setup({ post: { create: true } })
+    const custom = createPermixContext<{
+      post: ['create']
+    }>()
+
+    function Probe() {
+      const value = usePermixContext(custom)
+      return <div>{`${value.isReady}:${value.rules !== null}`}</div>
+    }
+
+    function Harness() {
+      const value = React.useMemo(
+        () => ({
+          permix,
+          isReady: false,
+          rules: null,
+        }),
+        []
+      )
+
+      return (
+        <custom.Provider value={value}>
+          <PermixHydrate state={dehydrated.dehydrate()} context={custom}>
+            <Probe />
+          </PermixHydrate>
+        </custom.Provider>
+      )
+    }
+
+    const { container } = render(<Harness />)
+
+    expect(container).toHaveTextContent('false:true')
   })
 })

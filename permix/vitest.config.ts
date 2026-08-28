@@ -27,5 +27,22 @@ export default defineConfig({
       '**/.svelte-kit/**',
       '**/test/next/**',
     ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/**/*.{ts,tsx,svelte}'],
+      exclude: [
+        '**/*.{test,spec}.*',
+        '**/test-utils.ts',
+        '**/request-cache-mock.ts',
+        '**/__fixtures__/**',
+      ],
+      thresholds: {
+        statements: 95,
+        lines: 95,
+        functions: 95,
+        branches: 95,
+      },
+    },
   },
 })

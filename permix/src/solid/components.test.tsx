@@ -241,6 +241,24 @@ describe('components', () => {
     })
   })
 
+  it('renders null otherwise when reverse is set without a fallback', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+    permix.setup({ post: { create: true } })
+    const { Check } = createComponents(permix)
+
+    const { container } = render(() => (
+      <PermixProvider permix={permix}>
+        <Check path="post.create" reverse>
+          <div>hidden</div>
+        </Check>
+      </PermixProvider>
+    ))
+
+    expect(container.innerHTML).not.toContain('hidden')
+  })
+
   it('should validate ts props', () => {
     const permix = createPermix<{
       post: ['create']

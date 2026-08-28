@@ -5,6 +5,7 @@ import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { PermixRuleNotDefinedError } from '../../core/errors'
+import { PermixInvalidActionsError } from '../errors'
 import { createPermix } from './permix'
 
 const users = pgTable('users', {
@@ -69,5 +70,11 @@ describe('drizzle createPermix', () => {
     expectTypeOf(permix.actions).toEqualTypeOf<
       readonly ('create' | 'read' | 'update' | 'delete')[]
     >()
+  })
+
+  it('throws when actions is an empty array', () => {
+    expect(() => createPermix(schema, { actions: [] })).toThrow(
+      PermixInvalidActionsError
+    )
   })
 })

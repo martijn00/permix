@@ -108,4 +108,30 @@ describe(createHooks, () => {
 
     expect(mockFn).toHaveBeenCalledWith('arg')
   })
+
+  it('is a no-op when removing an unknown hook', () => {
+    const { removeHook, callHook } = createHooks()
+    removeHook('missing', vi.fn())
+    callHook('missing')
+  })
+
+  it('is a no-op when unsubscribing after the hook list is cleared', () => {
+    const { hook, clearHook, callHook } = createHooks()
+    const mockFn = vi.fn()
+    const remove = hook('test', mockFn)
+    clearHook('test')
+    remove()
+    callHook('test', 'arg')
+    expect(mockFn).not.toHaveBeenCalled()
+  })
+
+  it('is a no-op when unsubscribing a listener that is no longer registered', () => {
+    const { hook, callHook } = createHooks()
+    const mockFn = vi.fn()
+    const remove = hook('test', mockFn)
+    remove()
+    remove()
+    callHook('test', 'arg')
+    expect(mockFn).not.toHaveBeenCalled()
+  })
 })

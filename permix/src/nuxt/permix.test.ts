@@ -212,4 +212,25 @@ describe('nuxt createPermix', () => {
     expect(editFn({ authorId: 'user-1' })).toBe(true)
     expect(editFn({ authorId: 'user-2' })).toBe(false)
   })
+
+  it('registers hookOnce on the request-scoped instance', async () => {
+    await withEvent(() => {
+      const permix = createPermix<{ post: ['create'] }>()
+      const fn = vi.fn()
+      permix.hookOnce('setup', fn)
+      permix.setup({ post: { create: true } })
+      permix.setup({ post: { create: false } })
+      expect(fn).toHaveBeenCalledOnce()
+    })
+  })
+
+  it('registers hook on the request-scoped instance', async () => {
+    await withEvent(() => {
+      const permix = createPermix<{ post: ['create'] }>()
+      const fn = vi.fn()
+      permix.hook('setup', fn)
+      permix.setup({ post: { create: true } })
+      expect(fn).toHaveBeenCalledOnce()
+    })
+  })
 })

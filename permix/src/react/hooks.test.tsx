@@ -195,4 +195,22 @@ describe('permix react', () => {
 
     expect(() => render(<TestComponent />)).toThrow()
   })
+
+  it('checks against getRules when snapshot rules are still null', () => {
+    const permix = createPermix<{
+      post: ['create']
+    }>()
+
+    function Probe() {
+      const { check } = usePermix(permix)
+      expect(() => check('post.create')).toThrow()
+      return null
+    }
+
+    render(
+      <PermixProvider permix={permix}>
+        <Probe />
+      </PermixProvider>
+    )
+  })
 })

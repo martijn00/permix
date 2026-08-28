@@ -242,4 +242,25 @@ describe('Convex integration', () => {
     expectTypeOf<HandlerContext['identity']>().toEqualTypeOf<UserIdentity>()
     expectTypeOf<HandlerContext['permix']>().toEqualTypeOf<Permix<Definition>>()
   })
+
+  it('forwards coverage validation through the Convex wrapper', () => {
+    const convex = createConvexPermix<Definition, DataModel>({
+      resolveRules: () => ({
+        documents: { read: true, update: () => false },
+      }),
+      catalog: {
+        schemaVersion: 1,
+        permissions: [
+          { key: 'documents.read', references: [] },
+          { key: 'documents.update', references: [] },
+        ],
+      },
+    })
+
+    expect(convex.validateCoverage(['documents.read'])).toStrictEqual({
+      valid: false,
+      unknown: [],
+      uncovered: ['documents.update'],
+    })
+  })
 })

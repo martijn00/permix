@@ -42,6 +42,9 @@ describe('permission artifacts', () => {
           {
             key: 'projects.read',
             title: 'Read projects',
+            description: 'View a project',
+            tags: ['projects'],
+            annotations: { risk: 1 },
             references: [{ file: 'src/a.ts', line: 1, column: 1 }],
           },
           {
@@ -59,6 +62,9 @@ describe('permission artifacts', () => {
       expect(source).toContain("read: 'projects.read'")
       expect(source).toContain("invite: 'workspace.members.invite'")
       expect(source).toContain("title: 'Read projects'")
+      expect(source).toContain("description: 'View a project'")
+      expect(source).toContain('tags:')
+      expect(source).toContain('risk: 1')
       expect(source).toContain('members: {\n      invite')
       expect(source).toContain('createPermissionOverlay<ExtractedDefinition>()')
     })
@@ -81,6 +87,47 @@ describe('permission artifacts', () => {
       expect(() => renderPermissionModule(catalog)).toThrow(
         PermissionExtractionError
       )
+    })
+
+    it('rejects reserved generated property names', () => {
+      for (const key of [
+        '__proto__.read',
+        'constructor.read',
+        'prototype.read',
+      ]) {
+        expect(() =>
+          renderPermissionModule({
+            schemaVersion: 1,
+            permissions: [{ key, references: [] }],
+          })
+        ).toThrow(PermissionExtractionError)
+      }
+    })
+
+    it('quotes TypeScript properties that are not identifiers', () => {
+      const source = renderPermissionModule({
+        schemaVersion: 1,
+        permissions: [
+          {
+            key: '2fa.enable',
+            title: "O'Reilly",
+            references: [],
+          },
+        ],
+      })
+
+      expect(source).toContain("'2fa'")
+      expect(source).toContain("enable: '2fa.enable'")
+      expect(source).toContain("title: 'O\\'Reilly'")
+    })
+
+    it('renders an empty catalog', () => {
+      const source = renderPermissionModule({
+        schemaVersion: 1,
+        permissions: [],
+      })
+
+      expect(source).toContain('export const permissionKeys = [] as const')
     })
   })
 
@@ -124,6 +171,51 @@ permission(getPermissionKey())
       await expect(checkPermissions({ cwd })).rejects.toBeInstanceOf(
         PermissionExtractionError
       )
+    })
+
+    it('writes custom output paths and reports stale artifacts', async () => {
+      const { cwd } = await createProject(
+        `import { permission } from 'permix'
+permission('tasks.comment')
+`
+      )
+      const moduleOutput = 'generated/permissions.ts'
+      const catalogOutput = 'generated/catalog.json'
+
+      await generatePermissions({ cwd, moduleOutput, catalogOutput })
+      await expect(
+        readFile(path.join(cwd, moduleOutput), 'utf-8')
+      ).resolves.toContain('tasks.comment')
+      await expect(
+        checkPermissions({ cwd, moduleOutput, catalogOutput })
+      ).resolves.toMatchObject({ valid: true, stale: [] })
+
+      await writeFile(path.join(cwd, catalogOutput), '{}\n')
+      const stale = await checkPermissions({ cwd, moduleOutput, catalogOutput })
+      expect(stale.valid).toBe(false)
+      expect(stale.stale).toHaveLength(1)
+    })
+
+    it('rejects permissions that collide at the same tree level', async () => {
+      const nestedThenAction = await createProject(
+        `import { permission } from 'permix'
+permission('projects.read')
+permission('projects')
+`
+      )
+      await expect(
+        generatePermissions({ cwd: nestedThenAction.cwd })
+      ).rejects.toBeInstanceOf(PermissionExtractionError)
+
+      const actionThenNested = await createProject(
+        `import { permission } from 'permix'
+permission('projects')
+permission('projects.read')
+`
+      )
+      await expect(
+        generatePermissions({ cwd: actionThenNested.cwd })
+      ).rejects.toBeInstanceOf(PermissionExtractionError)
     })
   })
 })

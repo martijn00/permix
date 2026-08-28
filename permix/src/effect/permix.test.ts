@@ -437,4 +437,35 @@ describe(createPermix, () => {
 
     expect(called).toBe(1)
   })
+
+  it('registers hookOnce and hydrates after setup', async () => {
+    const permix = createPermix<PermissionsDefinition>()
+    let called = 0
+
+    const program = Effect.gen(function* program() {
+      yield* permix.hookOnce('setup', () => {
+        called++
+      })
+      yield* permix.setup({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+      yield* permix.setup({
+        post: { create: false, read: false, update: false },
+        user: { delete: false },
+      })
+      yield* permix.hydrate({
+        post: { create: true, read: false, update: false },
+        user: { delete: false },
+      })
+      return yield* permix.check('post.create')
+    })
+
+    const result = await Effect.runPromise(
+      program.pipe(Effect.provide(permix.layer()))
+    )
+
+    expect(called).toBe(1)
+    expect(result).toBe(true)
+  })
 })
