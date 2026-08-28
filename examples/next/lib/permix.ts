@@ -1,26 +1,16 @@
-import type { ValidateDefinition } from 'permix'
 import { createPermix } from 'permix/next'
 
-export interface Post {
-  id: string
-  authorId: string
-}
+import { getSession } from './auth'
+import type { PermissionsDefinition } from './permissions'
+import { publicReadTemplate, rulesForSession } from './permissions'
 
-export type PermissionsDefinition = ValidateDefinition<{
-  post: [
-    { name: 'create'; type: Post },
-    { name: 'read'; type: Post },
-    { name: 'update'; type: Post },
-    { name: 'delete'; type: Post },
-  ]
-}>
+export const permix = createPermix<PermissionsDefinition>(async () =>
+  rulesForSession(await getSession())
+)
 
-export const permix = createPermix<PermissionsDefinition>()
+export const publicPermix = createPermix<PermissionsDefinition>(() =>
+  publicReadTemplate()
+)
 
-export const adminTemplate = permix.template({
-  post: { create: true, read: true, update: true, delete: true },
-})
-
-export const guestTemplate = permix.template({
-  post: { create: false, read: true, update: false, delete: false },
-})
+export { adminTemplate, guestTemplate, rulesForSession } from './permissions'
+export type { PermissionsDefinition, Post } from './permissions'

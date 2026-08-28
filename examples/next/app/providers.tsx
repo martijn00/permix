@@ -1,14 +1,16 @@
 'use client'
 
 import type { DehydratedState } from 'permix'
-import { createPermix } from 'permix'
-import { PermixHydrate, PermixProvider } from 'permix/react'
 import { useLayoutEffect } from 'react'
 
 import type { Session } from '@/lib/auth'
-import type { PermissionsDefinition } from '@/lib/permix'
-
-const permix = createPermix<PermissionsDefinition>()
+import {
+  clientPermix,
+  PermixHydrate,
+  PermixProvider,
+} from '@/lib/client-permix'
+import { rulesForSession } from '@/lib/permissions'
+import type { PermissionsDefinition } from '@/lib/permissions'
 
 function ClientRulesSetup({
   session,
@@ -18,14 +20,7 @@ function ClientRulesSetup({
   children: React.ReactNode
 }) {
   useLayoutEffect(() => {
-    permix.setup({
-      post: {
-        create: !!session,
-        read: true,
-        update: (post) => post?.authorId === session?.userId,
-        delete: session?.role === 'admin',
-      },
-    })
+    clientPermix.setup(rulesForSession(session))
   }, [session])
 
   return children
@@ -41,12 +36,10 @@ export function Providers({
   children: React.ReactNode
 }) {
   return (
-    <PermixProvider permix={permix}>
+    <PermixProvider>
       <PermixHydrate state={state}>
         <ClientRulesSetup session={session}>{children}</ClientRulesSetup>
       </PermixHydrate>
     </PermixProvider>
   )
 }
-
-export { permix }

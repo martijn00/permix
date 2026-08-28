@@ -1,12 +1,10 @@
 'use client'
 
-import { usePermix } from 'permix/react'
-
-import { permix } from '@/app/providers'
-import type { Post } from '@/lib/permix'
+import { usePermix } from '@/lib/client-permix'
+import type { Post } from '@/lib/permissions'
 
 export function EditButton({ post }: { post: Post }) {
-  const { check } = usePermix(permix)
+  const { check } = usePermix()
 
   if (!check('post.update', post)) {
     return null

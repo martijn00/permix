@@ -43,7 +43,12 @@ const svelte = createSvelteComponents(core)
 const drizzle = createDrizzlePermix({})
 const drizzleLegacy = createDrizzleLegacyPermix({})
 const effect = createEffectPermix<PostDefinition>()
-const next = createNextPermix<PostDefinition>()
+const next = createNextPermix<PostDefinition>(() => ({
+  post: {
+    create: true,
+    read: true,
+  },
+}))
 const tanstackStart = createTanstackStartPermix<PostDefinition>()
 
 core.setup({

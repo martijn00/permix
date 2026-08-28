@@ -1,0 +1,25 @@
+{
+  "name": "@permix/next-integration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node ./run.mjs"
+  },
+  "dependencies": {
+    "permix": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@next/playwright": "16.3.3",
+    "@playwright/test": "^1.55.1",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "next-15": "npm:next@15.5.24",
+    "next-16-0": "npm:next@16.0.11",
+    "next-16-3": "npm:next@16.3.3",
+    "typescript": "catalog:",
+    "typescript59": "catalog:typescript-classic"
+  }
+}

@@ -2,3 +2,6 @@ node_modules
 .DS_Store
 .pnpm-store
 .turbo
+permix/test/next/.scratch
+permix/test/next/playwright-report
+permix/test/next/test-results

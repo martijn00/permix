@@ -1,5 +1,6 @@
 packages:
   - permix
+  - permix/test/next
   - docs
   - examples/*
 allowBuilds:
